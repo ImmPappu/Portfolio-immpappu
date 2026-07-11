@@ -1027,8 +1027,8 @@ function Certifications() {
 /* -------------------------------------------------------------------------- */
 
 function Stats() {
-  const gh = "pappukumar"; // replace with real handle
-  const lc = "pappukumar";
+  const gh = "Pappu Kumar"; // replace with real handle
+  const lc = "Pappu Kumar";
   const cards = [
     {
       title: "GitHub Stats",
