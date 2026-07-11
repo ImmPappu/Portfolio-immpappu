@@ -91,10 +91,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: TITLE },
       { name: "twitter:description", content: DESCRIPTION },
+      { title: "Pappu Kumar" },
+      { property: "og:title", content: "Pappu Kumar" },
+      { name: "twitter:title", content: "Pappu Kumar" },
+      { name: "description", content: "A modern, responsive personal portfolio website showcasing a Software Engineer's skills, projects, and achievements." },
+      { property: "og:description", content: "A modern, responsive personal portfolio website showcasing a Software Engineer's skills, projects, and achievements." },
+      { name: "twitter:description", content: "A modern, responsive personal portfolio website showcasing a Software Engineer's skills, projects, and achievements." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/V6DvXA58OVU0urs3ES2BK2fPUdS2/social-images/social-1783759446316-ChatGPTImageJun6202612_47_51P_(1).webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/V6DvXA58OVU0urs3ES2BK2fPUdS2/social-images/social-1783759446316-ChatGPTImageJun6202612_47_51P_(1).webp" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
