@@ -157,7 +157,7 @@ const PROJECTS: Project[] = [
     title: "Photo Studio Automation",
     category: "Automation",
     description:
-      "Automates passport photo production — removes background, corrects colors, crops precisely, and lays out a print-ready sheet.",
+      "Automates passport photo production — removes background, corrects colors, crops precisely, and lays out a print-ready sheet. (In Progress)",
     stack: ["n8n", "Image APIs", "Node", "Automation"],
     highlights: [
       "One-click background removal",
@@ -200,17 +200,42 @@ const CERTIFICATIONS = [
 
 const ACHIEVEMENTS = [
   { value: "3.6K+", label: "YouTube Subscribers" },
-  { value: "10+", label: "Automation Workflows" },
-  { value: "3+", label: "Cloud Certifications" },
-  { value: "24/7", label: "Building & Learning" },
+  { value: "50+", label: "DSA Problems Solved" },
+  { value: "2+", label: "Cloud Certifications" },
+  { value: "100%", label: "Learning Mindset" },
 ];
 
 const SOCIALS = [
-  { label: "Email", href: "mailto:pappu@example.com", icon: Mail, handle: "pappu@example.com" },
-  { label: "GitHub", href: "https://github.com/", icon: Github, handle: "@pappukumar" },
-  { label: "LinkedIn", href: "https://linkedin.com/", icon: Linkedin, handle: "in/pappukumar" },
-  { label: "YouTube", href: "https://youtube.com/", icon: Youtube, handle: "@pappukumar" },
-  { label: "Instagram", href: "https://instagram.com/", icon: Instagram, handle: "@pappukumar" },
+  {
+    label: "Email",
+    href: "mailto:your-email@gmail.com",
+    icon: Mail,
+    handle: "your-email@gmail.com",
+  },
+  {
+    label: "GitHub",
+    href: "https://github.com/ImmPappu",
+    icon: Github,
+    handle: "@ImmPappu",
+  },
+  {
+    label: "LinkedIn",
+    href: "https://linkedin.com/in/immpappu",
+    icon: Linkedin,
+    handle: "/in/immpappu",
+  },
+  {
+    label: "YouTube",
+    href: "https://youtube.com/@PeditzVerse",
+    icon: Youtube,
+    handle: "@PeditzVerse",
+  },
+  {
+    label: "Instagram",
+    href: "https://instagram.com/i_mm_pappu",
+    icon: Instagram,
+    handle: "@i_mm_pappu",
+  },
 ];
 
 /* -------------------------------------------------------------------------- */
