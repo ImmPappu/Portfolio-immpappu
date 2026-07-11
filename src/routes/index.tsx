@@ -208,9 +208,9 @@ const ACHIEVEMENTS = [
 const SOCIALS = [
   {
     label: "Email",
-    href: "mailto:your-email@gmail.com",
+    href: "mailto:appubdm06@gmail.com",
     icon: Mail,
-    handle: "your-email@gmail.com",
+    handle: "appubdm06@gmail.com",
   },
   {
     label: "GitHub",
