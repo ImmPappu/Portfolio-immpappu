@@ -1217,7 +1217,7 @@ function Contact() {
           <div className="mt-5 flex items-center justify-between gap-3">
             <p className="text-xs text-muted-foreground">
               Or email me directly at{" "}
-              <span className="text-foreground">pappu@example.com</span>
+              <span className="text-foreground">appubdm06@gmail.com</span>
             </p>
             <button
               type="submit"
