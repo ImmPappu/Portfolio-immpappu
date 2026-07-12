@@ -1,15 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { motion, useScroll, useSpring, AnimatePresence } from "motion/react";
 import {
+  Activity,
+  AlertCircle,
   ArrowRight,
   ArrowUpRight,
   Award,
+  BookOpen,
   Briefcase,
   Cloud,
   Code2,
   Cpu,
   Download,
+  Flame,
+  GitFork,
   Github,
   Instagram,
   Linkedin,
@@ -19,7 +24,10 @@ import {
   Rocket,
   Send,
   Sparkles,
+  Star,
   Terminal,
+  Trophy,
+  Users,
   Wrench,
   X,
   Youtube,
