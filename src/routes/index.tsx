@@ -63,45 +63,46 @@ type SkillGroup = {
   title: string;
   icon: LucideIcon;
   color: "green" | "blue";
-  skills: { name: string; level: number }[];
+  skills: string[];
 };
 
 const SKILL_GROUPS: SkillGroup[] = [
   {
-    title: "Programming",
+    title: "Programming Languages",
     icon: Code2,
     color: "green",
-    skills: [
-      { name: "Java", level: 88 },
-      { name: "SQL", level: 78 },
-      { name: "JavaScript", level: 72 },
-      { name: "HTML", level: 92 },
-      { name: "CSS", level: 85 },
-    ],
+    skills: ["Java", "C", "Python", "JavaScript", "HTML", "CSS", "SQL"],
   },
   {
-    title: "Core CS",
+    title: "Frontend",
+    icon: Rocket,
+    color: "blue",
+    skills: ["React", "TanStack Router", "Tailwind CSS", "Vite"],
+  },
+  {
+    title: "Core Computer Science",
     icon: Cpu,
     color: "blue",
     skills: [
-      { name: "Data Structures & Algorithms", level: 82 },
-      { name: "Object Oriented Programming", level: 88 },
-      { name: "DBMS", level: 80 },
-      { name: "Operating Systems", level: 75 },
-      { name: "Computer Networks", level: 72 },
+      "Data Structures & Algorithms",
+      "Object Oriented Programming",
+      "DBMS",
+      "Operating Systems",
+      "Computer Networks",
     ],
   },
   {
     title: "Cloud & DevOps",
     icon: Cloud,
-    color: "blue",
+    color: "green",
     skills: [
-      { name: "AWS", level: 78 },
-      { name: "Linux", level: 80 },
-      { name: "Git & GitHub", level: 90 },
-      { name: "Docker (Learning)", level: 55 },
-      { name: "Kubernetes (Learning)", level: 40 },
-      { name: "CI / CD (Learning)", level: 50 },
+      "AWS",
+      "Linux",
+      "Git",
+      "GitHub",
+      "Docker (Learning)",
+      "Kubernetes (Learning)",
+      "CI/CD (Learning)",
     ],
   },
   {
@@ -109,23 +110,24 @@ const SKILL_GROUPS: SkillGroup[] = [
     icon: Sparkles,
     color: "green",
     skills: [
-      { name: "n8n", level: 90 },
-      { name: "Gemini API", level: 82 },
-      { name: "YouTube Data API", level: 80 },
-      { name: "Google Sheets API", level: 78 },
-      { name: "Google Drive API", level: 76 },
+      "n8n",
+      "Gemini API",
+      "YouTube Data API",
+      "Google Sheets API",
+      "Google Drive API",
     ],
   },
   {
     title: "Tools",
     icon: Wrench,
-    color: "green",
+    color: "blue",
     skills: [
-      { name: "VS Code", level: 95 },
-      { name: "IntelliJ IDEA", level: 85 },
-      { name: "Canva", level: 88 },
-      { name: "Photoshop", level: 70 },
-      { name: "DaVinci Resolve", level: 72 },
+      "VS Code",
+      "IntelliJ IDEA",
+      "GitHub Desktop",
+      "Canva",
+      "Adobe Photoshop",
+      "n8n",
     ],
   },
 ];
@@ -735,7 +737,7 @@ function Skills() {
           Toolkit I <span className="text-gradient">build with.</span>
         </>
       }
-      intro="A snapshot of the languages, tools, and platforms I use — plus the ones I'm actively leveling up in."
+      intro="Languages, frameworks, and platforms I actively use — grouped by domain, no self-rated percentages."
     >
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {SKILL_GROUPS.map((group, i) => (
@@ -743,11 +745,15 @@ function Skills() {
             key={group.title}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: i * 0.05 }}
-            className="glass group relative overflow-hidden rounded-2xl p-6 transition-all hover:border-white/20"
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.45, delay: i * 0.05 }}
+            className="glass group relative overflow-hidden rounded-2xl p-6 transition-all hover:-translate-y-1 hover:border-white/20"
           >
-            <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-brand-green/10 blur-3xl transition-opacity group-hover:opacity-100" />
+            <div
+              className={`pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full blur-3xl transition-opacity duration-500 ${
+                group.color === "green" ? "bg-brand-green/10" : "bg-brand-blue/10"
+              } opacity-60 group-hover:opacity-100`}
+            />
             <div className="relative flex items-center gap-3">
               <div
                 className={`grid h-10 w-10 place-items-center rounded-xl ${
@@ -756,30 +762,14 @@ function Skills() {
                     : "bg-brand-blue/15 text-brand-blue"
                 }`}
               >
-                <group.icon className="h-5 w-5" />
+                <group.icon className="h-5 w-5" aria-hidden="true" />
               </div>
               <h3 className="font-display text-lg font-semibold">{group.title}</h3>
             </div>
-            <ul className="relative mt-5 space-y-3">
-              {group.skills.map((s) => (
-                <li key={s.name}>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-foreground/85">{s.name}</span>
-                    <span className="font-mono text-[11px] text-muted-foreground">{s.level}%</span>
-                  </div>
-                  <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-white/5">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      whileInView={{ width: `${s.level}%` }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 1, ease: "easeOut" }}
-                      className={`h-full rounded-full ${
-                        group.color === "green"
-                          ? "bg-linear-to-r from-brand-green to-brand-cyan"
-                          : "bg-linear-to-r from-brand-blue to-brand-cyan"
-                      }`}
-                    />
-                  </div>
+            <ul className="relative mt-5 flex flex-wrap gap-2">
+              {group.skills.map((name) => (
+                <li key={name}>
+                  <SkillBadge name={name} color={group.color} />
                 </li>
               ))}
             </ul>
@@ -787,6 +777,31 @@ function Skills() {
         ))}
       </div>
     </Section>
+  );
+}
+
+function SkillBadge({ name, color }: { name: string; color: "green" | "blue" }) {
+  const learning = /learning/i.test(name);
+  const base =
+    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-200 will-change-transform";
+  const tone = learning
+    ? "border-yellow-400/25 bg-yellow-400/[0.06] text-yellow-200/90 hover:border-yellow-400/50 hover:shadow-[0_0_20px_-6px_rgba(250,204,21,0.5)]"
+    : color === "green"
+      ? "border-brand-green/25 bg-brand-green/[0.06] text-foreground/90 hover:border-brand-green/60 hover:text-brand-green hover:shadow-[0_0_22px_-6px_var(--brand-green)]"
+      : "border-brand-blue/25 bg-brand-blue/[0.06] text-foreground/90 hover:border-brand-blue/60 hover:text-brand-blue hover:shadow-[0_0_22px_-6px_var(--brand-blue)]";
+  return (
+    <span className={`${base} ${tone} hover:-translate-y-0.5`}>
+      <span
+        className={`h-1.5 w-1.5 rounded-full ${
+          learning
+            ? "bg-yellow-400"
+            : color === "green"
+              ? "bg-brand-green"
+              : "bg-brand-blue"
+        }`}
+      />
+      {name}
+    </span>
   );
 }
 
