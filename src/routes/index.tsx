@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { motion, useScroll, useSpring, AnimatePresence } from "motion/react";
+import emailjs from "@emailjs/browser";
 import {
   Activity,
   AlertCircle,
@@ -13,6 +14,8 @@ import {
   Code2,
   Cpu,
   Download,
+  CheckCircle2,
+  Loader2,
   Flame,
   GitFork,
   Github,
@@ -577,8 +580,10 @@ function Hero() {
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </a>
             <a
-              href="#"
-              onClick={(e) => e.preventDefault()}
+              href="/Pappu_Kumar_Resume.pdf"
+              download="Pappu_Kumar_Resume.pdf"
+              target="_blank"
+              rel="noreferrer"
               className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-foreground backdrop-blur transition-colors hover:bg-white/10"
             >
               <Download className="h-4 w-4" />
@@ -1461,16 +1466,60 @@ function LeetCodeSection() {
   useEffect(() => {
     if (!inView) return;
     let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch(`https://leetcode-stats-api.herokuapp.com/${LEETCODE_USER}`);
-        if (!res.ok) throw new Error("lc");
-        const json: LcStats = await res.json();
-        if (json.status && json.status !== "success") throw new Error("lc-status");
-        if (!cancelled) setData(json);
-      } catch {
-        if (!cancelled) setError("Unable to fetch LeetCode data.");
+    const CACHE_KEY = `lc-stats-${LEETCODE_USER}`;
+    const CACHE_TTL = 1000 * 60 * 60 * 6; // 6h
+    try {
+      const cached = typeof sessionStorage !== "undefined" ? sessionStorage.getItem(CACHE_KEY) : null;
+      if (cached) {
+        const parsed = JSON.parse(cached) as { t: number; d: LcStats };
+        if (Date.now() - parsed.t < CACHE_TTL) setData(parsed.d);
       }
+    } catch {}
+
+    const endpoints = [
+      `https://leetcode-api-faisalshohag.vercel.app/${LEETCODE_USER}`,
+      `https://alfa-leetcode-api.onrender.com/userProfile/${LEETCODE_USER}`,
+    ];
+
+    (async () => {
+      for (const url of endpoints) {
+        try {
+          const res = await fetch(url);
+          if (!res.ok) continue;
+          const raw = await res.json();
+          if (raw?.errors || raw?.error) continue;
+          const totalSolved = raw.totalSolved ?? raw.solvedProblem ?? 0;
+          if (!totalSolved && !raw.easySolved) continue;
+          const acceptanceRate =
+            raw.acceptanceRate ??
+            (raw.matchedUserStats?.actSessionBeatsPercentage ? undefined : undefined);
+          const normalized: LcStats = {
+            status: "success",
+            totalSolved,
+            totalQuestions: raw.totalQuestions ?? 0,
+            easySolved: raw.easySolved ?? 0,
+            totalEasy: raw.totalEasy ?? 0,
+            mediumSolved: raw.mediumSolved ?? 0,
+            totalMedium: raw.totalMedium ?? 0,
+            hardSolved: raw.hardSolved ?? 0,
+            totalHard: raw.totalHard ?? 0,
+            acceptanceRate: typeof acceptanceRate === "number" ? Math.round(acceptanceRate * 10) / 10 : 0,
+            ranking: raw.ranking ?? 0,
+            contributionPoints: raw.contributionPoint ?? raw.contributionPoints ?? 0,
+            reputation: raw.reputation ?? 0,
+            submissionCalendar: raw.submissionCalendar ?? {},
+          };
+          if (cancelled) return;
+          setData(normalized);
+          try {
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: normalized }));
+          } catch {}
+          return;
+        } catch {
+          // try next
+        }
+      }
+      if (!cancelled) setError("Unable to fetch LeetCode data right now.");
     })();
     return () => {
       cancelled = true;
@@ -1704,7 +1753,6 @@ function Experience() {
 /* -------------------------------------------------------------------------- */
 
 function Contact() {
-  const [sent, setSent] = useState(false);
   return (
     <Section
       id="contact"
@@ -1738,70 +1786,191 @@ function Contact() {
           ))}
         </div>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            setSent(true);
-            setTimeout(() => setSent(false), 3500);
-            (e.currentTarget as HTMLFormElement).reset();
-          }}
-          className="glass rounded-2xl p-6"
-        >
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="grid gap-1.5 text-sm">
-              <span className="text-muted-foreground">Name</span>
-              <input
-                required
-                name="name"
-                className="rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm outline-none transition-colors focus:border-brand-green/60"
-                placeholder="Your name"
-              />
-            </label>
-            <label className="grid gap-1.5 text-sm">
-              <span className="text-muted-foreground">Email</span>
-              <input
-                required
-                type="email"
-                name="email"
-                className="rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm outline-none transition-colors focus:border-brand-green/60"
-                placeholder="you@email.com"
-              />
-            </label>
-          </div>
-          <label className="mt-4 grid gap-1.5 text-sm">
-            <span className="text-muted-foreground">Subject</span>
-            <input
-              name="subject"
-              className="rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm outline-none transition-colors focus:border-brand-green/60"
-              placeholder="What's this about?"
-            />
-          </label>
-          <label className="mt-4 grid gap-1.5 text-sm">
-            <span className="text-muted-foreground">Message</span>
-            <textarea
-              required
-              name="message"
-              rows={5}
-              className="resize-none rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm outline-none transition-colors focus:border-brand-green/60"
-              placeholder="Tell me a bit more..."
-            />
-          </label>
-          <div className="mt-5 flex items-center justify-between gap-3">
-            <p className="text-xs text-muted-foreground">
-              Or email me directly at{" "}
-              <span className="text-foreground">appubdm06@gmail.com</span>
-            </p>
-            <button
-              type="submit"
-              className="group inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-brand-green to-brand-cyan px-5 py-2.5 text-sm font-semibold text-background shadow-lg shadow-brand-green/20 transition-all hover:shadow-[0_0_30px_-8px_var(--brand-green)]"
-            >
-              {sent ? "Sent!" : "Send Message"}
-              <Send className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </button>
-          </div>
-        </form>
+        <ContactForm />
       </div>
     </Section>
+  );
+}
+
+type FormStatus = "idle" | "sending" | "success" | "error";
+
+function ContactForm() {
+  const [status, setStatus] = useState<FormStatus>("idle");
+  const [errorMsg, setErrorMsg] = useState<string>("");
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID as string | undefined;
+  const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID as string | undefined;
+  const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY as string | undefined;
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const fd = new FormData(form);
+    const name = String(fd.get("name") ?? "").trim();
+    const email = String(fd.get("email") ?? "").trim();
+    const subject = String(fd.get("subject") ?? "").trim();
+    const message = String(fd.get("message") ?? "").trim();
+
+    if (name.length < 2) {
+      setStatus("error");
+      setErrorMsg("Please enter your name (min 2 characters).");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setStatus("error");
+      setErrorMsg("Please enter a valid email address.");
+      return;
+    }
+    if (message.length < 10) {
+      setStatus("error");
+      setErrorMsg("Message should be at least 10 characters.");
+      return;
+    }
+
+    setStatus("sending");
+    setErrorMsg("");
+
+    try {
+      if (SERVICE_ID && TEMPLATE_ID && PUBLIC_KEY) {
+        await emailjs.send(
+          SERVICE_ID,
+          TEMPLATE_ID,
+          {
+            from_name: name,
+            from_email: email,
+            reply_to: email,
+            subject: subject || "New message from portfolio",
+            message,
+            to_email: "appubdm06@gmail.com",
+          },
+          { publicKey: PUBLIC_KEY },
+        );
+        setStatus("success");
+        form.reset();
+        setTimeout(() => setStatus("idle"), 5000);
+      } else {
+        // Fallback: open user's mail client pre-filled to appubdm06@gmail.com
+        const body = `Name: ${name}\nEmail: ${email}\n\n${message}`;
+        const mailto = `mailto:appubdm06@gmail.com?subject=${encodeURIComponent(
+          subject || "Portfolio contact",
+        )}&body=${encodeURIComponent(body)}`;
+        window.location.href = mailto;
+        setStatus("success");
+        setTimeout(() => setStatus("idle"), 5000);
+      }
+    } catch (err) {
+      console.error("EmailJS send failed", err);
+      setStatus("error");
+      setErrorMsg("Sorry, message failed to send. Please email me directly at appubdm06@gmail.com.");
+    }
+  }
+
+  const sending = status === "sending";
+
+  return (
+    <form ref={formRef} onSubmit={handleSubmit} className="glass rounded-2xl p-6" noValidate>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="grid gap-1.5 text-sm">
+          <span className="text-muted-foreground">Name</span>
+          <input
+            required
+            name="name"
+            maxLength={80}
+            disabled={sending}
+            className="rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm outline-none transition-colors focus:border-brand-green/60 disabled:opacity-60"
+            placeholder="Your name"
+          />
+        </label>
+        <label className="grid gap-1.5 text-sm">
+          <span className="text-muted-foreground">Email</span>
+          <input
+            required
+            type="email"
+            name="email"
+            maxLength={120}
+            disabled={sending}
+            className="rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm outline-none transition-colors focus:border-brand-green/60 disabled:opacity-60"
+            placeholder="you@email.com"
+          />
+        </label>
+      </div>
+      <label className="mt-4 grid gap-1.5 text-sm">
+        <span className="text-muted-foreground">Subject</span>
+        <input
+          name="subject"
+          maxLength={120}
+          disabled={sending}
+          className="rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm outline-none transition-colors focus:border-brand-green/60 disabled:opacity-60"
+          placeholder="What's this about?"
+        />
+      </label>
+      <label className="mt-4 grid gap-1.5 text-sm">
+        <span className="text-muted-foreground">Message</span>
+        <textarea
+          required
+          name="message"
+          rows={5}
+          maxLength={2000}
+          disabled={sending}
+          className="resize-none rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm outline-none transition-colors focus:border-brand-green/60 disabled:opacity-60"
+          placeholder="Tell me a bit more..."
+        />
+      </label>
+
+      <AnimatePresence mode="wait">
+        {status === "success" && (
+          <motion.div
+            key="success"
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="mt-4 flex items-start gap-2 rounded-lg border border-brand-green/30 bg-brand-green/10 px-3 py-2.5 text-sm text-brand-green"
+          >
+            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>Message sent — I&apos;ll get back to you soon.</span>
+          </motion.div>
+        )}
+        {status === "error" && (
+          <motion.div
+            key="error"
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="mt-4 flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2.5 text-sm text-red-300"
+          >
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>{errorMsg}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-xs text-muted-foreground">
+          Or email me directly at{" "}
+          <a href="mailto:appubdm06@gmail.com" className="text-foreground underline-offset-4 hover:underline">
+            appubdm06@gmail.com
+          </a>
+        </p>
+        <button
+          type="submit"
+          disabled={sending}
+          className="group inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-brand-green to-brand-cyan px-5 py-2.5 text-sm font-semibold text-background shadow-lg shadow-brand-green/20 transition-all hover:shadow-[0_0_30px_-8px_var(--brand-green)] disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          {sending ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Sending...
+            </>
+          ) : (
+            <>
+              Send Message
+              <Send className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </>
+          )}
+        </button>
+      </div>
+    </form>
   );
 }
 
