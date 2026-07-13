@@ -1833,7 +1833,10 @@ function Footer() {
             </a>
           ))}
         </div>
-        <p className="font-mono text-xs text-muted-foreground">© {new Date().getFullYear()} — Built with love in India</p>
+        <p className="whitespace-pre-line text-center font-mono text-xs text-muted-foreground sm:text-right">
+          © {new Date().getFullYear()} — Made with React + TypeScript + Tailwind + Vite
+          {"\n\n\u00a0 \u00a0 \u00a0 \u00a0 \u00a0 \u00a0 \u00a0 \u00a0 \u00a0"}Hosted on Vercel
+        </p>
       </div>
     </footer>
   );
