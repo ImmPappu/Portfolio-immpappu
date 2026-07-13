@@ -1753,7 +1753,6 @@ function Experience() {
 /* -------------------------------------------------------------------------- */
 
 function Contact() {
-  const [sent, setSent] = useState(false);
   return (
     <Section
       id="contact"
