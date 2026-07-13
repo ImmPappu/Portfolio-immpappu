@@ -14,6 +14,8 @@ import {
   Code2,
   Cpu,
   Download,
+  CheckCircle2,
+  Loader2,
   Flame,
   GitFork,
   Github,
