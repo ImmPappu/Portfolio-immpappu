@@ -580,8 +580,10 @@ function Hero() {
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </a>
             <a
-              href="#"
-              onClick={(e) => e.preventDefault()}
+              href="/Pappu_Kumar_Resume.pdf"
+              download="Pappu_Kumar_Resume.pdf"
+              target="_blank"
+              rel="noreferrer"
               className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-foreground backdrop-blur transition-colors hover:bg-white/10"
             >
               <Download className="h-4 w-4" />
