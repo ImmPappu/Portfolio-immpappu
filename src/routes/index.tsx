@@ -1466,16 +1466,60 @@ function LeetCodeSection() {
   useEffect(() => {
     if (!inView) return;
     let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch(`https://leetcode-stats-api.herokuapp.com/${LEETCODE_USER}`);
-        if (!res.ok) throw new Error("lc");
-        const json: LcStats = await res.json();
-        if (json.status && json.status !== "success") throw new Error("lc-status");
-        if (!cancelled) setData(json);
-      } catch {
-        if (!cancelled) setError("Unable to fetch LeetCode data.");
+    const CACHE_KEY = `lc-stats-${LEETCODE_USER}`;
+    const CACHE_TTL = 1000 * 60 * 60 * 6; // 6h
+    try {
+      const cached = typeof sessionStorage !== "undefined" ? sessionStorage.getItem(CACHE_KEY) : null;
+      if (cached) {
+        const parsed = JSON.parse(cached) as { t: number; d: LcStats };
+        if (Date.now() - parsed.t < CACHE_TTL) setData(parsed.d);
       }
+    } catch {}
+
+    const endpoints = [
+      `https://leetcode-api-faisalshohag.vercel.app/${LEETCODE_USER}`,
+      `https://alfa-leetcode-api.onrender.com/userProfile/${LEETCODE_USER}`,
+    ];
+
+    (async () => {
+      for (const url of endpoints) {
+        try {
+          const res = await fetch(url);
+          if (!res.ok) continue;
+          const raw = await res.json();
+          if (raw?.errors || raw?.error) continue;
+          const totalSolved = raw.totalSolved ?? raw.solvedProblem ?? 0;
+          if (!totalSolved && !raw.easySolved) continue;
+          const acceptanceRate =
+            raw.acceptanceRate ??
+            (raw.matchedUserStats?.actSessionBeatsPercentage ? undefined : undefined);
+          const normalized: LcStats = {
+            status: "success",
+            totalSolved,
+            totalQuestions: raw.totalQuestions ?? 0,
+            easySolved: raw.easySolved ?? 0,
+            totalEasy: raw.totalEasy ?? 0,
+            mediumSolved: raw.mediumSolved ?? 0,
+            totalMedium: raw.totalMedium ?? 0,
+            hardSolved: raw.hardSolved ?? 0,
+            totalHard: raw.totalHard ?? 0,
+            acceptanceRate: typeof acceptanceRate === "number" ? Math.round(acceptanceRate * 10) / 10 : 0,
+            ranking: raw.ranking ?? 0,
+            contributionPoints: raw.contributionPoint ?? raw.contributionPoints ?? 0,
+            reputation: raw.reputation ?? 0,
+            submissionCalendar: raw.submissionCalendar ?? {},
+          };
+          if (cancelled) return;
+          setData(normalized);
+          try {
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: normalized }));
+          } catch {}
+          return;
+        } catch {
+          // try next
+        }
+      }
+      if (!cancelled) setError("Unable to fetch LeetCode data right now.");
     })();
     return () => {
       cancelled = true;
