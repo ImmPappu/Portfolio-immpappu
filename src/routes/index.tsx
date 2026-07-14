@@ -33,6 +33,7 @@ import {
   MapPin,
   Menu,
   Rocket,
+  ArrowUp,
   Send,
   Sparkles,
   Star,
