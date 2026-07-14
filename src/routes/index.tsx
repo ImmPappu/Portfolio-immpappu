@@ -991,56 +991,7 @@ function Projects() {
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         <AnimatePresence mode="popLayout">
           {filtered.map((p, i) => (
-            <motion.article
-              key={p.title}
-              layout
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.35, delay: i * 0.04 }}
-              className="glass group relative flex flex-col overflow-hidden rounded-2xl p-6 transition-all hover:-translate-y-1 hover:border-white/20"
-            >
-              <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-brand-green/50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-              <div className="flex items-center justify-between">
-                <span className="rounded-full border border-brand-blue/30 bg-brand-blue/10 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-brand-blue">
-                  {p.category}
-                </span>
-                <span
-                  className={`inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider ${
-                    p.status === "Live" ? "text-brand-green" : "text-yellow-400"
-                  }`}
-                >
-                  <span
-                    className={`h-1.5 w-1.5 rounded-full ${
-                      p.status === "Live" ? "bg-brand-green" : "bg-yellow-400"
-                    }`}
-                  />
-                  {p.status}
-                </span>
-              </div>
-              <h3 className="mt-4 font-display text-lg font-semibold leading-tight">
-                {p.title}
-              </h3>
-              <p className="mt-2 text-sm text-muted-foreground">{p.description}</p>
-              <ul className="mt-4 space-y-1.5 text-sm">
-                {p.highlights.map((h) => (
-                  <li key={h} className="flex items-start gap-2 text-foreground/75">
-                    <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand-green" />
-                    {h}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-5 flex flex-wrap gap-1.5">
-                {p.stack.map((s) => (
-                  <span
-                    key={s}
-                    className="rounded-md bg-white/5 px-2 py-0.5 font-mono text-[10px] text-muted-foreground"
-                  >
-                    {s}
-                  </span>
-                ))}
-              </div>
-            </motion.article>
+            <TiltProjectCard key={p.title} project={p} index={i} />
           ))}
         </AnimatePresence>
 
