@@ -1,6 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { motion, useScroll, useSpring, AnimatePresence } from "motion/react";
+import {
+  motion,
+  useScroll,
+  useSpring,
+  useMotionValue,
+  useTransform,
+  useReducedMotion,
+  AnimatePresence,
+} from "motion/react";
 import emailjs from "@emailjs/browser";
 import {
   Activity,
