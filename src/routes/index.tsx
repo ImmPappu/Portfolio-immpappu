@@ -1,6 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { motion, useScroll, useSpring, AnimatePresence } from "motion/react";
+import {
+  motion,
+  useScroll,
+  useSpring,
+  useMotionValue,
+  useTransform,
+  useReducedMotion,
+  AnimatePresence,
+} from "motion/react";
 import emailjs from "@emailjs/browser";
 import {
   Activity,
@@ -25,6 +33,7 @@ import {
   MapPin,
   Menu,
   Rocket,
+  ArrowUp,
   Send,
   Sparkles,
   Star,
@@ -275,6 +284,7 @@ function PortfolioPage() {
       />
 
       <ParticlesBackground />
+      <CustomCursor />
 
       <Nav />
 
@@ -291,6 +301,7 @@ function PortfolioPage() {
       </main>
 
       <Footer />
+      <BackToTop />
     </>
   );
 }
@@ -324,45 +335,111 @@ function LoadingOverlay() {
 /* -------------------------------------------------------------------------- */
 
 function ParticlesBackground() {
+  const reduce = useReducedMotion();
   const dots = useMemo(
     () =>
-      Array.from({ length: 28 }).map((_, i) => ({
+      Array.from({ length: 24 }).map((_, i) => ({
         id: i,
         x: Math.random() * 100,
         y: Math.random() * 100,
-        size: Math.random() * 3 + 1,
-        duration: Math.random() * 10 + 12,
+        size: Math.random() * 2.5 + 1,
+        duration: Math.random() * 10 + 14,
         delay: Math.random() * 5,
         blue: Math.random() > 0.5,
       })),
     []
   );
 
+  // Mouse-follow spotlight via CSS variables (cheap, no re-renders)
+  useEffect(() => {
+    if (reduce) return;
+    const mq = window.matchMedia("(pointer: fine)");
+    if (!mq.matches) return;
+    let raf = 0;
+    let tx = window.innerWidth / 2;
+    let ty = window.innerHeight / 3;
+    const onMove = (e: PointerEvent) => {
+      tx = e.clientX;
+      ty = e.clientY;
+      if (!raf) {
+        raf = requestAnimationFrame(() => {
+          document.documentElement.style.setProperty("--mx", `${tx}px`);
+          document.documentElement.style.setProperty("--my", `${ty}px`);
+          raf = 0;
+        });
+      }
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [reduce]);
+
   return (
     <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+      {/* Grid */}
       <div className="absolute inset-0 bg-grid opacity-40 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />
-      <div className="absolute left-1/4 top-1/4 h-[500px] w-[500px] rounded-full bg-brand-blue/20 blur-[120px]" />
-      <div className="absolute bottom-0 right-0 h-[500px] w-[500px] rounded-full bg-brand-green/15 blur-[130px]" />
-      {dots.map((d) => (
-        <motion.span
-          key={d.id}
-          className={`absolute rounded-full ${d.blue ? "bg-brand-blue" : "bg-brand-green"}`}
+
+      {/* Aurora — animated gradient sweep */}
+      {!reduce && (
+        <motion.div
+          className="absolute inset-0 opacity-60 [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_75%)]"
           style={{
-            width: d.size,
-            height: d.size,
-            left: `${d.x}%`,
-            top: `${d.y}%`,
-            opacity: 0.5,
+            background:
+              "conic-gradient(from 0deg at 50% 50%, oklch(0.82 0.19 152 / 0.18), oklch(0.68 0.18 240 / 0.18), oklch(0.82 0.13 200 / 0.15), oklch(0.82 0.19 152 / 0.18))",
+            filter: "blur(60px)",
           }}
-          animate={{ y: [0, -30, 0], opacity: [0.2, 0.7, 0.2] }}
-          transition={{
-            duration: d.duration,
-            delay: d.delay,
-            repeat: Infinity,
-            ease: "easeInOut",
+          animate={{ rotate: 360 }}
+          transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+        />
+      )}
+
+      {/* Floating blurred blobs */}
+      <motion.div
+        className="absolute left-[15%] top-[20%] h-[520px] w-[520px] rounded-full bg-brand-blue/20 blur-[130px]"
+        animate={reduce ? undefined : { x: [0, 40, -20, 0], y: [0, -30, 20, 0] }}
+        transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="absolute bottom-[5%] right-[5%] h-[520px] w-[520px] rounded-full bg-brand-green/15 blur-[140px]"
+        animate={reduce ? undefined : { x: [0, -40, 20, 0], y: [0, 30, -20, 0] }}
+        transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* Mouse-follow spotlight */}
+      {!reduce && (
+        <div
+          className="absolute inset-0 opacity-70"
+          style={{
+            background:
+              "radial-gradient(600px circle at var(--mx, 50%) var(--my, 30%), oklch(0.82 0.19 152 / 0.10), transparent 55%)",
           }}
         />
-      ))}
+      )}
+
+      {/* Particles */}
+      {!reduce &&
+        dots.map((d) => (
+          <motion.span
+            key={d.id}
+            className={`absolute rounded-full ${d.blue ? "bg-brand-blue" : "bg-brand-green"}`}
+            style={{
+              width: d.size,
+              height: d.size,
+              left: `${d.x}%`,
+              top: `${d.y}%`,
+              opacity: 0.5,
+            }}
+            animate={{ y: [0, -30, 0], opacity: [0.2, 0.7, 0.2] }}
+            transition={{
+              duration: d.duration,
+              delay: d.delay,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+        ))}
     </div>
   );
 }
@@ -374,12 +451,31 @@ function ParticlesBackground() {
 function Nav() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [active, setActive] = useState<string>("about");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     onScroll();
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const els = NAV.map((n) => document.getElementById(n.id)).filter(
+      (el): el is HTMLElement => !!el
+    );
+    if (!els.length) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible?.target.id) setActive(visible.target.id);
+      },
+      { rootMargin: "-40% 0px -50% 0px", threshold: [0, 0.25, 0.5, 1] }
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
   }, []);
 
   return (
@@ -405,16 +501,28 @@ function Nav() {
           </a>
 
           <ul className="hidden items-center gap-1 md:flex">
-            {NAV.map((n) => (
-              <li key={n.id}>
-                <a
-                  href={`#${n.id}`}
-                  className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
-                >
-                  {n.label}
-                </a>
-              </li>
-            ))}
+            {NAV.map((n) => {
+              const isActive = active === n.id;
+              return (
+                <li key={n.id} className="relative">
+                  <a
+                    href={`#${n.id}`}
+                    className={`relative rounded-lg px-3 py-1.5 text-sm transition-colors ${
+                      isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {n.label}
+                    {isActive && (
+                      <motion.span
+                        layoutId="nav-active"
+                        className="absolute inset-x-2 -bottom-0.5 h-[2px] rounded-full bg-linear-to-r from-brand-green to-brand-blue"
+                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                      />
+                    )}
+                  </a>
+                </li>
+              );
+            })}
           </ul>
 
           <div className="hidden md:block">
@@ -557,7 +665,28 @@ function Hero() {
           </div>
 
           <h1 className="mt-6 font-display text-5xl font-bold leading-[1.05] sm:text-6xl lg:text-7xl">
-            Hi, I'm <span className="text-gradient">Pappu Kumar</span>
+            {["Hi,", "I'm"].map((w, i) => (
+              <motion.span
+                key={w + i}
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55, delay: 0.85 + i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                className="mr-3 inline-block"
+              >
+                {w}
+              </motion.span>
+            ))}
+            {["Pappu", "Kumar"].map((w, i) => (
+              <motion.span
+                key={w + i}
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55, delay: 1.05 + i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                className="text-gradient mr-3 inline-block"
+              >
+                {w}
+              </motion.span>
+            ))}
           </h1>
 
           <div className="mt-4 text-2xl font-medium text-foreground/90 sm:text-3xl">
@@ -574,7 +703,9 @@ function Hero() {
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <a
               href="#projects"
-              className="group inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-brand-green to-brand-cyan px-5 py-3 text-sm font-semibold text-background shadow-lg shadow-brand-green/20 transition-all hover:shadow-[0_0_40px_-8px_var(--brand-green)]"
+              data-magnetic
+              data-cursor="hover"
+              className="group inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-brand-green to-brand-cyan px-5 py-3 text-sm font-semibold text-background shadow-lg shadow-brand-green/20 transition-all hover:shadow-[0_0_40px_-8px_var(--brand-green)] hover:-translate-y-0.5"
             >
               View Projects
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -584,14 +715,18 @@ function Hero() {
               download="Pappu_Kumar_Resume.pdf"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-foreground backdrop-blur transition-colors hover:bg-white/10"
+              data-magnetic
+              data-cursor="hover"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-foreground backdrop-blur transition-all hover:bg-white/10 hover:-translate-y-0.5 hover:shadow-[0_0_30px_-10px_rgba(255,255,255,0.35)]"
             >
               <Download className="h-4 w-4" />
               Download Resume
             </a>
             <a
               href="#contact"
-              className="inline-flex items-center gap-2 rounded-xl border border-brand-blue/30 bg-brand-blue/10 px-5 py-3 text-sm font-semibold text-brand-blue transition-colors hover:bg-brand-blue/20"
+              data-magnetic
+              data-cursor="hover"
+              className="inline-flex items-center gap-2 rounded-xl border border-brand-blue/30 bg-brand-blue/10 px-5 py-3 text-sm font-semibold text-brand-blue transition-all hover:bg-brand-blue/20 hover:-translate-y-0.5 hover:shadow-[0_0_30px_-8px_var(--brand-blue)]"
             >
               <Mail className="h-4 w-4" />
               Contact Me
@@ -856,56 +991,7 @@ function Projects() {
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         <AnimatePresence mode="popLayout">
           {filtered.map((p, i) => (
-            <motion.article
-              key={p.title}
-              layout
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.35, delay: i * 0.04 }}
-              className="glass group relative flex flex-col overflow-hidden rounded-2xl p-6 transition-all hover:-translate-y-1 hover:border-white/20"
-            >
-              <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-brand-green/50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-              <div className="flex items-center justify-between">
-                <span className="rounded-full border border-brand-blue/30 bg-brand-blue/10 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-brand-blue">
-                  {p.category}
-                </span>
-                <span
-                  className={`inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider ${
-                    p.status === "Live" ? "text-brand-green" : "text-yellow-400"
-                  }`}
-                >
-                  <span
-                    className={`h-1.5 w-1.5 rounded-full ${
-                      p.status === "Live" ? "bg-brand-green" : "bg-yellow-400"
-                    }`}
-                  />
-                  {p.status}
-                </span>
-              </div>
-              <h3 className="mt-4 font-display text-lg font-semibold leading-tight">
-                {p.title}
-              </h3>
-              <p className="mt-2 text-sm text-muted-foreground">{p.description}</p>
-              <ul className="mt-4 space-y-1.5 text-sm">
-                {p.highlights.map((h) => (
-                  <li key={h} className="flex items-start gap-2 text-foreground/75">
-                    <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand-green" />
-                    {h}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-5 flex flex-wrap gap-1.5">
-                {p.stack.map((s) => (
-                  <span
-                    key={s}
-                    className="rounded-md bg-white/5 px-2 py-0.5 font-mono text-[10px] text-muted-foreground"
-                  >
-                    {s}
-                  </span>
-                ))}
-              </div>
-            </motion.article>
+            <TiltProjectCard key={p.title} project={p} index={i} />
           ))}
         </AnimatePresence>
 
@@ -2008,5 +2094,201 @@ function Footer() {
         </p>
       </div>
     </footer>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Motion FX — Tilt cards, Custom cursor, Back-to-top                         */
+/* -------------------------------------------------------------------------- */
+
+function TiltProjectCard({ project: p, index: i }: { project: Project; index: number }) {
+  const reduce = useReducedMotion();
+  const ref = useRef<HTMLDivElement>(null);
+  const rx = useMotionValue(0);
+  const ry = useMotionValue(0);
+  const srx = useSpring(rx, { stiffness: 200, damping: 20, mass: 0.4 });
+  const sry = useSpring(ry, { stiffness: 200, damping: 20, mass: 0.4 });
+
+  const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (reduce) return;
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    ry.set(px * 10);
+    rx.set(-py * 10);
+  };
+  const onLeave = () => {
+    rx.set(0);
+    ry.set(0);
+  };
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.4, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}
+      style={{ perspective: 1000 }}
+      className="group relative"
+    >
+      <motion.article
+        ref={ref}
+        onPointerMove={onMove}
+        onPointerLeave={onLeave}
+        data-cursor="hover"
+        style={{ rotateX: srx, rotateY: sry, transformStyle: "preserve-3d" }}
+        whileHover={{ y: -6 }}
+        transition={{ type: "spring", stiffness: 280, damping: 24 }}
+        className="glass relative flex h-full flex-col overflow-hidden rounded-2xl p-6 transition-shadow duration-300 hover:border-white/20 hover:shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6),0_0_40px_-16px_var(--brand-green)]"
+      >
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-brand-green/60 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+        <div
+          className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          style={{
+            background:
+              "radial-gradient(400px circle at var(--cx,50%) var(--cy,50%), oklch(0.82 0.19 152 / 0.10), transparent 60%)",
+          }}
+        />
+        <div className="flex items-center justify-between">
+          <span className="rounded-full border border-brand-blue/30 bg-brand-blue/10 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-brand-blue">
+            {p.category}
+          </span>
+          <span
+            className={`inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider ${
+              p.status === "Live" ? "text-brand-green" : "text-yellow-400"
+            }`}
+          >
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${
+                p.status === "Live" ? "bg-brand-green" : "bg-yellow-400"
+              }`}
+            />
+            {p.status}
+          </span>
+        </div>
+        <h3 className="mt-4 font-display text-lg font-semibold leading-tight">{p.title}</h3>
+        <p className="mt-2 text-sm text-muted-foreground">{p.description}</p>
+        <ul className="mt-4 space-y-1.5 text-sm">
+          {p.highlights.map((h) => (
+            <li key={h} className="flex items-start gap-2 text-foreground/75">
+              <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand-green" />
+              {h}
+            </li>
+          ))}
+        </ul>
+        <div className="mt-5 flex flex-wrap gap-1.5">
+          {p.stack.map((s, idx) => (
+            <motion.span
+              key={s}
+              initial={{ opacity: 0, y: 6 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3, delay: 0.1 + idx * 0.03 }}
+              className="rounded-md bg-white/5 px-2 py-0.5 font-mono text-[10px] text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
+            >
+              {s}
+            </motion.span>
+          ))}
+        </div>
+      </motion.article>
+    </motion.div>
+  );
+}
+
+function CustomCursor() {
+  const reduce = useReducedMotion();
+  const [enabled, setEnabled] = useState(false);
+  const [hovering, setHovering] = useState(false);
+  const dotX = useMotionValue(-100);
+  const dotY = useMotionValue(-100);
+  const ringX = useSpring(dotX, { stiffness: 300, damping: 28, mass: 0.4 });
+  const ringY = useSpring(dotY, { stiffness: 300, damping: 28, mass: 0.4 });
+
+  useEffect(() => {
+    if (reduce) return;
+    const mq = window.matchMedia("(pointer: fine)");
+    if (!mq.matches) return;
+    setEnabled(true);
+    document.body.style.cursor = "none";
+
+    const magnetize = (target: HTMLElement, cx: number, cy: number) => {
+      const r = target.getBoundingClientRect();
+      const tx = r.left + r.width / 2;
+      const ty = r.top + r.height / 2;
+      const dx = (cx - tx) * 0.25;
+      const dy = (cy - ty) * 0.25;
+      target.style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
+    };
+
+    const onMove = (e: PointerEvent) => {
+      dotX.set(e.clientX);
+      dotY.set(e.clientY);
+      const el = e.target as HTMLElement | null;
+      const hoverEl = el?.closest<HTMLElement>('[data-cursor="hover"], a, button');
+      setHovering(!!hoverEl);
+      const mag = el?.closest<HTMLElement>("[data-magnetic]");
+      document.querySelectorAll<HTMLElement>("[data-magnetic]").forEach((n) => {
+        if (n === mag) magnetize(n, e.clientX, e.clientY);
+        else n.style.transform = "";
+      });
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      document.body.style.cursor = "";
+      document.querySelectorAll<HTMLElement>("[data-magnetic]").forEach((n) => {
+        n.style.transform = "";
+      });
+    };
+  }, [dotX, dotY, reduce]);
+
+  if (!enabled) return null;
+  return (
+    <>
+      <motion.div
+        style={{ x: dotX, y: dotY }}
+        className="pointer-events-none fixed left-0 top-0 z-[80] -ml-1 -mt-1 h-2 w-2 rounded-full bg-brand-green mix-blend-difference"
+      />
+      <motion.div
+        style={{ x: ringX, y: ringY, scale: hovering ? 1.7 : 1 }}
+        transition={{ scale: { type: "spring", stiffness: 300, damping: 22 } }}
+        className={`pointer-events-none fixed left-0 top-0 z-[80] -ml-5 -mt-5 h-10 w-10 rounded-full border transition-colors ${
+          hovering ? "border-brand-green/70" : "border-white/30"
+        }`}
+      />
+    </>
+  );
+}
+
+function BackToTop() {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setShow(window.scrollY > 500);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.button
+          initial={{ opacity: 0, scale: 0.6, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.6, y: 20 }}
+          transition={{ type: "spring", stiffness: 260, damping: 22 }}
+          whileHover={{ y: -3 }}
+          whileTap={{ scale: 0.92 }}
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          data-cursor="hover"
+          aria-label="Back to top"
+          className="glass-strong fixed bottom-6 right-6 z-50 grid h-11 w-11 place-items-center rounded-full text-brand-green shadow-[0_10px_40px_-10px_var(--brand-green)] transition-shadow hover:shadow-[0_10px_50px_-6px_var(--brand-green)]"
+        >
+          <ArrowUp className="h-4 w-4" />
+        </motion.button>
+      )}
+    </AnimatePresence>
   );
 }
