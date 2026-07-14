@@ -333,45 +333,111 @@ function LoadingOverlay() {
 /* -------------------------------------------------------------------------- */
 
 function ParticlesBackground() {
+  const reduce = useReducedMotion();
   const dots = useMemo(
     () =>
-      Array.from({ length: 28 }).map((_, i) => ({
+      Array.from({ length: 24 }).map((_, i) => ({
         id: i,
         x: Math.random() * 100,
         y: Math.random() * 100,
-        size: Math.random() * 3 + 1,
-        duration: Math.random() * 10 + 12,
+        size: Math.random() * 2.5 + 1,
+        duration: Math.random() * 10 + 14,
         delay: Math.random() * 5,
         blue: Math.random() > 0.5,
       })),
     []
   );
 
+  // Mouse-follow spotlight via CSS variables (cheap, no re-renders)
+  useEffect(() => {
+    if (reduce) return;
+    const mq = window.matchMedia("(pointer: fine)");
+    if (!mq.matches) return;
+    let raf = 0;
+    let tx = window.innerWidth / 2;
+    let ty = window.innerHeight / 3;
+    const onMove = (e: PointerEvent) => {
+      tx = e.clientX;
+      ty = e.clientY;
+      if (!raf) {
+        raf = requestAnimationFrame(() => {
+          document.documentElement.style.setProperty("--mx", `${tx}px`);
+          document.documentElement.style.setProperty("--my", `${ty}px`);
+          raf = 0;
+        });
+      }
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [reduce]);
+
   return (
     <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+      {/* Grid */}
       <div className="absolute inset-0 bg-grid opacity-40 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />
-      <div className="absolute left-1/4 top-1/4 h-[500px] w-[500px] rounded-full bg-brand-blue/20 blur-[120px]" />
-      <div className="absolute bottom-0 right-0 h-[500px] w-[500px] rounded-full bg-brand-green/15 blur-[130px]" />
-      {dots.map((d) => (
-        <motion.span
-          key={d.id}
-          className={`absolute rounded-full ${d.blue ? "bg-brand-blue" : "bg-brand-green"}`}
+
+      {/* Aurora — animated gradient sweep */}
+      {!reduce && (
+        <motion.div
+          className="absolute inset-0 opacity-60 [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_75%)]"
           style={{
-            width: d.size,
-            height: d.size,
-            left: `${d.x}%`,
-            top: `${d.y}%`,
-            opacity: 0.5,
+            background:
+              "conic-gradient(from 0deg at 50% 50%, oklch(0.82 0.19 152 / 0.18), oklch(0.68 0.18 240 / 0.18), oklch(0.82 0.13 200 / 0.15), oklch(0.82 0.19 152 / 0.18))",
+            filter: "blur(60px)",
           }}
-          animate={{ y: [0, -30, 0], opacity: [0.2, 0.7, 0.2] }}
-          transition={{
-            duration: d.duration,
-            delay: d.delay,
-            repeat: Infinity,
-            ease: "easeInOut",
+          animate={{ rotate: 360 }}
+          transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+        />
+      )}
+
+      {/* Floating blurred blobs */}
+      <motion.div
+        className="absolute left-[15%] top-[20%] h-[520px] w-[520px] rounded-full bg-brand-blue/20 blur-[130px]"
+        animate={reduce ? undefined : { x: [0, 40, -20, 0], y: [0, -30, 20, 0] }}
+        transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="absolute bottom-[5%] right-[5%] h-[520px] w-[520px] rounded-full bg-brand-green/15 blur-[140px]"
+        animate={reduce ? undefined : { x: [0, -40, 20, 0], y: [0, 30, -20, 0] }}
+        transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* Mouse-follow spotlight */}
+      {!reduce && (
+        <div
+          className="absolute inset-0 opacity-70"
+          style={{
+            background:
+              "radial-gradient(600px circle at var(--mx, 50%) var(--my, 30%), oklch(0.82 0.19 152 / 0.10), transparent 55%)",
           }}
         />
-      ))}
+      )}
+
+      {/* Particles */}
+      {!reduce &&
+        dots.map((d) => (
+          <motion.span
+            key={d.id}
+            className={`absolute rounded-full ${d.blue ? "bg-brand-blue" : "bg-brand-green"}`}
+            style={{
+              width: d.size,
+              height: d.size,
+              left: `${d.x}%`,
+              top: `${d.y}%`,
+              opacity: 0.5,
+            }}
+            animate={{ y: [0, -30, 0], opacity: [0.2, 0.7, 0.2] }}
+            transition={{
+              duration: d.duration,
+              delay: d.delay,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+        ))}
     </div>
   );
 }
