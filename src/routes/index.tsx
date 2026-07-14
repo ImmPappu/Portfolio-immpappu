@@ -2096,3 +2096,199 @@ function Footer() {
     </footer>
   );
 }
+
+/* -------------------------------------------------------------------------- */
+/*  Motion FX — Tilt cards, Custom cursor, Back-to-top                         */
+/* -------------------------------------------------------------------------- */
+
+function TiltProjectCard({ project: p, index: i }: { project: Project; index: number }) {
+  const reduce = useReducedMotion();
+  const ref = useRef<HTMLDivElement>(null);
+  const rx = useMotionValue(0);
+  const ry = useMotionValue(0);
+  const srx = useSpring(rx, { stiffness: 200, damping: 20, mass: 0.4 });
+  const sry = useSpring(ry, { stiffness: 200, damping: 20, mass: 0.4 });
+
+  const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (reduce) return;
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    ry.set(px * 10);
+    rx.set(-py * 10);
+  };
+  const onLeave = () => {
+    rx.set(0);
+    ry.set(0);
+  };
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.4, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}
+      style={{ perspective: 1000 }}
+      className="group relative"
+    >
+      <motion.article
+        ref={ref}
+        onPointerMove={onMove}
+        onPointerLeave={onLeave}
+        data-cursor="hover"
+        style={{ rotateX: srx, rotateY: sry, transformStyle: "preserve-3d" }}
+        whileHover={{ y: -6 }}
+        transition={{ type: "spring", stiffness: 280, damping: 24 }}
+        className="glass relative flex h-full flex-col overflow-hidden rounded-2xl p-6 transition-shadow duration-300 hover:border-white/20 hover:shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6),0_0_40px_-16px_var(--brand-green)]"
+      >
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-brand-green/60 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+        <div
+          className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          style={{
+            background:
+              "radial-gradient(400px circle at var(--cx,50%) var(--cy,50%), oklch(0.82 0.19 152 / 0.10), transparent 60%)",
+          }}
+        />
+        <div className="flex items-center justify-between">
+          <span className="rounded-full border border-brand-blue/30 bg-brand-blue/10 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-brand-blue">
+            {p.category}
+          </span>
+          <span
+            className={`inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider ${
+              p.status === "Live" ? "text-brand-green" : "text-yellow-400"
+            }`}
+          >
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${
+                p.status === "Live" ? "bg-brand-green" : "bg-yellow-400"
+              }`}
+            />
+            {p.status}
+          </span>
+        </div>
+        <h3 className="mt-4 font-display text-lg font-semibold leading-tight">{p.title}</h3>
+        <p className="mt-2 text-sm text-muted-foreground">{p.description}</p>
+        <ul className="mt-4 space-y-1.5 text-sm">
+          {p.highlights.map((h) => (
+            <li key={h} className="flex items-start gap-2 text-foreground/75">
+              <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand-green" />
+              {h}
+            </li>
+          ))}
+        </ul>
+        <div className="mt-5 flex flex-wrap gap-1.5">
+          {p.stack.map((s, idx) => (
+            <motion.span
+              key={s}
+              initial={{ opacity: 0, y: 6 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3, delay: 0.1 + idx * 0.03 }}
+              className="rounded-md bg-white/5 px-2 py-0.5 font-mono text-[10px] text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
+            >
+              {s}
+            </motion.span>
+          ))}
+        </div>
+      </motion.article>
+    </motion.div>
+  );
+}
+
+function CustomCursor() {
+  const reduce = useReducedMotion();
+  const [enabled, setEnabled] = useState(false);
+  const [hovering, setHovering] = useState(false);
+  const dotX = useMotionValue(-100);
+  const dotY = useMotionValue(-100);
+  const ringX = useSpring(dotX, { stiffness: 300, damping: 28, mass: 0.4 });
+  const ringY = useSpring(dotY, { stiffness: 300, damping: 28, mass: 0.4 });
+
+  useEffect(() => {
+    if (reduce) return;
+    const mq = window.matchMedia("(pointer: fine)");
+    if (!mq.matches) return;
+    setEnabled(true);
+    document.body.style.cursor = "none";
+
+    const magnetize = (target: HTMLElement, cx: number, cy: number) => {
+      const r = target.getBoundingClientRect();
+      const tx = r.left + r.width / 2;
+      const ty = r.top + r.height / 2;
+      const dx = (cx - tx) * 0.25;
+      const dy = (cy - ty) * 0.25;
+      target.style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
+    };
+
+    const onMove = (e: PointerEvent) => {
+      dotX.set(e.clientX);
+      dotY.set(e.clientY);
+      const el = e.target as HTMLElement | null;
+      const hoverEl = el?.closest<HTMLElement>('[data-cursor="hover"], a, button');
+      setHovering(!!hoverEl);
+      const mag = el?.closest<HTMLElement>("[data-magnetic]");
+      document.querySelectorAll<HTMLElement>("[data-magnetic]").forEach((n) => {
+        if (n === mag) magnetize(n, e.clientX, e.clientY);
+        else n.style.transform = "";
+      });
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      document.body.style.cursor = "";
+      document.querySelectorAll<HTMLElement>("[data-magnetic]").forEach((n) => {
+        n.style.transform = "";
+      });
+    };
+  }, [dotX, dotY, reduce]);
+
+  if (!enabled) return null;
+  return (
+    <>
+      <motion.div
+        style={{ x: dotX, y: dotY }}
+        className="pointer-events-none fixed left-0 top-0 z-[80] -ml-1 -mt-1 h-2 w-2 rounded-full bg-brand-green mix-blend-difference"
+      />
+      <motion.div
+        style={{ x: ringX, y: ringY, scale: hovering ? 1.7 : 1 }}
+        transition={{ scale: { type: "spring", stiffness: 300, damping: 22 } }}
+        className={`pointer-events-none fixed left-0 top-0 z-[80] -ml-5 -mt-5 h-10 w-10 rounded-full border transition-colors ${
+          hovering ? "border-brand-green/70" : "border-white/30"
+        }`}
+      />
+    </>
+  );
+}
+
+function BackToTop() {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setShow(window.scrollY > 500);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.button
+          initial={{ opacity: 0, scale: 0.6, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.6, y: 20 }}
+          transition={{ type: "spring", stiffness: 260, damping: 22 }}
+          whileHover={{ y: -3 }}
+          whileTap={{ scale: 0.92 }}
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          data-cursor="hover"
+          aria-label="Back to top"
+          className="glass-strong fixed bottom-6 right-6 z-50 grid h-11 w-11 place-items-center rounded-full text-brand-green shadow-[0_10px_40px_-10px_var(--brand-green)] transition-shadow hover:shadow-[0_10px_50px_-6px_var(--brand-green)]"
+        >
+          <ArrowUp className="h-4 w-4" />
+        </motion.button>
+      )}
+    </AnimatePresence>
+  );
+}
