@@ -665,7 +665,28 @@ function Hero() {
           </div>
 
           <h1 className="mt-6 font-display text-5xl font-bold leading-[1.05] sm:text-6xl lg:text-7xl">
-            Hi, I'm <span className="text-gradient">Pappu Kumar</span>
+            {["Hi,", "I'm"].map((w, i) => (
+              <motion.span
+                key={w + i}
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55, delay: 0.85 + i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                className="mr-3 inline-block"
+              >
+                {w}
+              </motion.span>
+            ))}
+            {["Pappu", "Kumar"].map((w, i) => (
+              <motion.span
+                key={w + i}
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55, delay: 1.05 + i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                className="text-gradient mr-3 inline-block"
+              >
+                {w}
+              </motion.span>
+            ))}
           </h1>
 
           <div className="mt-4 text-2xl font-medium text-foreground/90 sm:text-3xl">
@@ -682,7 +703,9 @@ function Hero() {
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <a
               href="#projects"
-              className="group inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-brand-green to-brand-cyan px-5 py-3 text-sm font-semibold text-background shadow-lg shadow-brand-green/20 transition-all hover:shadow-[0_0_40px_-8px_var(--brand-green)]"
+              data-magnetic
+              data-cursor="hover"
+              className="group inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-brand-green to-brand-cyan px-5 py-3 text-sm font-semibold text-background shadow-lg shadow-brand-green/20 transition-all hover:shadow-[0_0_40px_-8px_var(--brand-green)] hover:-translate-y-0.5"
             >
               View Projects
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -692,14 +715,18 @@ function Hero() {
               download="Pappu_Kumar_Resume.pdf"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-foreground backdrop-blur transition-colors hover:bg-white/10"
+              data-magnetic
+              data-cursor="hover"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-foreground backdrop-blur transition-all hover:bg-white/10 hover:-translate-y-0.5 hover:shadow-[0_0_30px_-10px_rgba(255,255,255,0.35)]"
             >
               <Download className="h-4 w-4" />
               Download Resume
             </a>
             <a
               href="#contact"
-              className="inline-flex items-center gap-2 rounded-xl border border-brand-blue/30 bg-brand-blue/10 px-5 py-3 text-sm font-semibold text-brand-blue transition-colors hover:bg-brand-blue/20"
+              data-magnetic
+              data-cursor="hover"
+              className="inline-flex items-center gap-2 rounded-xl border border-brand-blue/30 bg-brand-blue/10 px-5 py-3 text-sm font-semibold text-brand-blue transition-all hover:bg-brand-blue/20 hover:-translate-y-0.5 hover:shadow-[0_0_30px_-8px_var(--brand-blue)]"
             >
               <Mail className="h-4 w-4" />
               Contact Me
