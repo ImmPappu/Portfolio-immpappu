@@ -284,6 +284,7 @@ function PortfolioPage() {
       />
 
       <ParticlesBackground />
+      <CustomCursor />
 
       <Nav />
 
@@ -300,6 +301,7 @@ function PortfolioPage() {
       </main>
 
       <Footer />
+      <BackToTop />
     </>
   );
 }
