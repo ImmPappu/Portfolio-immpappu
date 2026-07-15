@@ -2175,60 +2175,105 @@ function TiltProjectCard({ project: p, index: i }: { project: Project; index: nu
         ref={ref}
         onPointerMove={onMove}
         onPointerLeave={onLeave}
-        data-cursor="hover"
         style={{ rotateX: srx, rotateY: sry, transformStyle: "preserve-3d" }}
         whileHover={{ y: -6 }}
         transition={{ type: "spring", stiffness: 280, damping: 24 }}
-        className="glass relative flex h-full flex-col overflow-hidden rounded-2xl p-6 transition-shadow duration-300 hover:border-white/20 hover:shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6),0_0_40px_-16px_var(--brand-green)]"
+        className="glass relative flex h-full flex-col overflow-hidden rounded-2xl transition-shadow duration-300 hover:border-white/20 hover:shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6),0_0_40px_-16px_var(--brand-green)]"
       >
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-brand-green/60 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-        <div
-          className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-          style={{
-            background:
-              "radial-gradient(400px circle at var(--cx,50%) var(--cy,50%), oklch(0.82 0.19 152 / 0.10), transparent 60%)",
-          }}
-        />
-        <div className="flex items-center justify-between">
-          <span className="rounded-full border border-brand-blue/30 bg-brand-blue/10 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-brand-blue">
-            {p.category}
-          </span>
-          <span
-            className={`inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider ${
-              p.status === "Live" ? "text-brand-green" : "text-yellow-400"
-            }`}
-          >
-            <span
-              className={`h-1.5 w-1.5 rounded-full ${
-                p.status === "Live" ? "bg-brand-green" : "bg-yellow-400"
+        {/* Browser mockup */}
+        <div className="relative overflow-hidden border-b border-white/10 bg-linear-to-br from-white/[0.04] to-white/[0.01]">
+          <div className="flex items-center gap-1.5 border-b border-white/10 bg-black/20 px-3 py-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-red-500/60" />
+            <span className="h-2.5 w-2.5 rounded-full bg-yellow-500/60" />
+            <span className="h-2.5 w-2.5 rounded-full bg-brand-green/70" />
+            <div className="ml-3 flex-1 truncate rounded-md bg-white/[0.04] px-2 py-0.5 text-center font-mono text-[10px] text-muted-foreground">
+              pappu.dev/{p.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 24)}
+            </div>
+          </div>
+          <div className="relative grid h-32 place-items-center overflow-hidden">
+            <div className="absolute inset-0 bg-grid opacity-40 [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_75%)]" />
+            <div
+              className={`absolute -inset-8 opacity-40 blur-3xl transition-transform duration-700 group-hover:scale-110 ${
+                p.category === "AI"
+                  ? "bg-linear-to-tr from-brand-blue/40 via-brand-cyan/30 to-brand-green/30"
+                  : p.category === "Automation"
+                    ? "bg-linear-to-tr from-brand-green/40 via-brand-cyan/25 to-brand-blue/30"
+                    : "bg-linear-to-tr from-brand-cyan/30 via-brand-green/30 to-brand-blue/40"
               }`}
             />
-            {p.status}
-          </span>
+            <span className="relative font-display text-4xl font-bold text-gradient opacity-80">
+              {p.title
+                .split(" ")
+                .map((w) => w[0])
+                .join("")
+                .slice(0, 3)
+                .toUpperCase()}
+            </span>
+          </div>
         </div>
-        <h3 className="mt-4 font-display text-lg font-semibold leading-tight">{p.title}</h3>
-        <p className="mt-2 text-sm text-muted-foreground">{p.description}</p>
-        <ul className="mt-4 space-y-1.5 text-sm">
-          {p.highlights.map((h) => (
-            <li key={h} className="flex items-start gap-2 text-foreground/75">
-              <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand-green" />
-              {h}
-            </li>
-          ))}
-        </ul>
-        <div className="mt-5 flex flex-wrap gap-1.5">
-          {p.stack.map((s, idx) => (
-            <motion.span
-              key={s}
-              initial={{ opacity: 0, y: 6 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.3, delay: 0.1 + idx * 0.03 }}
-              className="rounded-md bg-white/5 px-2 py-0.5 font-mono text-[10px] text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
+
+        <div className="flex flex-1 flex-col p-6">
+          <div className="flex items-center justify-between">
+            <span className="rounded-full border border-brand-blue/30 bg-brand-blue/10 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-brand-blue">
+              {p.category}
+            </span>
+            <span
+              className={`inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider ${
+                p.status === "Live" ? "text-brand-green" : "text-yellow-400"
+              }`}
             >
-              {s}
-            </motion.span>
-          ))}
+              <span
+                className={`h-1.5 w-1.5 rounded-full ${
+                  p.status === "Live" ? "bg-brand-green" : "bg-yellow-400"
+                }`}
+              />
+              {p.status}
+            </span>
+          </div>
+          <h3 className="mt-3 font-display text-lg font-semibold leading-tight">{p.title}</h3>
+          <p className="mt-2 text-sm text-muted-foreground">{p.description}</p>
+          <ul className="mt-4 space-y-1.5 text-sm">
+            {p.highlights.map((h) => (
+              <li key={h} className="flex items-start gap-2 text-foreground/75">
+                <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand-green" />
+                {h}
+              </li>
+            ))}
+          </ul>
+          <div className="mt-4 flex flex-wrap gap-1.5">
+            {p.stack.map((s, idx) => (
+              <motion.span
+                key={s}
+                initial={{ opacity: 0, y: 6 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.3, delay: 0.1 + idx * 0.03 }}
+                className="rounded-md bg-white/5 px-2 py-0.5 font-mono text-[10px] text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
+              >
+                {s}
+              </motion.span>
+            ))}
+          </div>
+          <div className="mt-5 flex gap-2 pt-1">
+            <a
+              href={`https://github.com/${GITHUB_USER}`}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`${p.title} on GitHub`}
+              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-medium text-foreground/80 transition-all hover:-translate-y-0.5 hover:border-brand-green/40 hover:text-brand-green"
+            >
+              <Github className="h-3.5 w-3.5" />
+              Code
+            </a>
+            <span
+              aria-hidden="true"
+              className="inline-flex flex-1 cursor-default items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2 text-xs font-medium text-muted-foreground/70"
+              title="Live demo coming soon"
+            >
+              <ArrowUpRight className="h-3.5 w-3.5" />
+              Live
+            </span>
+          </div>
         </div>
       </motion.article>
     </motion.div>
