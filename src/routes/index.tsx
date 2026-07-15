@@ -267,8 +267,35 @@ const SOCIALS = [
 function PortfolioPage() {
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
-    const t = setTimeout(() => setLoaded(true), 700);
+    const t = setTimeout(() => setLoaded(true), 1400);
     return () => clearTimeout(t);
+  }, []);
+
+  // Lenis smooth scrolling — respects reduced-motion, disabled on touch
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let lenis: { raf: (t: number) => void; destroy: () => void } | null = null;
+    let raf = 0;
+    let mounted = true;
+    import("lenis").then(({ default: Lenis }) => {
+      if (!mounted) return;
+      lenis = new Lenis({
+        duration: 1.05,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
+      }) as unknown as { raf: (t: number) => void; destroy: () => void };
+      const loop = (time: number) => {
+        lenis?.raf(time);
+        raf = requestAnimationFrame(loop);
+      };
+      raf = requestAnimationFrame(loop);
+    });
+    return () => {
+      mounted = false;
+      cancelAnimationFrame(raf);
+      lenis?.destroy();
+    };
   }, []);
 
   const { scrollYProgress } = useScroll();
@@ -284,7 +311,6 @@ function PortfolioPage() {
       />
 
       <ParticlesBackground />
-      <CustomCursor />
 
       <Nav />
 
@@ -314,18 +340,29 @@ function LoadingOverlay() {
   return (
     <motion.div
       initial={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-background"
+      exit={{ opacity: 0, transition: { duration: 0.6, ease: [0.65, 0, 0.35, 1] } }}
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-6 bg-background"
     >
-      <div className="flex flex-col items-center gap-4">
+      <motion.div
+        initial={{ scale: 0.6, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="relative grid h-16 w-16 place-items-center rounded-2xl bg-linear-to-br from-brand-green to-brand-blue font-display text-xl font-bold text-background shadow-[0_0_60px_-10px_var(--brand-green)]"
+      >
+        PK
+        <span className="absolute inset-0 -z-10 rounded-2xl bg-linear-to-br from-brand-green to-brand-blue blur-2xl opacity-60" />
+      </motion.div>
+      <div className="relative h-[2px] w-40 overflow-hidden rounded-full bg-white/10">
         <motion.div
-          className="h-14 w-14 rounded-full border-2 border-brand-green/30 border-t-brand-green"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
+          initial={{ x: "-100%" }}
+          animate={{ x: "100%" }}
+          transition={{ duration: 1.2, ease: [0.65, 0, 0.35, 1] }}
+          className="absolute inset-y-0 w-1/2 bg-linear-to-r from-transparent via-brand-green to-transparent"
         />
-        <p className="font-mono text-xs tracking-widest text-muted-foreground">LOADING</p>
       </div>
+      <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-muted-foreground">
+        Pappu Kumar
+      </p>
     </motion.div>
   );
 }
