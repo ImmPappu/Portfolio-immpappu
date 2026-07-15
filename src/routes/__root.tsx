@@ -72,9 +72,9 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
-const TITLE = "Pappu Kumar — Software Engineer & Java Developer";
+const TITLE = "Pappu Kumar — Software Engineer, Java & Cloud";
 const DESCRIPTION =
-  "Portfolio of Pappu Kumar — B.Tech IT student building Java, Cloud, DevOps, and AI automation projects.";
+  "Portfolio of Pappu Kumar — B.Tech IT student building with Java, exploring AWS & DevOps, and shipping AI automation workflows. Open to SDE, Cloud, and DevOps internships.";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
