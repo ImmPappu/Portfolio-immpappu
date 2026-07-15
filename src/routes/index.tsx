@@ -254,7 +254,7 @@ const SOCIALS = [
   },
   {
     label: "Instagram",
-    href: "https://instagram.com/i_mm_pappu",
+    href: "https://instagram.com/immpappu",
     icon: Instagram,
     handle: "@immpappu",
   },
