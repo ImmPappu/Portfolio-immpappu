@@ -1930,6 +1930,13 @@ function ContactForm() {
     e.preventDefault();
     const form = e.currentTarget;
     const fd = new FormData(form);
+    // Honeypot — bots fill hidden fields; humans don't.
+    if (String(fd.get("website") ?? "").length > 0) {
+      setStatus("success");
+      form.reset();
+      setTimeout(() => setStatus("idle"), 3000);
+      return;
+    }
     const name = String(fd.get("name") ?? "").trim();
     const email = String(fd.get("email") ?? "").trim();
     const subject = String(fd.get("subject") ?? "").trim();
