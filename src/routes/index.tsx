@@ -2000,6 +2000,15 @@ function ContactForm() {
 
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="glass rounded-2xl p-6" noValidate>
+      {/* Honeypot — hidden from users, catches naive bots */}
+      <input
+        type="text"
+        name="website"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="pointer-events-none absolute h-0 w-0 opacity-0"
+      />
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="grid gap-1.5 text-sm">
           <span className="text-muted-foreground">Name</span>
