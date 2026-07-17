@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import pappuPhoto from "@/assets/pappu-kumar.jpg.asset.json";
 import {
   motion,
   useScroll,
@@ -698,7 +699,7 @@ function Hero() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-green opacity-75" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-brand-green" />
             </span>
-            Available for opportunities
+            Open to Internship Opportunities
           </div>
 
           <h1 className="mt-6 font-display text-5xl font-bold leading-[1.05] sm:text-6xl lg:text-7xl">
@@ -780,53 +781,38 @@ function Hero() {
           </div>
         </motion.div>
 
-        {/* Terminal card */}
+        {/* Profile photo */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, delay: 1 }}
-          className="relative"
+          className="relative order-first mx-auto w-full max-w-sm lg:order-none"
         >
-          <div className="glass-strong relative overflow-hidden rounded-2xl p-1 shadow-2xl shadow-black/50">
-            <div className="rounded-xl bg-background/70 p-5 font-mono text-[13px] leading-relaxed">
-              <div className="mb-4 flex items-center gap-1.5">
-                <span className="h-3 w-3 rounded-full bg-red-500/70" />
-                <span className="h-3 w-3 rounded-full bg-yellow-500/70" />
-                <span className="h-3 w-3 rounded-full bg-brand-green" />
-                <span className="ml-3 text-xs text-muted-foreground">~ / pappu.dev</span>
-              </div>
-              <div className="space-y-1.5">
-                <p>
-                  <span className="text-brand-blue">const</span>{" "}
-                  <span className="text-brand-green">pappu</span> = {"{"}
-                </p>
-                <p className="pl-4">
-                  name: <span className="text-brand-cyan">"Pappu Kumar"</span>,
-                </p>
-                <p className="pl-4">
-                  role: <span className="text-brand-cyan">"Software Engineer"</span>,
-                </p>
-                <p className="pl-4">
-                  stack: [
-                  <span className="text-brand-cyan">"Java"</span>,{" "}
-                  <span className="text-brand-cyan">"AWS"</span>,{" "}
-                  <span className="text-brand-cyan">"n8n"</span>],
-                </p>
-                <p className="pl-4">
-                  learning: <span className="text-brand-cyan">"Docker + K8s + CI/CD"</span>,
-                </p>
-                <p className="pl-4">
-                  building: <span className="text-brand-cyan">"AI Automation"</span>,
-                </p>
-                <p>{"}"};</p>
-                <p className="pt-2 text-muted-foreground">
-                  <span className="text-brand-green">$</span> ship --daily
-                  <span className="ml-1 inline-block h-3 w-1.5 translate-y-0.5 animate-pulse bg-brand-green" />
-                </p>
+          <motion.div
+            animate={{ y: [0, -10, 0] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            className="relative mx-auto aspect-square w-64 sm:w-80 lg:w-full"
+          >
+            <div className="absolute -inset-4 -z-10 rounded-full bg-linear-to-br from-brand-green/40 via-brand-cyan/20 to-brand-blue/40 opacity-60 blur-3xl" />
+            <div className="glass-strong relative h-full w-full overflow-hidden rounded-full p-1.5 shadow-2xl shadow-brand-green/20 ring-1 ring-white/10 transition-transform duration-500 hover:scale-[1.02]">
+              <div className="relative h-full w-full overflow-hidden rounded-full">
+                <img
+                  src={pappuPhoto.url}
+                  alt="Pappu Kumar - Software Engineering Student"
+                  loading="lazy"
+                  decoding="async"
+                  width={640}
+                  height={640}
+                  className="h-full w-full object-cover object-center"
+                />
+                <div className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-inset ring-white/10" />
               </div>
             </div>
-          </div>
-          <div className="absolute -inset-2 -z-10 rounded-3xl bg-linear-to-r from-brand-green/30 to-brand-blue/30 opacity-40 blur-2xl" />
+            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 rounded-full border border-brand-green/40 bg-background/80 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-brand-green shadow-lg backdrop-blur">
+              <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-brand-green" />
+              Available
+            </div>
+          </motion.div>
         </motion.div>
       </div>
     </section>
