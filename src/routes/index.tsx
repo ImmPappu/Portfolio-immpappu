@@ -1809,6 +1809,232 @@ function LeetHeatmap({ calendar }: { calendar: Record<string, number> | null }) 
   );
 }
 
+/* ---------- GeeksforGeeks ---------- */
+
+type GfgStats = {
+  totalSolved: number | null;
+  codingScore: number | null;
+  instituteRank: number | null;
+  currentStreak: number | null;
+  maxStreak: number | null;
+  monthlyScore: number | null;
+  easy: number | null;
+  medium: number | null;
+  hard: number | null;
+};
+
+function pickNumber(...vals: unknown[]): number | null {
+  for (const v of vals) {
+    if (typeof v === "number" && Number.isFinite(v) && v > 0) return v;
+    if (typeof v === "string" && v.trim() && !Number.isNaN(Number(v)) && Number(v) > 0)
+      return Number(v);
+  }
+  return null;
+}
+
+function normalizeGfg(raw: unknown): GfgStats | null {
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as Record<string, unknown>;
+  const info = (r.info ?? r.data ?? r) as Record<string, unknown>;
+  const solved = (r.solvedStats ?? r.solved_stats ?? {}) as Record<string, unknown>;
+  const bucket = (name: string) => {
+    const b = solved[name];
+    if (b && typeof b === "object") {
+      const bb = b as Record<string, unknown>;
+      return pickNumber(bb.count, bb.solved, bb.total);
+    }
+    return null;
+  };
+  const stats: GfgStats = {
+    totalSolved: pickNumber(
+      info.totalProblemsSolved,
+      info.total_problems_solved,
+      info.problemsSolved,
+    ),
+    codingScore: pickNumber(info.codingScore, info.coding_score, info.score),
+    instituteRank: pickNumber(info.instituteRank, info.institute_rank),
+    currentStreak: pickNumber(info.currentStreak, info.current_streak, info.pod_solved_longest_streak),
+    maxStreak: pickNumber(info.maxStreak, info.max_streak, info.longestStreak),
+    monthlyScore: pickNumber(info.monthlyCodingScore, info.monthly_coding_score),
+    easy: bucket("easy") ?? bucket("Easy"),
+    medium: bucket("medium") ?? bucket("Medium"),
+    hard: bucket("hard") ?? bucket("Hard"),
+  };
+  const anyValue = Object.values(stats).some((v) => v != null);
+  return anyValue ? stats : null;
+}
+
+function GfgSection() {
+  const { ref, inView } = useInView<HTMLDivElement>();
+  const [data, setData] = useState<GfgStats | null>(null);
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "fallback">("idle");
+
+  useEffect(() => {
+    if (!inView) return;
+    const CACHE_KEY = `gfg-stats-${GFG_USER}`;
+    const CACHE_TTL = 1000 * 60 * 60 * 6;
+    try {
+      const cached =
+        typeof sessionStorage !== "undefined" ? sessionStorage.getItem(CACHE_KEY) : null;
+      if (cached) {
+        const parsed = JSON.parse(cached) as { t: number; d: GfgStats };
+        if (Date.now() - parsed.t < CACHE_TTL) {
+          setData(parsed.d);
+          setStatus("success");
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+
+    let cancelled = false;
+    setStatus((s) => (s === "success" ? s : "loading"));
+
+    const endpoints = [
+      `https://geeks-for-geeks-api.vercel.app/${GFG_USER}`,
+      `https://gfg-api-orpin.vercel.app/${GFG_USER}`,
+    ];
+
+    (async () => {
+      for (const url of endpoints) {
+        try {
+          const res = await fetch(url);
+          if (!res.ok) continue;
+          const raw = await res.json();
+          const normalized = normalizeGfg(raw);
+          if (!normalized) continue;
+          if (cancelled) return;
+          setData(normalized);
+          setStatus("success");
+          try {
+            sessionStorage.setItem(
+              CACHE_KEY,
+              JSON.stringify({ t: Date.now(), d: normalized }),
+            );
+          } catch {
+            /* ignore */
+          }
+          return;
+        } catch {
+          /* try next */
+        }
+      }
+      if (!cancelled) setStatus((s) => (s === "success" ? s : "fallback"));
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [inView]);
+
+  const tiles = useMemo(() => {
+    if (!data) return [] as { icon: LucideIcon; label: string; value: number; accent?: "green" | "blue" | "cyan" }[];
+    const list: { icon: LucideIcon; label: string; value: number; accent?: "green" | "blue" | "cyan" }[] = [];
+    if (data.totalSolved != null)
+      list.push({ icon: Trophy, label: "Solved", value: data.totalSolved });
+    if (data.codingScore != null)
+      list.push({ icon: Sparkles, label: "Coding Score", value: data.codingScore, accent: "cyan" });
+    if (data.instituteRank != null)
+      list.push({ icon: Users, label: "Institute Rank", value: data.instituteRank, accent: "blue" });
+    const streak = data.currentStreak ?? data.maxStreak;
+    if (streak != null)
+      list.push({ icon: Flame, label: data.currentStreak != null ? "Current Streak" : "Longest Streak", value: streak, accent: "cyan" });
+    if (data.monthlyScore != null && list.length < 4)
+      list.push({ icon: Activity, label: "Monthly Score", value: data.monthlyScore, accent: "blue" });
+    return list.slice(0, 4);
+  }, [data]);
+
+  const showFallback = status === "fallback" && !data;
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.5, delay: 0.1 }}
+    >
+      <CardShell
+        title="GeeksforGeeks"
+        subtitle={`@${GFG_USER} · Active Learner`}
+        icon={BookOpen}
+        href={GFG_PROFILE_URL}
+      >
+        <div className="flex flex-col gap-5">
+          {showFallback ? (
+            <div className="rounded-xl border border-white/10 bg-white/[0.03] p-5 text-sm text-muted-foreground">
+              <p className="text-foreground">Live statistics are temporarily unavailable.</p>
+              <p className="mt-1">
+                My full coding progress, solved problems and achievements are always up to date on
+                my GeeksforGeeks profile.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {status !== "success"
+                  ? Array.from({ length: 4 }).map((_, i) => (
+                      <StatTile
+                        key={i}
+                        icon={Trophy}
+                        label="Loading"
+                        value={null}
+                        loading
+                        accent={i % 2 ? "cyan" : "green"}
+                      />
+                    ))
+                  : tiles.map((t) => (
+                      <StatTile
+                        key={t.label}
+                        icon={t.icon}
+                        label={t.label}
+                        value={t.value}
+                        accent={t.accent}
+                      />
+                    ))}
+              </div>
+
+              {(status !== "success" ||
+                data?.easy != null ||
+                data?.medium != null ||
+                data?.hard != null) && (
+                <div className="grid grid-cols-3 gap-3">
+                  <DifficultyRow
+                    label="Easy"
+                    solved={data?.easy ?? undefined}
+                    color="from-brand-green to-brand-cyan"
+                  />
+                  <DifficultyRow
+                    label="Medium"
+                    solved={data?.medium ?? undefined}
+                    color="from-yellow-400 to-orange-400"
+                  />
+                  <DifficultyRow
+                    label="Hard"
+                    solved={data?.hard ?? undefined}
+                    color="from-rose-400 to-red-500"
+                  />
+                </div>
+              )}
+            </>
+          )}
+
+          <a
+            href={GFG_PROFILE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open GeeksforGeeks profile in a new tab"
+            className="group inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-brand-green/50 hover:bg-brand-green/10 hover:text-brand-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green/60"
+          >
+            View GeeksforGeeks Profile
+            <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          </a>
+        </div>
+      </CardShell>
+    </motion.div>
+  );
+}
+
 function Stats() {
   return (
     <Section
@@ -1819,11 +2045,12 @@ function Stats() {
           Numbers that keep me <span className="text-gradient">building.</span>
         </>
       }
-      intro="Real-time GitHub and LeetCode activity — fetched live, never hardcoded."
+      intro="Real-time GitHub, LeetCode and GeeksforGeeks activity — fetched live, never hardcoded."
     >
-      <div className="grid gap-5 lg:grid-cols-2">
+      <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
         <GitHubSection />
         <LeetCodeSection />
+        <GfgSection />
       </div>
     </Section>
   );
