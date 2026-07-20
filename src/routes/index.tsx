@@ -1165,6 +1165,8 @@ function Certifications() {
 
 const GITHUB_USER = "ImmPappu";
 const LEETCODE_USER = "immpappu";
+const GFG_USER = "immpappu";
+const GFG_PROFILE_URL = `https://www.geeksforgeeks.org/user/${GFG_USER}/`;
 
 function useInView<T extends HTMLElement>(rootMargin = "200px") {
   const ref = useRef<T | null>(null);
