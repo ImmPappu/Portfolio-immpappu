@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://immpappu.lovable.app/sitemap.xml
