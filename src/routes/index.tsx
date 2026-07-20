@@ -2073,7 +2073,7 @@ function Experience() {
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h3 className="font-display text-lg font-semibold">Student Developer Club — Volunteer</h3>
+            <h3 className="font-display text-lg font-semibold">Student Developer Club — Coordinator</h3>
             <span className="font-mono text-xs text-muted-foreground">Ongoing</span>
           </div>
           <p className="mt-2 text-sm text-muted-foreground">
