@@ -2077,7 +2077,7 @@ function Experience() {
             <span className="font-mono text-xs text-muted-foreground">Ongoing</span>
           </div>
           <p className="mt-2 text-sm text-muted-foreground">
-            Volunteering with the campus developer community — organizing sessions,
+            Coordinating with the campus developer community — organizing sessions,
             supporting peers, and sharing what I learn about Java, Cloud, and Automation.
           </p>
         </div>
