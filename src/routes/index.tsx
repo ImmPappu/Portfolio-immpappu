@@ -1,15 +1,32 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { motion, useScroll, useSpring, AnimatePresence } from "motion/react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import pappuPhoto from "@/assets/pappu-kumar.jpg.asset.json";
 import {
+  motion,
+  useScroll,
+  useSpring,
+  useMotionValue,
+  useTransform,
+  useReducedMotion,
+  AnimatePresence,
+} from "motion/react";
+import emailjs from "@emailjs/browser";
+import {
+  Activity,
+  AlertCircle,
   ArrowRight,
   ArrowUpRight,
   Award,
+  BookOpen,
   Briefcase,
   Cloud,
   Code2,
   Cpu,
   Download,
+  CheckCircle2,
+  Loader2,
+  Flame,
+  GitFork,
   Github,
   Instagram,
   Linkedin,
@@ -17,9 +34,13 @@ import {
   MapPin,
   Menu,
   Rocket,
+  ArrowUp,
   Send,
   Sparkles,
+  Star,
   Terminal,
+  Trophy,
+  Users,
   Wrench,
   X,
   Youtube,
@@ -63,45 +84,46 @@ type SkillGroup = {
   title: string;
   icon: LucideIcon;
   color: "green" | "blue";
-  skills: { name: string; level: number }[];
+  skills: string[];
 };
 
 const SKILL_GROUPS: SkillGroup[] = [
   {
-    title: "Programming",
+    title: "Programming Languages",
     icon: Code2,
     color: "green",
-    skills: [
-      { name: "Java", level: 88 },
-      { name: "SQL", level: 78 },
-      { name: "JavaScript", level: 72 },
-      { name: "HTML", level: 92 },
-      { name: "CSS", level: 85 },
-    ],
+    skills: ["Java", "C", "Python", "JavaScript", "HTML", "CSS", "SQL"],
   },
   {
-    title: "Core CS",
+    title: "Frontend",
+    icon: Rocket,
+    color: "blue",
+    skills: ["React", "TanStack Router", "Tailwind CSS", "Vite"],
+  },
+  {
+    title: "Core Computer Science",
     icon: Cpu,
     color: "blue",
     skills: [
-      { name: "Data Structures & Algorithms", level: 82 },
-      { name: "Object Oriented Programming", level: 88 },
-      { name: "DBMS", level: 80 },
-      { name: "Operating Systems", level: 75 },
-      { name: "Computer Networks", level: 72 },
+      "Data Structures & Algorithms",
+      "Object Oriented Programming",
+      "DBMS",
+      "Operating Systems",
+      "Computer Networks",
     ],
   },
   {
     title: "Cloud & DevOps",
     icon: Cloud,
-    color: "blue",
+    color: "green",
     skills: [
-      { name: "AWS", level: 78 },
-      { name: "Linux", level: 80 },
-      { name: "Git & GitHub", level: 90 },
-      { name: "Docker (Learning)", level: 55 },
-      { name: "Kubernetes (Learning)", level: 40 },
-      { name: "CI / CD (Learning)", level: 50 },
+      "AWS",
+      "Linux",
+      "Git",
+      "GitHub",
+      "Docker (Learning)",
+      "Kubernetes (Learning)",
+      "CI/CD (Learning)",
     ],
   },
   {
@@ -109,23 +131,24 @@ const SKILL_GROUPS: SkillGroup[] = [
     icon: Sparkles,
     color: "green",
     skills: [
-      { name: "n8n", level: 90 },
-      { name: "Gemini API", level: 82 },
-      { name: "YouTube Data API", level: 80 },
-      { name: "Google Sheets API", level: 78 },
-      { name: "Google Drive API", level: 76 },
+      "n8n",
+      "Gemini API",
+      "YouTube Data API",
+      "Google Sheets API",
+      "Google Drive API",
     ],
   },
   {
     title: "Tools",
     icon: Wrench,
-    color: "green",
+    color: "blue",
     skills: [
-      { name: "VS Code", level: 95 },
-      { name: "IntelliJ IDEA", level: 85 },
-      { name: "Canva", level: 88 },
-      { name: "Photoshop", level: 70 },
-      { name: "DaVinci Resolve", level: 72 },
+      "VS Code",
+      "IntelliJ IDEA",
+      "GitHub Desktop",
+      "Canva",
+      "Adobe Photoshop",
+      "n8n",
     ],
   },
 ];
@@ -232,9 +255,9 @@ const SOCIALS = [
   },
   {
     label: "Instagram",
-    href: "https://instagram.com/i_mm_pappu",
+    href: "https://instagram.com/immpappu",
     icon: Instagram,
-    handle: "@i_mm_pappu",
+    handle: "@immpappu",
   },
 ];
 
@@ -245,8 +268,35 @@ const SOCIALS = [
 function PortfolioPage() {
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
-    const t = setTimeout(() => setLoaded(true), 700);
+    const t = setTimeout(() => setLoaded(true), 1400);
     return () => clearTimeout(t);
+  }, []);
+
+  // Lenis smooth scrolling — respects reduced-motion, disabled on touch
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let lenis: { raf: (t: number) => void; destroy: () => void } | null = null;
+    let raf = 0;
+    let mounted = true;
+    import("lenis").then(({ default: Lenis }) => {
+      if (!mounted) return;
+      lenis = new Lenis({
+        duration: 1.05,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
+      }) as unknown as { raf: (t: number) => void; destroy: () => void };
+      const loop = (time: number) => {
+        lenis?.raf(time);
+        raf = requestAnimationFrame(loop);
+      };
+      raf = requestAnimationFrame(loop);
+    });
+    return () => {
+      mounted = false;
+      cancelAnimationFrame(raf);
+      lenis?.destroy();
+    };
   }, []);
 
   const { scrollYProgress } = useScroll();
@@ -278,6 +328,7 @@ function PortfolioPage() {
       </main>
 
       <Footer />
+      <BackToTop />
     </>
   );
 }
@@ -290,18 +341,29 @@ function LoadingOverlay() {
   return (
     <motion.div
       initial={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-background"
+      exit={{ opacity: 0, transition: { duration: 0.6, ease: [0.65, 0, 0.35, 1] } }}
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-6 bg-background"
     >
-      <div className="flex flex-col items-center gap-4">
+      <motion.div
+        initial={{ scale: 0.6, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="relative grid h-16 w-16 place-items-center rounded-2xl bg-linear-to-br from-brand-green to-brand-blue font-display text-xl font-bold text-background shadow-[0_0_60px_-10px_var(--brand-green)]"
+      >
+        PK
+        <span className="absolute inset-0 -z-10 rounded-2xl bg-linear-to-br from-brand-green to-brand-blue blur-2xl opacity-60" />
+      </motion.div>
+      <div className="relative h-[2px] w-40 overflow-hidden rounded-full bg-white/10">
         <motion.div
-          className="h-14 w-14 rounded-full border-2 border-brand-green/30 border-t-brand-green"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
+          initial={{ x: "-100%" }}
+          animate={{ x: "100%" }}
+          transition={{ duration: 1.2, ease: [0.65, 0, 0.35, 1] }}
+          className="absolute inset-y-0 w-1/2 bg-linear-to-r from-transparent via-brand-green to-transparent"
         />
-        <p className="font-mono text-xs tracking-widest text-muted-foreground">LOADING</p>
       </div>
+      <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-muted-foreground">
+        Pappu Kumar
+      </p>
     </motion.div>
   );
 }
@@ -311,45 +373,111 @@ function LoadingOverlay() {
 /* -------------------------------------------------------------------------- */
 
 function ParticlesBackground() {
+  const reduce = useReducedMotion();
   const dots = useMemo(
     () =>
-      Array.from({ length: 28 }).map((_, i) => ({
+      Array.from({ length: 24 }).map((_, i) => ({
         id: i,
         x: Math.random() * 100,
         y: Math.random() * 100,
-        size: Math.random() * 3 + 1,
-        duration: Math.random() * 10 + 12,
+        size: Math.random() * 2.5 + 1,
+        duration: Math.random() * 10 + 14,
         delay: Math.random() * 5,
         blue: Math.random() > 0.5,
       })),
     []
   );
 
+  // Mouse-follow spotlight via CSS variables (cheap, no re-renders)
+  useEffect(() => {
+    if (reduce) return;
+    const mq = window.matchMedia("(pointer: fine)");
+    if (!mq.matches) return;
+    let raf = 0;
+    let tx = window.innerWidth / 2;
+    let ty = window.innerHeight / 3;
+    const onMove = (e: PointerEvent) => {
+      tx = e.clientX;
+      ty = e.clientY;
+      if (!raf) {
+        raf = requestAnimationFrame(() => {
+          document.documentElement.style.setProperty("--mx", `${tx}px`);
+          document.documentElement.style.setProperty("--my", `${ty}px`);
+          raf = 0;
+        });
+      }
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [reduce]);
+
   return (
     <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+      {/* Grid */}
       <div className="absolute inset-0 bg-grid opacity-40 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />
-      <div className="absolute left-1/4 top-1/4 h-[500px] w-[500px] rounded-full bg-brand-blue/20 blur-[120px]" />
-      <div className="absolute bottom-0 right-0 h-[500px] w-[500px] rounded-full bg-brand-green/15 blur-[130px]" />
-      {dots.map((d) => (
-        <motion.span
-          key={d.id}
-          className={`absolute rounded-full ${d.blue ? "bg-brand-blue" : "bg-brand-green"}`}
+
+      {/* Aurora — animated gradient sweep */}
+      {!reduce && (
+        <motion.div
+          className="absolute inset-0 opacity-60 [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_75%)]"
           style={{
-            width: d.size,
-            height: d.size,
-            left: `${d.x}%`,
-            top: `${d.y}%`,
-            opacity: 0.5,
+            background:
+              "conic-gradient(from 0deg at 50% 50%, oklch(0.82 0.19 152 / 0.18), oklch(0.68 0.18 240 / 0.18), oklch(0.82 0.13 200 / 0.15), oklch(0.82 0.19 152 / 0.18))",
+            filter: "blur(60px)",
           }}
-          animate={{ y: [0, -30, 0], opacity: [0.2, 0.7, 0.2] }}
-          transition={{
-            duration: d.duration,
-            delay: d.delay,
-            repeat: Infinity,
-            ease: "easeInOut",
+          animate={{ rotate: 360 }}
+          transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+        />
+      )}
+
+      {/* Floating blurred blobs */}
+      <motion.div
+        className="absolute left-[15%] top-[20%] h-[520px] w-[520px] rounded-full bg-brand-blue/20 blur-[130px]"
+        animate={reduce ? undefined : { x: [0, 40, -20, 0], y: [0, -30, 20, 0] }}
+        transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="absolute bottom-[5%] right-[5%] h-[520px] w-[520px] rounded-full bg-brand-green/15 blur-[140px]"
+        animate={reduce ? undefined : { x: [0, -40, 20, 0], y: [0, 30, -20, 0] }}
+        transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* Mouse-follow spotlight */}
+      {!reduce && (
+        <div
+          className="absolute inset-0 opacity-70"
+          style={{
+            background:
+              "radial-gradient(600px circle at var(--mx, 50%) var(--my, 30%), oklch(0.82 0.19 152 / 0.10), transparent 55%)",
           }}
         />
-      ))}
+      )}
+
+      {/* Particles */}
+      {!reduce &&
+        dots.map((d) => (
+          <motion.span
+            key={d.id}
+            className={`absolute rounded-full ${d.blue ? "bg-brand-blue" : "bg-brand-green"}`}
+            style={{
+              width: d.size,
+              height: d.size,
+              left: `${d.x}%`,
+              top: `${d.y}%`,
+              opacity: 0.5,
+            }}
+            animate={{ y: [0, -30, 0], opacity: [0.2, 0.7, 0.2] }}
+            transition={{
+              duration: d.duration,
+              delay: d.delay,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+        ))}
     </div>
   );
 }
@@ -361,12 +489,31 @@ function ParticlesBackground() {
 function Nav() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [active, setActive] = useState<string>("about");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     onScroll();
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const els = NAV.map((n) => document.getElementById(n.id)).filter(
+      (el): el is HTMLElement => !!el
+    );
+    if (!els.length) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible?.target.id) setActive(visible.target.id);
+      },
+      { rootMargin: "-40% 0px -50% 0px", threshold: [0, 0.25, 0.5, 1] }
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
   }, []);
 
   return (
@@ -392,16 +539,28 @@ function Nav() {
           </a>
 
           <ul className="hidden items-center gap-1 md:flex">
-            {NAV.map((n) => (
-              <li key={n.id}>
-                <a
-                  href={`#${n.id}`}
-                  className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
-                >
-                  {n.label}
-                </a>
-              </li>
-            ))}
+            {NAV.map((n) => {
+              const isActive = active === n.id;
+              return (
+                <li key={n.id} className="relative">
+                  <a
+                    href={`#${n.id}`}
+                    className={`relative rounded-lg px-3 py-1.5 text-sm transition-colors ${
+                      isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {n.label}
+                    {isActive && (
+                      <motion.span
+                        layoutId="nav-active"
+                        className="absolute inset-x-2 -bottom-0.5 h-[2px] rounded-full bg-linear-to-r from-brand-green to-brand-blue"
+                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                      />
+                    )}
+                  </a>
+                </li>
+              );
+            })}
           </ul>
 
           <div className="hidden md:block">
@@ -540,11 +699,32 @@ function Hero() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-green opacity-75" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-brand-green" />
             </span>
-            Available for opportunities
+            Open to Internship Opportunities
           </div>
 
           <h1 className="mt-6 font-display text-5xl font-bold leading-[1.05] sm:text-6xl lg:text-7xl">
-            Hi, I'm <span className="text-gradient">Pappu Kumar</span>
+            {["Hi,", "I'm"].map((w, i) => (
+              <motion.span
+                key={w + i}
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55, delay: 0.85 + i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                className="mr-3 inline-block"
+              >
+                {w}
+              </motion.span>
+            ))}
+            {["Pappu", "Kumar"].map((w, i) => (
+              <motion.span
+                key={w + i}
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55, delay: 1.05 + i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                className="text-gradient mr-3 inline-block"
+              >
+                {w}
+              </motion.span>
+            ))}
           </h1>
 
           <div className="mt-4 text-2xl font-medium text-foreground/90 sm:text-3xl">
@@ -561,22 +741,30 @@ function Hero() {
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <a
               href="#projects"
-              className="group inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-brand-green to-brand-cyan px-5 py-3 text-sm font-semibold text-background shadow-lg shadow-brand-green/20 transition-all hover:shadow-[0_0_40px_-8px_var(--brand-green)]"
+              data-magnetic
+              data-cursor="hover"
+              className="group inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-brand-green to-brand-cyan px-5 py-3 text-sm font-semibold text-background shadow-lg shadow-brand-green/20 transition-all hover:shadow-[0_0_40px_-8px_var(--brand-green)] hover:-translate-y-0.5"
             >
               View Projects
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </a>
             <a
-              href="#"
-              onClick={(e) => e.preventDefault()}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-foreground backdrop-blur transition-colors hover:bg-white/10"
+              href="/Pappu_Kumar_Resume.pdf"
+              download="Pappu_Kumar_Resume.pdf"
+              target="_blank"
+              rel="noreferrer"
+              data-magnetic
+              data-cursor="hover"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-foreground backdrop-blur transition-all hover:bg-white/10 hover:-translate-y-0.5 hover:shadow-[0_0_30px_-10px_rgba(255,255,255,0.35)]"
             >
               <Download className="h-4 w-4" />
               Download Resume
             </a>
             <a
               href="#contact"
-              className="inline-flex items-center gap-2 rounded-xl border border-brand-blue/30 bg-brand-blue/10 px-5 py-3 text-sm font-semibold text-brand-blue transition-colors hover:bg-brand-blue/20"
+              data-magnetic
+              data-cursor="hover"
+              className="inline-flex items-center gap-2 rounded-xl border border-brand-blue/30 bg-brand-blue/10 px-5 py-3 text-sm font-semibold text-brand-blue transition-all hover:bg-brand-blue/20 hover:-translate-y-0.5 hover:shadow-[0_0_30px_-8px_var(--brand-blue)]"
             >
               <Mail className="h-4 w-4" />
               Contact Me
@@ -593,53 +781,38 @@ function Hero() {
           </div>
         </motion.div>
 
-        {/* Terminal card */}
+        {/* Profile photo */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, delay: 1 }}
-          className="relative"
+          className="relative order-first mx-auto w-full max-w-sm lg:order-none"
         >
-          <div className="glass-strong relative overflow-hidden rounded-2xl p-1 shadow-2xl shadow-black/50">
-            <div className="rounded-xl bg-background/70 p-5 font-mono text-[13px] leading-relaxed">
-              <div className="mb-4 flex items-center gap-1.5">
-                <span className="h-3 w-3 rounded-full bg-red-500/70" />
-                <span className="h-3 w-3 rounded-full bg-yellow-500/70" />
-                <span className="h-3 w-3 rounded-full bg-brand-green" />
-                <span className="ml-3 text-xs text-muted-foreground">~ / pappu.dev</span>
-              </div>
-              <div className="space-y-1.5">
-                <p>
-                  <span className="text-brand-blue">const</span>{" "}
-                  <span className="text-brand-green">pappu</span> = {"{"}
-                </p>
-                <p className="pl-4">
-                  name: <span className="text-brand-cyan">"Pappu Kumar"</span>,
-                </p>
-                <p className="pl-4">
-                  role: <span className="text-brand-cyan">"Software Engineer"</span>,
-                </p>
-                <p className="pl-4">
-                  stack: [
-                  <span className="text-brand-cyan">"Java"</span>,{" "}
-                  <span className="text-brand-cyan">"AWS"</span>,{" "}
-                  <span className="text-brand-cyan">"n8n"</span>],
-                </p>
-                <p className="pl-4">
-                  learning: <span className="text-brand-cyan">"Docker + K8s + CI/CD"</span>,
-                </p>
-                <p className="pl-4">
-                  building: <span className="text-brand-cyan">"AI Automation"</span>,
-                </p>
-                <p>{"}"};</p>
-                <p className="pt-2 text-muted-foreground">
-                  <span className="text-brand-green">$</span> ship --daily
-                  <span className="ml-1 inline-block h-3 w-1.5 translate-y-0.5 animate-pulse bg-brand-green" />
-                </p>
+          <motion.div
+            animate={{ y: [0, -10, 0] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            className="relative mx-auto aspect-square w-64 sm:w-80 lg:w-full"
+          >
+            <div className="absolute -inset-4 -z-10 rounded-full bg-linear-to-br from-brand-green/40 via-brand-cyan/20 to-brand-blue/40 opacity-60 blur-3xl" />
+            <div className="glass-strong relative h-full w-full overflow-hidden rounded-full p-1.5 shadow-2xl shadow-brand-green/20 ring-1 ring-white/10 transition-transform duration-500 hover:scale-[1.02]">
+              <div className="relative h-full w-full overflow-hidden rounded-full">
+                <img
+                  src={pappuPhoto.url}
+                  alt="Pappu Kumar - Software Engineering Student"
+                  loading="lazy"
+                  decoding="async"
+                  width={640}
+                  height={640}
+                  className="h-full w-full object-cover object-center"
+                />
+                <div className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-inset ring-white/10" />
               </div>
             </div>
-          </div>
-          <div className="absolute -inset-2 -z-10 rounded-3xl bg-linear-to-r from-brand-green/30 to-brand-blue/30 opacity-40 blur-2xl" />
+            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 rounded-full border border-brand-green/40 bg-background/80 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-brand-green shadow-lg backdrop-blur">
+              <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-brand-green" />
+              Available
+            </div>
+          </motion.div>
         </motion.div>
       </div>
     </section>
@@ -735,7 +908,7 @@ function Skills() {
           Toolkit I <span className="text-gradient">build with.</span>
         </>
       }
-      intro="A snapshot of the languages, tools, and platforms I use — plus the ones I'm actively leveling up in."
+      intro="Languages, frameworks, and platforms I actively use — grouped by domain, no self-rated percentages."
     >
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {SKILL_GROUPS.map((group, i) => (
@@ -743,11 +916,15 @@ function Skills() {
             key={group.title}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: i * 0.05 }}
-            className="glass group relative overflow-hidden rounded-2xl p-6 transition-all hover:border-white/20"
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.45, delay: i * 0.05 }}
+            className="glass group relative overflow-hidden rounded-2xl p-6 transition-all hover:-translate-y-1 hover:border-white/20"
           >
-            <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-brand-green/10 blur-3xl transition-opacity group-hover:opacity-100" />
+            <div
+              className={`pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full blur-3xl transition-opacity duration-500 ${
+                group.color === "green" ? "bg-brand-green/10" : "bg-brand-blue/10"
+              } opacity-60 group-hover:opacity-100`}
+            />
             <div className="relative flex items-center gap-3">
               <div
                 className={`grid h-10 w-10 place-items-center rounded-xl ${
@@ -756,30 +933,14 @@ function Skills() {
                     : "bg-brand-blue/15 text-brand-blue"
                 }`}
               >
-                <group.icon className="h-5 w-5" />
+                <group.icon className="h-5 w-5" aria-hidden="true" />
               </div>
               <h3 className="font-display text-lg font-semibold">{group.title}</h3>
             </div>
-            <ul className="relative mt-5 space-y-3">
-              {group.skills.map((s) => (
-                <li key={s.name}>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-foreground/85">{s.name}</span>
-                    <span className="font-mono text-[11px] text-muted-foreground">{s.level}%</span>
-                  </div>
-                  <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-white/5">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      whileInView={{ width: `${s.level}%` }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 1, ease: "easeOut" }}
-                      className={`h-full rounded-full ${
-                        group.color === "green"
-                          ? "bg-linear-to-r from-brand-green to-brand-cyan"
-                          : "bg-linear-to-r from-brand-blue to-brand-cyan"
-                      }`}
-                    />
-                  </div>
+            <ul className="relative mt-5 flex flex-wrap gap-2">
+              {group.skills.map((name) => (
+                <li key={name}>
+                  <SkillBadge name={name} color={group.color} />
                 </li>
               ))}
             </ul>
@@ -787,6 +948,31 @@ function Skills() {
         ))}
       </div>
     </Section>
+  );
+}
+
+function SkillBadge({ name, color }: { name: string; color: "green" | "blue" }) {
+  const learning = /learning/i.test(name);
+  const base =
+    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-200 will-change-transform";
+  const tone = learning
+    ? "border-yellow-400/25 bg-yellow-400/[0.06] text-yellow-200/90 hover:border-yellow-400/50 hover:shadow-[0_0_20px_-6px_rgba(250,204,21,0.5)]"
+    : color === "green"
+      ? "border-brand-green/25 bg-brand-green/[0.06] text-foreground/90 hover:border-brand-green/60 hover:text-brand-green hover:shadow-[0_0_22px_-6px_var(--brand-green)]"
+      : "border-brand-blue/25 bg-brand-blue/[0.06] text-foreground/90 hover:border-brand-blue/60 hover:text-brand-blue hover:shadow-[0_0_22px_-6px_var(--brand-blue)]";
+  return (
+    <span className={`${base} ${tone} hover:-translate-y-0.5`}>
+      <span
+        className={`h-1.5 w-1.5 rounded-full ${
+          learning
+            ? "bg-yellow-400"
+            : color === "green"
+              ? "bg-brand-green"
+              : "bg-brand-blue"
+        }`}
+      />
+      {name}
+    </span>
   );
 }
 
@@ -828,56 +1014,7 @@ function Projects() {
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         <AnimatePresence mode="popLayout">
           {filtered.map((p, i) => (
-            <motion.article
-              key={p.title}
-              layout
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.35, delay: i * 0.04 }}
-              className="glass group relative flex flex-col overflow-hidden rounded-2xl p-6 transition-all hover:-translate-y-1 hover:border-white/20"
-            >
-              <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-brand-green/50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-              <div className="flex items-center justify-between">
-                <span className="rounded-full border border-brand-blue/30 bg-brand-blue/10 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-brand-blue">
-                  {p.category}
-                </span>
-                <span
-                  className={`inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider ${
-                    p.status === "Live" ? "text-brand-green" : "text-yellow-400"
-                  }`}
-                >
-                  <span
-                    className={`h-1.5 w-1.5 rounded-full ${
-                      p.status === "Live" ? "bg-brand-green" : "bg-yellow-400"
-                    }`}
-                  />
-                  {p.status}
-                </span>
-              </div>
-              <h3 className="mt-4 font-display text-lg font-semibold leading-tight">
-                {p.title}
-              </h3>
-              <p className="mt-2 text-sm text-muted-foreground">{p.description}</p>
-              <ul className="mt-4 space-y-1.5 text-sm">
-                {p.highlights.map((h) => (
-                  <li key={h} className="flex items-start gap-2 text-foreground/75">
-                    <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand-green" />
-                    {h}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-5 flex flex-wrap gap-1.5">
-                {p.stack.map((s) => (
-                  <span
-                    key={s}
-                    className="rounded-md bg-white/5 px-2 py-0.5 font-mono text-[10px] text-muted-foreground"
-                  >
-                    {s}
-                  </span>
-                ))}
-              </div>
-            </motion.article>
+            <TiltProjectCard key={p.title} project={p} index={i} />
           ))}
         </AnimatePresence>
 
@@ -1026,76 +1163,898 @@ function Certifications() {
 /*  Stats (GitHub + LeetCode)                                                  */
 /* -------------------------------------------------------------------------- */
 
-function Stats() {
-  const gh = "Pappu Kumar"; // replace with real handle
-  const lc = "Pappu Kumar";
-  const cards = [
-    {
-      title: "GitHub Stats",
-      img: `https://github-readme-stats.vercel.app/api?username=${gh}&show_icons=true&hide_border=true&bg_color=00000000&title_color=6ee7b7&icon_color=60a5fa&text_color=e5e7eb`,
-    },
-    {
-      title: "Top Languages",
-      img: `https://github-readme-stats.vercel.app/api/top-langs/?username=${gh}&layout=compact&hide_border=true&bg_color=00000000&title_color=6ee7b7&text_color=e5e7eb`,
-    },
-    {
-      title: "GitHub Streak",
-      img: `https://streak-stats.demolab.com?user=${gh}&hide_border=true&background=00000000&stroke=6ee7b7&ring=60a5fa&fire=6ee7b7&currStreakLabel=6ee7b7&sideNums=e5e7eb&currStreakNum=e5e7eb&sideLabels=e5e7eb&dates=9ca3af`,
-    },
-    {
-      title: "LeetCode",
-      img: `https://leetcard.jacoblin.cool/${lc}?theme=dark&font=Inter&ext=heatmap`,
-    },
-  ];
+const GITHUB_USER = "ImmPappu";
+const LEETCODE_USER = "immpappu";
+const GFG_USER = "immpappu";
+const GFG_PROFILE_URL = `https://www.geeksforgeeks.org/user/${GFG_USER}/`;
 
+function useInView<T extends HTMLElement>(rootMargin = "200px") {
+  const ref = useRef<T | null>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    if (!ref.current || inView) return;
+    const el = ref.current;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) if (e.isIntersecting) setInView(true);
+      },
+      { rootMargin },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [inView, rootMargin]);
+  return { ref, inView };
+}
+
+function useAnimatedCount(target: number | null | undefined, duration = 900) {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    if (target == null || Number.isNaN(target)) return;
+    const start = performance.now();
+    const from = 0;
+    let raf = 0;
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - start) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setN(Math.round(from + (target - from) * eased));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration]);
+  return n;
+}
+
+function StatTile({
+  icon: Icon,
+  label,
+  value,
+  loading,
+  accent = "green",
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: number | string | null;
+  loading?: boolean;
+  accent?: "green" | "blue" | "cyan";
+}) {
+  const numeric = typeof value === "number" ? value : null;
+  const animated = useAnimatedCount(numeric);
+  const display =
+    loading || value == null
+      ? null
+      : numeric != null
+        ? animated.toLocaleString()
+        : value;
+  const accentText =
+    accent === "blue"
+      ? "text-brand-blue"
+      : accent === "cyan"
+        ? "text-brand-cyan"
+        : "text-brand-green";
+  return (
+    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 transition-colors hover:border-white/20">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <Icon className={`h-3.5 w-3.5 ${accentText}`} aria-hidden="true" />
+        {label}
+      </div>
+      <div className="mt-1.5 font-display text-2xl font-bold text-foreground">
+        {display === null ? (
+          <span className="inline-block h-7 w-16 animate-pulse rounded-md bg-white/5" />
+        ) : (
+          display
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CardShell({
+  title,
+  subtitle,
+  icon: Icon,
+  href,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  icon: LucideIcon;
+  href?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="glass relative flex flex-col overflow-hidden rounded-2xl p-6">
+      <div className="mb-5 flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/5 text-brand-green">
+            <Icon className="h-5 w-5" aria-hidden="true" />
+          </div>
+          <div className="min-w-0">
+            <h3 className="truncate font-display text-base font-semibold">{title}</h3>
+            {subtitle && (
+              <p className="truncate font-mono text-xs text-muted-foreground">{subtitle}</p>
+            )}
+          </div>
+        </div>
+        {href && (
+          <a
+            href={href}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={`Open ${title}`}
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/5 text-muted-foreground transition-colors hover:border-brand-green/50 hover:text-brand-green"
+          >
+            <ArrowUpRight className="h-4 w-4" />
+          </a>
+        )}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function ErrorState({ message }: { message: string }) {
+  return (
+    <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-muted-foreground">
+      <AlertCircle className="h-4 w-4 shrink-0 text-yellow-400" />
+      {message}
+    </div>
+  );
+}
+
+/* ---------- GitHub ---------- */
+
+type GhUser = {
+  login: string;
+  name: string | null;
+  avatar_url: string;
+  html_url: string;
+  bio: string | null;
+  followers: number;
+  following: number;
+  public_repos: number;
+  public_gists: number;
+};
+
+type GhRepo = {
+  name: string;
+  html_url: string;
+  stargazers_count: number;
+  language: string | null;
+  fork: boolean;
+};
+
+type ContribDay = { date: string; count: number; level: 0 | 1 | 2 | 3 | 4 };
+
+function computeStreaks(days: ContribDay[]) {
+  if (!days.length) return { current: 0, longest: 0, total: 0 };
+  const sorted = [...days].sort((a, b) => a.date.localeCompare(b.date));
+  let longest = 0;
+  let run = 0;
+  for (const d of sorted) {
+    if (d.count > 0) {
+      run += 1;
+      if (run > longest) longest = run;
+    } else run = 0;
+  }
+  let current = 0;
+  for (let i = sorted.length - 1; i >= 0; i--) {
+    if (sorted[i].count > 0) current += 1;
+    else break;
+  }
+  const total = sorted.reduce((s, d) => s + d.count, 0);
+  return { current, longest, total };
+}
+
+function GitHubSection() {
+  const { ref, inView } = useInView<HTMLDivElement>();
+  const [user, setUser] = useState<GhUser | null>(null);
+  const [repos, setRepos] = useState<GhRepo[] | null>(null);
+  const [contrib, setContrib] = useState<ContribDay[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!inView) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const [uRes, rRes, cRes] = await Promise.all([
+          fetch(`https://api.github.com/users/${GITHUB_USER}`),
+          fetch(`https://api.github.com/users/${GITHUB_USER}/repos?per_page=100&sort=updated`),
+          fetch(`https://github-contributions-api.jogruber.de/v4/${GITHUB_USER}?y=last`),
+        ]);
+        if (!uRes.ok || !rRes.ok) throw new Error("gh");
+        const uJson: GhUser = await uRes.json();
+        const rJson: GhRepo[] = await rRes.json();
+        let cJson: { contributions: ContribDay[] } | null = null;
+        if (cRes.ok) cJson = await cRes.json();
+        if (cancelled) return;
+        setUser(uJson);
+        setRepos(rJson);
+        setContrib(cJson?.contributions ?? []);
+      } catch {
+        if (!cancelled) setError("Unable to fetch GitHub data.");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [inView]);
+
+  const stars = useMemo(
+    () => (repos ? repos.reduce((s, r) => s + (r.stargazers_count ?? 0), 0) : null),
+    [repos],
+  );
+
+  const topLangs = useMemo(() => {
+    if (!repos) return null;
+    const map = new Map<string, number>();
+    for (const r of repos) {
+      if (r.fork) continue;
+      if (!r.language) continue;
+      map.set(r.language, (map.get(r.language) ?? 0) + 1);
+    }
+    const total = Array.from(map.values()).reduce((s, n) => s + n, 0) || 1;
+    return Array.from(map.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6)
+      .map(([name, count]) => ({ name, pct: Math.round((count / total) * 100) }));
+  }, [repos]);
+
+  const streaks = useMemo(() => (contrib ? computeStreaks(contrib) : null), [contrib]);
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.5 }}
+    >
+      <CardShell
+        title={user?.name ?? "GitHub"}
+        subtitle={`@${GITHUB_USER}`}
+        icon={Github}
+        href={`https://github.com/${GITHUB_USER}`}
+      >
+        {error ? (
+          <ErrorState message={error} />
+        ) : (
+          <div className="flex flex-col gap-5">
+            <div className="flex items-center gap-4">
+              <div className="relative shrink-0">
+                {user ? (
+                  <img
+                    src={user.avatar_url}
+                    alt={`${user.login} avatar`}
+                    width={56}
+                    height={56}
+                    loading="lazy"
+                    className="h-14 w-14 rounded-full border border-white/10"
+                  />
+                ) : (
+                  <div className="h-14 w-14 animate-pulse rounded-full bg-white/5" />
+                )}
+              </div>
+              <p className="min-w-0 text-sm text-muted-foreground">
+                {user?.bio ?? "Building things with Java, Cloud, and AI Automation."}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <StatTile icon={BookOpen} label="Repos" value={user?.public_repos ?? null} loading={!user} />
+              <StatTile icon={Star} label="Stars" value={stars} loading={stars === null} accent="cyan" />
+              <StatTile icon={Users} label="Followers" value={user?.followers ?? null} loading={!user} accent="blue" />
+              <StatTile icon={GitFork} label="Following" value={user?.following ?? null} loading={!user} accent="blue" />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              <StatTile
+                icon={Flame}
+                label="Current Streak"
+                value={streaks ? `${streaks.current}d` : null}
+                loading={!streaks}
+                accent="green"
+              />
+              <StatTile
+                icon={Trophy}
+                label="Longest Streak"
+                value={streaks ? `${streaks.longest}d` : null}
+                loading={!streaks}
+                accent="cyan"
+              />
+              <StatTile
+                icon={Activity}
+                label="Contributions (1y)"
+                value={streaks ? streaks.total : null}
+                loading={!streaks}
+                accent="blue"
+              />
+            </div>
+
+            {topLangs && topLangs.length > 0 && (
+              <div>
+                <div className="mb-2 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+                  Top Languages
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {topLangs.map((l) => (
+                    <span
+                      key={l.name}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-brand-blue/25 bg-brand-blue/[0.06] px-3 py-1 text-xs text-foreground/90"
+                    >
+                      <span className="h-1.5 w-1.5 rounded-full bg-brand-blue" />
+                      {l.name}
+                      <span className="text-muted-foreground">· {l.pct}%</span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div>
+              <div className="mb-2 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+                Contribution Heatmap · last year
+              </div>
+              <ContribHeatmap days={contrib} />
+            </div>
+          </div>
+        )}
+      </CardShell>
+    </motion.div>
+  );
+}
+
+function ContribHeatmap({ days }: { days: ContribDay[] | null }) {
+  if (!days) {
+    return <div className="h-[92px] w-full animate-pulse rounded-lg bg-white/5" />;
+  }
+  if (days.length === 0) return <ErrorState message="Contribution data unavailable." />;
+  // Group by week (7 days each), align to weeks
+  const sorted = [...days].sort((a, b) => a.date.localeCompare(b.date));
+  const firstDow = new Date(sorted[0].date).getUTCDay();
+  const padded: (ContribDay | null)[] = Array(firstDow).fill(null).concat(sorted);
+  const weeks: (ContribDay | null)[][] = [];
+  for (let i = 0; i < padded.length; i += 7) weeks.push(padded.slice(i, i + 7));
+
+  const levelClass = (lvl: number) =>
+    [
+      "bg-white/5",
+      "bg-brand-green/25",
+      "bg-brand-green/45",
+      "bg-brand-green/70",
+      "bg-brand-green",
+    ][lvl] ?? "bg-white/5";
+
+  return (
+    <div className="overflow-x-auto">
+      <div className="flex gap-[3px]" role="img" aria-label="GitHub contribution heatmap">
+        {weeks.map((w, wi) => (
+          <div key={wi} className="flex flex-col gap-[3px]">
+            {Array.from({ length: 7 }).map((_, di) => {
+              const d = w[di];
+              return (
+                <span
+                  key={di}
+                  title={d ? `${d.date}: ${d.count} contributions` : ""}
+                  className={`h-[10px] w-[10px] rounded-[2px] ${
+                    d ? levelClass(d.level) : "bg-transparent"
+                  }`}
+                />
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ---------- LeetCode ---------- */
+
+type LcStats = {
+  status: string;
+  totalSolved: number;
+  totalQuestions: number;
+  easySolved: number;
+  totalEasy: number;
+  mediumSolved: number;
+  totalMedium: number;
+  hardSolved: number;
+  totalHard: number;
+  acceptanceRate: number;
+  ranking: number;
+  contributionPoints: number;
+  reputation: number;
+  submissionCalendar: Record<string, number>;
+};
+
+function LeetCodeSection() {
+  const { ref, inView } = useInView<HTMLDivElement>();
+  const [data, setData] = useState<LcStats | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!inView) return;
+    let cancelled = false;
+    const CACHE_KEY = `lc-stats-${LEETCODE_USER}`;
+    const CACHE_TTL = 1000 * 60 * 60 * 6; // 6h
+    try {
+      const cached = typeof sessionStorage !== "undefined" ? sessionStorage.getItem(CACHE_KEY) : null;
+      if (cached) {
+        const parsed = JSON.parse(cached) as { t: number; d: LcStats };
+        if (Date.now() - parsed.t < CACHE_TTL) setData(parsed.d);
+      }
+    } catch {}
+
+    const endpoints = [
+      `https://leetcode-api-faisalshohag.vercel.app/${LEETCODE_USER}`,
+      `https://alfa-leetcode-api.onrender.com/userProfile/${LEETCODE_USER}`,
+    ];
+
+    (async () => {
+      for (const url of endpoints) {
+        try {
+          const res = await fetch(url);
+          if (!res.ok) continue;
+          const raw = await res.json();
+          if (raw?.errors || raw?.error) continue;
+          const totalSolved = raw.totalSolved ?? raw.solvedProblem ?? 0;
+          if (!totalSolved && !raw.easySolved) continue;
+          const acceptanceRate =
+            raw.acceptanceRate ??
+            (raw.matchedUserStats?.actSessionBeatsPercentage ? undefined : undefined);
+          const normalized: LcStats = {
+            status: "success",
+            totalSolved,
+            totalQuestions: raw.totalQuestions ?? 0,
+            easySolved: raw.easySolved ?? 0,
+            totalEasy: raw.totalEasy ?? 0,
+            mediumSolved: raw.mediumSolved ?? 0,
+            totalMedium: raw.totalMedium ?? 0,
+            hardSolved: raw.hardSolved ?? 0,
+            totalHard: raw.totalHard ?? 0,
+            acceptanceRate: typeof acceptanceRate === "number" ? Math.round(acceptanceRate * 10) / 10 : 0,
+            ranking: raw.ranking ?? 0,
+            contributionPoints: raw.contributionPoint ?? raw.contributionPoints ?? 0,
+            reputation: raw.reputation ?? 0,
+            submissionCalendar: raw.submissionCalendar ?? {},
+          };
+          if (cancelled) return;
+          setData(normalized);
+          try {
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: normalized }));
+          } catch {}
+          return;
+        } catch {
+          // try next
+        }
+      }
+      if (!cancelled) setError("Unable to fetch LeetCode data right now.");
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [inView]);
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.5, delay: 0.05 }}
+    >
+      <CardShell
+        title="LeetCode"
+        subtitle={`@${LEETCODE_USER}`}
+        icon={Code2}
+        href={`https://leetcode.com/${LEETCODE_USER}/`}
+      >
+        {error ? (
+          <ErrorState message={error} />
+        ) : (
+          <div className="flex flex-col gap-5">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <StatTile icon={Trophy} label="Solved" value={data?.totalSolved ?? null} loading={!data} />
+              <StatTile
+                icon={Activity}
+                label="Acceptance"
+                value={data ? `${data.acceptanceRate}%` : null}
+                loading={!data}
+                accent="cyan"
+              />
+              <StatTile
+                icon={Users}
+                label="Global Rank"
+                value={data?.ranking ?? null}
+                loading={!data}
+                accent="blue"
+              />
+              <StatTile
+                icon={Star}
+                label="Reputation"
+                value={data?.reputation ?? null}
+                loading={!data}
+                accent="cyan"
+              />
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              <DifficultyRow
+                label="Easy"
+                solved={data?.easySolved}
+                total={data?.totalEasy}
+                color="from-brand-green to-brand-cyan"
+              />
+              <DifficultyRow
+                label="Medium"
+                solved={data?.mediumSolved}
+                total={data?.totalMedium}
+                color="from-yellow-400 to-orange-400"
+              />
+              <DifficultyRow
+                label="Hard"
+                solved={data?.hardSolved}
+                total={data?.totalHard}
+                color="from-rose-400 to-red-500"
+              />
+            </div>
+
+            <div>
+              <div className="mb-2 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+                Submission Calendar · 52 weeks
+              </div>
+              <LeetHeatmap calendar={data?.submissionCalendar ?? null} />
+            </div>
+          </div>
+        )}
+      </CardShell>
+    </motion.div>
+  );
+}
+
+function DifficultyRow({
+  label,
+  solved,
+  total,
+  color,
+}: {
+  label: string;
+  solved?: number;
+  total?: number;
+  color: string;
+}) {
+  const pct = solved != null && total ? Math.min(100, Math.round((solved / total) * 100)) : 0;
+  return (
+    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+      <div className="flex items-baseline justify-between">
+        <span className="text-xs text-muted-foreground">{label}</span>
+        <span className="font-mono text-[11px] text-muted-foreground">
+          {solved != null && total ? `${solved} / ${total}` : "—"}
+        </span>
+      </div>
+      <div className="mt-2 font-display text-xl font-bold text-foreground">
+        {solved != null ? solved : <span className="inline-block h-6 w-10 animate-pulse rounded bg-white/5" />}
+      </div>
+      <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/5">
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${pct}%` }}
+          transition={{ duration: 0.9, ease: "easeOut" }}
+          className={`h-full rounded-full bg-linear-to-r ${color}`}
+        />
+      </div>
+    </div>
+  );
+}
+
+function LeetHeatmap({ calendar }: { calendar: Record<string, number> | null }) {
+  if (!calendar) {
+    return <div className="h-[92px] w-full animate-pulse rounded-lg bg-white/5" />;
+  }
+  const now = Math.floor(Date.now() / 1000);
+  const weeks = 52;
+  const startDate = new Date((now - weeks * 7 * 86400) * 1000);
+  startDate.setUTCHours(0, 0, 0, 0);
+  const dow = startDate.getUTCDay();
+  startDate.setUTCDate(startDate.getUTCDate() - dow);
+
+  const cells: { ts: number; count: number }[] = [];
+  const totalDays = (weeks + 1) * 7;
+  for (let i = 0; i < totalDays; i++) {
+    const d = new Date(startDate);
+    d.setUTCDate(d.getUTCDate() + i);
+    const key = Math.floor(d.getTime() / 1000).toString();
+    cells.push({ ts: d.getTime(), count: Number(calendar[key] ?? 0) });
+  }
+
+  const max = cells.reduce((m, c) => Math.max(m, c.count), 0);
+  const levelFor = (n: number) => {
+    if (n <= 0 || max <= 0) return 0;
+    const r = n / max;
+    if (r > 0.75) return 4;
+    if (r > 0.5) return 3;
+    if (r > 0.25) return 2;
+    return 1;
+  };
+  const levelClass = (lvl: number) =>
+    [
+      "bg-white/5",
+      "bg-brand-blue/25",
+      "bg-brand-blue/45",
+      "bg-brand-blue/70",
+      "bg-brand-blue",
+    ][lvl];
+
+  const weeksArr: { ts: number; count: number }[][] = [];
+  for (let i = 0; i < cells.length; i += 7) weeksArr.push(cells.slice(i, i + 7));
+
+  return (
+    <div className="overflow-x-auto">
+      <div className="flex gap-[3px]" role="img" aria-label="LeetCode submission heatmap">
+        {weeksArr.map((w, wi) => (
+          <div key={wi} className="flex flex-col gap-[3px]">
+            {w.map((c, di) => (
+              <span
+                key={di}
+                title={`${new Date(c.ts).toISOString().slice(0, 10)}: ${c.count} submissions`}
+                className={`h-[10px] w-[10px] rounded-[2px] ${levelClass(levelFor(c.count))}`}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ---------- GeeksforGeeks ---------- */
+
+type GfgStats = {
+  totalSolved: number | null;
+  codingScore: number | null;
+  instituteRank: number | null;
+  currentStreak: number | null;
+  maxStreak: number | null;
+  monthlyScore: number | null;
+  easy: number | null;
+  medium: number | null;
+  hard: number | null;
+};
+
+function pickNumber(...vals: unknown[]): number | null {
+  for (const v of vals) {
+    if (typeof v === "number" && Number.isFinite(v) && v > 0) return v;
+    if (typeof v === "string" && v.trim() && !Number.isNaN(Number(v)) && Number(v) > 0)
+      return Number(v);
+  }
+  return null;
+}
+
+function normalizeGfg(raw: unknown): GfgStats | null {
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as Record<string, unknown>;
+  const info = (r.info ?? r.data ?? r) as Record<string, unknown>;
+  const solved = (r.solvedStats ?? r.solved_stats ?? {}) as Record<string, unknown>;
+  const bucket = (name: string) => {
+    const b = solved[name];
+    if (b && typeof b === "object") {
+      const bb = b as Record<string, unknown>;
+      return pickNumber(bb.count, bb.solved, bb.total);
+    }
+    return null;
+  };
+  const stats: GfgStats = {
+    totalSolved: pickNumber(
+      info.totalProblemsSolved,
+      info.total_problems_solved,
+      info.problemsSolved,
+    ),
+    codingScore: pickNumber(info.codingScore, info.coding_score, info.score),
+    instituteRank: pickNumber(info.instituteRank, info.institute_rank),
+    currentStreak: pickNumber(info.currentStreak, info.current_streak, info.pod_solved_longest_streak),
+    maxStreak: pickNumber(info.maxStreak, info.max_streak, info.longestStreak),
+    monthlyScore: pickNumber(info.monthlyCodingScore, info.monthly_coding_score),
+    easy: bucket("easy") ?? bucket("Easy"),
+    medium: bucket("medium") ?? bucket("Medium"),
+    hard: bucket("hard") ?? bucket("Hard"),
+  };
+  const anyValue = Object.values(stats).some((v) => v != null);
+  return anyValue ? stats : null;
+}
+
+function GfgSection() {
+  const { ref, inView } = useInView<HTMLDivElement>();
+  const [data, setData] = useState<GfgStats | null>(null);
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "fallback">("idle");
+
+  useEffect(() => {
+    if (!inView) return;
+    const CACHE_KEY = `gfg-stats-${GFG_USER}`;
+    const CACHE_TTL = 1000 * 60 * 60 * 6;
+    try {
+      const cached =
+        typeof sessionStorage !== "undefined" ? sessionStorage.getItem(CACHE_KEY) : null;
+      if (cached) {
+        const parsed = JSON.parse(cached) as { t: number; d: GfgStats };
+        if (Date.now() - parsed.t < CACHE_TTL) {
+          setData(parsed.d);
+          setStatus("success");
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+
+    let cancelled = false;
+    setStatus((s) => (s === "success" ? s : "loading"));
+
+    const endpoints = [
+      `https://geeks-for-geeks-api.vercel.app/${GFG_USER}`,
+      `https://gfg-api-orpin.vercel.app/${GFG_USER}`,
+    ];
+
+    (async () => {
+      for (const url of endpoints) {
+        try {
+          const res = await fetch(url);
+          if (!res.ok) continue;
+          const raw = await res.json();
+          const normalized = normalizeGfg(raw);
+          if (!normalized) continue;
+          if (cancelled) return;
+          setData(normalized);
+          setStatus("success");
+          try {
+            sessionStorage.setItem(
+              CACHE_KEY,
+              JSON.stringify({ t: Date.now(), d: normalized }),
+            );
+          } catch {
+            /* ignore */
+          }
+          return;
+        } catch {
+          /* try next */
+        }
+      }
+      if (!cancelled) setStatus((s) => (s === "success" ? s : "fallback"));
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [inView]);
+
+  const tiles = useMemo(() => {
+    if (!data) return [] as { icon: LucideIcon; label: string; value: number; accent?: "green" | "blue" | "cyan" }[];
+    const list: { icon: LucideIcon; label: string; value: number; accent?: "green" | "blue" | "cyan" }[] = [];
+    if (data.totalSolved != null)
+      list.push({ icon: Trophy, label: "Solved", value: data.totalSolved });
+    if (data.codingScore != null)
+      list.push({ icon: Sparkles, label: "Coding Score", value: data.codingScore, accent: "cyan" });
+    if (data.instituteRank != null)
+      list.push({ icon: Users, label: "Institute Rank", value: data.instituteRank, accent: "blue" });
+    const streak = data.currentStreak ?? data.maxStreak;
+    if (streak != null)
+      list.push({ icon: Flame, label: data.currentStreak != null ? "Current Streak" : "Longest Streak", value: streak, accent: "cyan" });
+    if (data.monthlyScore != null && list.length < 4)
+      list.push({ icon: Activity, label: "Monthly Score", value: data.monthlyScore, accent: "blue" });
+    return list.slice(0, 4);
+  }, [data]);
+
+  const showFallback = status === "fallback" && !data;
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.5, delay: 0.1 }}
+    >
+      <CardShell
+        title="GeeksforGeeks"
+        subtitle={`@${GFG_USER} · Active Learner`}
+        icon={BookOpen}
+        href={GFG_PROFILE_URL}
+      >
+        <div className="flex flex-col gap-5">
+          {showFallback ? (
+            <div className="rounded-xl border border-white/10 bg-white/[0.03] p-5 text-sm text-muted-foreground">
+              <p className="text-foreground">Live statistics are temporarily unavailable.</p>
+              <p className="mt-1">
+                My full coding progress, solved problems and achievements are always up to date on
+                my GeeksforGeeks profile.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {status !== "success"
+                  ? Array.from({ length: 4 }).map((_, i) => (
+                      <StatTile
+                        key={i}
+                        icon={Trophy}
+                        label="Loading"
+                        value={null}
+                        loading
+                        accent={i % 2 ? "cyan" : "green"}
+                      />
+                    ))
+                  : tiles.map((t) => (
+                      <StatTile
+                        key={t.label}
+                        icon={t.icon}
+                        label={t.label}
+                        value={t.value}
+                        accent={t.accent}
+                      />
+                    ))}
+              </div>
+
+              {(status !== "success" ||
+                data?.easy != null ||
+                data?.medium != null ||
+                data?.hard != null) && (
+                <div className="grid grid-cols-3 gap-3">
+                  <DifficultyRow
+                    label="Easy"
+                    solved={data?.easy ?? undefined}
+                    color="from-brand-green to-brand-cyan"
+                  />
+                  <DifficultyRow
+                    label="Medium"
+                    solved={data?.medium ?? undefined}
+                    color="from-yellow-400 to-orange-400"
+                  />
+                  <DifficultyRow
+                    label="Hard"
+                    solved={data?.hard ?? undefined}
+                    color="from-rose-400 to-red-500"
+                  />
+                </div>
+              )}
+            </>
+          )}
+
+          <a
+            href={GFG_PROFILE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open GeeksforGeeks profile in a new tab"
+            className="group inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-brand-green/50 hover:bg-brand-green/10 hover:text-brand-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green/60"
+          >
+            View GeeksforGeeks Profile
+            <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          </a>
+        </div>
+      </CardShell>
+    </motion.div>
+  );
+}
+
+function Stats() {
   return (
     <Section
       id="stats"
-      eyebrow="Coding Stats"
+      eyebrow="Live Coding Stats"
       title={
         <>
           Numbers that keep me <span className="text-gradient">building.</span>
         </>
       }
-      intro="Live snapshots from my GitHub and LeetCode."
+      intro="Real-time GitHub, LeetCode and GeeksforGeeks activity — fetched live, never hardcoded."
     >
-      <div className="grid gap-5 md:grid-cols-2">
-        {cards.map((c, i) => (
-          <motion.div
-            key={c.title}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: i * 0.05 }}
-            className="glass overflow-hidden rounded-2xl p-5"
-          >
-            <div className="mb-3 flex items-center justify-between">
-              <h3 className="font-display text-sm font-semibold">{c.title}</h3>
-              <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                live
-              </span>
-            </div>
-            <div className="grid min-h-[180px] place-items-center">
-              <img
-                src={c.img}
-                alt={c.title}
-                loading="lazy"
-                className="max-w-full"
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).style.opacity = "0.3";
-                }}
-              />
-            </div>
-          </motion.div>
-        ))}
+      <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
+        <GitHubSection />
+        <LeetCodeSection />
+        <GfgSection />
       </div>
     </Section>
   );
 }
-
-/* -------------------------------------------------------------------------- */
-/*  Experience                                                                 */
-/* -------------------------------------------------------------------------- */
 
 function Experience() {
   return (
@@ -1132,7 +2091,6 @@ function Experience() {
 /* -------------------------------------------------------------------------- */
 
 function Contact() {
-  const [sent, setSent] = useState(false);
   return (
     <Section
       id="contact"
@@ -1166,70 +2124,207 @@ function Contact() {
           ))}
         </div>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            setSent(true);
-            setTimeout(() => setSent(false), 3500);
-            (e.currentTarget as HTMLFormElement).reset();
-          }}
-          className="glass rounded-2xl p-6"
-        >
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="grid gap-1.5 text-sm">
-              <span className="text-muted-foreground">Name</span>
-              <input
-                required
-                name="name"
-                className="rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm outline-none transition-colors focus:border-brand-green/60"
-                placeholder="Your name"
-              />
-            </label>
-            <label className="grid gap-1.5 text-sm">
-              <span className="text-muted-foreground">Email</span>
-              <input
-                required
-                type="email"
-                name="email"
-                className="rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm outline-none transition-colors focus:border-brand-green/60"
-                placeholder="you@email.com"
-              />
-            </label>
-          </div>
-          <label className="mt-4 grid gap-1.5 text-sm">
-            <span className="text-muted-foreground">Subject</span>
-            <input
-              name="subject"
-              className="rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm outline-none transition-colors focus:border-brand-green/60"
-              placeholder="What's this about?"
-            />
-          </label>
-          <label className="mt-4 grid gap-1.5 text-sm">
-            <span className="text-muted-foreground">Message</span>
-            <textarea
-              required
-              name="message"
-              rows={5}
-              className="resize-none rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm outline-none transition-colors focus:border-brand-green/60"
-              placeholder="Tell me a bit more..."
-            />
-          </label>
-          <div className="mt-5 flex items-center justify-between gap-3">
-            <p className="text-xs text-muted-foreground">
-              Or email me directly at{" "}
-              <span className="text-foreground">appubdm06@gmail.com</span>
-            </p>
-            <button
-              type="submit"
-              className="group inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-brand-green to-brand-cyan px-5 py-2.5 text-sm font-semibold text-background shadow-lg shadow-brand-green/20 transition-all hover:shadow-[0_0_30px_-8px_var(--brand-green)]"
-            >
-              {sent ? "Sent!" : "Send Message"}
-              <Send className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </button>
-          </div>
-        </form>
+        <ContactForm />
       </div>
     </Section>
+  );
+}
+
+type FormStatus = "idle" | "sending" | "success" | "error";
+
+function ContactForm() {
+  const [status, setStatus] = useState<FormStatus>("idle");
+  const [errorMsg, setErrorMsg] = useState<string>("");
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID as string | undefined;
+  const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID as string | undefined;
+  const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY as string | undefined;
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const fd = new FormData(form);
+    // Honeypot — bots fill hidden fields; humans don't.
+    if (String(fd.get("website") ?? "").length > 0) {
+      setStatus("success");
+      form.reset();
+      setTimeout(() => setStatus("idle"), 3000);
+      return;
+    }
+    const name = String(fd.get("name") ?? "").trim();
+    const email = String(fd.get("email") ?? "").trim();
+    const subject = String(fd.get("subject") ?? "").trim();
+    const message = String(fd.get("message") ?? "").trim();
+
+    if (name.length < 2) {
+      setStatus("error");
+      setErrorMsg("Please enter your name (min 2 characters).");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setStatus("error");
+      setErrorMsg("Please enter a valid email address.");
+      return;
+    }
+    if (message.length < 10) {
+      setStatus("error");
+      setErrorMsg("Message should be at least 10 characters.");
+      return;
+    }
+
+    setStatus("sending");
+    setErrorMsg("");
+
+    try {
+      if (SERVICE_ID && TEMPLATE_ID && PUBLIC_KEY) {
+        await emailjs.send(
+          SERVICE_ID,
+          TEMPLATE_ID,
+          {
+            from_name: name,
+            from_email: email,
+            reply_to: email,
+            subject: subject || "New message from portfolio",
+            message,
+            to_email: "appubdm06@gmail.com",
+          },
+          { publicKey: PUBLIC_KEY },
+        );
+        setStatus("success");
+        form.reset();
+        setTimeout(() => setStatus("idle"), 5000);
+      } else {
+        // Fallback: open user's mail client pre-filled to appubdm06@gmail.com
+        const body = `Name: ${name}\nEmail: ${email}\n\n${message}`;
+        const mailto = `mailto:appubdm06@gmail.com?subject=${encodeURIComponent(
+          subject || "Portfolio contact",
+        )}&body=${encodeURIComponent(body)}`;
+        window.location.href = mailto;
+        setStatus("success");
+        setTimeout(() => setStatus("idle"), 5000);
+      }
+    } catch (err) {
+      console.error("EmailJS send failed", err);
+      setStatus("error");
+      setErrorMsg("Sorry, message failed to send. Please email me directly at appubdm06@gmail.com.");
+    }
+  }
+
+  const sending = status === "sending";
+
+  return (
+    <form ref={formRef} onSubmit={handleSubmit} className="glass rounded-2xl p-6" noValidate>
+      {/* Honeypot — hidden from users, catches naive bots */}
+      <input
+        type="text"
+        name="website"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="pointer-events-none absolute h-0 w-0 opacity-0"
+      />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="grid gap-1.5 text-sm">
+          <span className="text-muted-foreground">Name</span>
+          <input
+            required
+            name="name"
+            maxLength={80}
+            disabled={sending}
+            className="rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm outline-none transition-colors focus:border-brand-green/60 disabled:opacity-60"
+            placeholder="Your name"
+          />
+        </label>
+        <label className="grid gap-1.5 text-sm">
+          <span className="text-muted-foreground">Email</span>
+          <input
+            required
+            type="email"
+            name="email"
+            maxLength={120}
+            disabled={sending}
+            className="rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm outline-none transition-colors focus:border-brand-green/60 disabled:opacity-60"
+            placeholder="you@email.com"
+          />
+        </label>
+      </div>
+      <label className="mt-4 grid gap-1.5 text-sm">
+        <span className="text-muted-foreground">Subject</span>
+        <input
+          name="subject"
+          maxLength={120}
+          disabled={sending}
+          className="rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm outline-none transition-colors focus:border-brand-green/60 disabled:opacity-60"
+          placeholder="What's this about?"
+        />
+      </label>
+      <label className="mt-4 grid gap-1.5 text-sm">
+        <span className="text-muted-foreground">Message</span>
+        <textarea
+          required
+          name="message"
+          rows={5}
+          maxLength={2000}
+          disabled={sending}
+          className="resize-none rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm outline-none transition-colors focus:border-brand-green/60 disabled:opacity-60"
+          placeholder="Tell me a bit more..."
+        />
+      </label>
+
+      <AnimatePresence mode="wait">
+        {status === "success" && (
+          <motion.div
+            key="success"
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="mt-4 flex items-start gap-2 rounded-lg border border-brand-green/30 bg-brand-green/10 px-3 py-2.5 text-sm text-brand-green"
+          >
+            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>Message sent — I&apos;ll get back to you soon.</span>
+          </motion.div>
+        )}
+        {status === "error" && (
+          <motion.div
+            key="error"
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="mt-4 flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2.5 text-sm text-red-300"
+          >
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>{errorMsg}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-xs text-muted-foreground">
+          Or email me directly at{" "}
+          <a href="mailto:appubdm06@gmail.com" className="text-foreground underline-offset-4 hover:underline">
+            appubdm06@gmail.com
+          </a>
+        </p>
+        <button
+          type="submit"
+          disabled={sending}
+          className="group inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-brand-green to-brand-cyan px-5 py-2.5 text-sm font-semibold text-background shadow-lg shadow-brand-green/20 transition-all hover:shadow-[0_0_30px_-8px_var(--brand-green)] disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          {sending ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Sending...
+            </>
+          ) : (
+            <>
+              Send Message
+              <Send className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </>
+          )}
+        </button>
+      </div>
+    </form>
   );
 }
 
@@ -1261,8 +2356,188 @@ function Footer() {
             </a>
           ))}
         </div>
-        <p className="font-mono text-xs text-muted-foreground">© {new Date().getFullYear()} — Built with love in India</p>
+        <p className="whitespace-pre-line text-center font-mono text-xs text-muted-foreground sm:text-right">
+          © {new Date().getFullYear()} — Made with React + TypeScript + Tailwind + Vite
+          {"\n\n\u00a0 \u00a0 \u00a0 \u00a0 \u00a0 \u00a0 \u00a0 \u00a0 \u00a0"}Hosted on Vercel
+        </p>
       </div>
     </footer>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Motion FX — Tilt cards, Custom cursor, Back-to-top                         */
+/* -------------------------------------------------------------------------- */
+
+function TiltProjectCard({ project: p, index: i }: { project: Project; index: number }) {
+  const reduce = useReducedMotion();
+  const ref = useRef<HTMLDivElement>(null);
+  const rx = useMotionValue(0);
+  const ry = useMotionValue(0);
+  const srx = useSpring(rx, { stiffness: 200, damping: 20, mass: 0.4 });
+  const sry = useSpring(ry, { stiffness: 200, damping: 20, mass: 0.4 });
+
+  const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (reduce) return;
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    ry.set(px * 10);
+    rx.set(-py * 10);
+  };
+  const onLeave = () => {
+    rx.set(0);
+    ry.set(0);
+  };
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.4, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}
+      style={{ perspective: 1000 }}
+      className="group relative"
+    >
+      <motion.article
+        ref={ref}
+        onPointerMove={onMove}
+        onPointerLeave={onLeave}
+        style={{ rotateX: srx, rotateY: sry, transformStyle: "preserve-3d" }}
+        whileHover={{ y: -6 }}
+        transition={{ type: "spring", stiffness: 280, damping: 24 }}
+        className="glass relative flex h-full flex-col overflow-hidden rounded-2xl transition-shadow duration-300 hover:border-white/20 hover:shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6),0_0_40px_-16px_var(--brand-green)]"
+      >
+        {/* Browser mockup */}
+        <div className="relative overflow-hidden border-b border-white/10 bg-linear-to-br from-white/[0.04] to-white/[0.01]">
+          <div className="flex items-center gap-1.5 border-b border-white/10 bg-black/20 px-3 py-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-red-500/60" />
+            <span className="h-2.5 w-2.5 rounded-full bg-yellow-500/60" />
+            <span className="h-2.5 w-2.5 rounded-full bg-brand-green/70" />
+            <div className="ml-3 flex-1 truncate rounded-md bg-white/[0.04] px-2 py-0.5 text-center font-mono text-[10px] text-muted-foreground">
+              pappu.dev/{p.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 24)}
+            </div>
+          </div>
+          <div className="relative grid h-32 place-items-center overflow-hidden">
+            <div className="absolute inset-0 bg-grid opacity-40 [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_75%)]" />
+            <div
+              className={`absolute -inset-8 opacity-40 blur-3xl transition-transform duration-700 group-hover:scale-110 ${
+                p.category === "AI"
+                  ? "bg-linear-to-tr from-brand-blue/40 via-brand-cyan/30 to-brand-green/30"
+                  : p.category === "Automation"
+                    ? "bg-linear-to-tr from-brand-green/40 via-brand-cyan/25 to-brand-blue/30"
+                    : "bg-linear-to-tr from-brand-cyan/30 via-brand-green/30 to-brand-blue/40"
+              }`}
+            />
+            <span className="relative font-display text-4xl font-bold text-gradient opacity-80">
+              {p.title
+                .split(" ")
+                .map((w) => w[0])
+                .join("")
+                .slice(0, 3)
+                .toUpperCase()}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex flex-1 flex-col p-6">
+          <div className="flex items-center justify-between">
+            <span className="rounded-full border border-brand-blue/30 bg-brand-blue/10 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-brand-blue">
+              {p.category}
+            </span>
+            <span
+              className={`inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider ${
+                p.status === "Live" ? "text-brand-green" : "text-yellow-400"
+              }`}
+            >
+              <span
+                className={`h-1.5 w-1.5 rounded-full ${
+                  p.status === "Live" ? "bg-brand-green" : "bg-yellow-400"
+                }`}
+              />
+              {p.status}
+            </span>
+          </div>
+          <h3 className="mt-3 font-display text-lg font-semibold leading-tight">{p.title}</h3>
+          <p className="mt-2 text-sm text-muted-foreground">{p.description}</p>
+          <ul className="mt-4 space-y-1.5 text-sm">
+            {p.highlights.map((h) => (
+              <li key={h} className="flex items-start gap-2 text-foreground/75">
+                <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand-green" />
+                {h}
+              </li>
+            ))}
+          </ul>
+          <div className="mt-4 flex flex-wrap gap-1.5">
+            {p.stack.map((s, idx) => (
+              <motion.span
+                key={s}
+                initial={{ opacity: 0, y: 6 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.3, delay: 0.1 + idx * 0.03 }}
+                className="rounded-md bg-white/5 px-2 py-0.5 font-mono text-[10px] text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
+              >
+                {s}
+              </motion.span>
+            ))}
+          </div>
+          <div className="mt-5 flex gap-2 pt-1">
+            <a
+              href={`https://github.com/${GITHUB_USER}`}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`${p.title} on GitHub`}
+              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-medium text-foreground/80 transition-all hover:-translate-y-0.5 hover:border-brand-green/40 hover:text-brand-green"
+            >
+              <Github className="h-3.5 w-3.5" />
+              Code
+            </a>
+            <span
+              aria-hidden="true"
+              className="inline-flex flex-1 cursor-default items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2 text-xs font-medium text-muted-foreground/70"
+              title="Live demo coming soon"
+            >
+              <ArrowUpRight className="h-3.5 w-3.5" />
+              Live
+            </span>
+          </div>
+        </div>
+      </motion.article>
+    </motion.div>
+  );
+}
+
+
+function BackToTop() {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setShow(window.scrollY > 500);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.button
+          initial={{ opacity: 0, scale: 0.6, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.6, y: 20 }}
+          transition={{ type: "spring", stiffness: 260, damping: 22 }}
+          whileHover={{ y: -3 }}
+          whileTap={{ scale: 0.92 }}
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          data-cursor="hover"
+          aria-label="Back to top"
+          className="glass-strong fixed bottom-6 right-6 z-50 grid h-11 w-11 place-items-center rounded-full text-brand-green shadow-[0_10px_40px_-10px_var(--brand-green)] transition-shadow hover:shadow-[0_10px_50px_-6px_var(--brand-green)]"
+        >
+          <ArrowUp className="h-4 w-4" />
+        </motion.button>
+      )}
+    </AnimatePresence>
   );
 }
