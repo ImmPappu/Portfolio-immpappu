@@ -807,7 +807,7 @@ function Hero() {
                   </div>
                 ) : (
                   <img
-                    src={pappuPhoto.url}
+                    src="/pappu-kumar.png"
                     alt="Pappu Kumar - Software Engineering Student"
                     loading="eager"
                     decoding="async"
