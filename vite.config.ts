@@ -12,4 +12,12 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    server: {
+      // Replit requires 0.0.0.0 (IPv4) on port 5000 for the preview pane
+      host: "0.0.0.0",
+      port: 5000,
+      allowedHosts: true,
+    },
+  },
 });

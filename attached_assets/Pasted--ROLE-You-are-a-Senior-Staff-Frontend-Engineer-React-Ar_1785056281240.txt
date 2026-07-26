@@ -1,0 +1,475 @@
+# ROLE
+
+You are a Senior Staff Frontend Engineer, React Architect, Product Designer, UI/UX Specialist and Performance Engineer.
+
+You are working on an existing production portfolio.
+
+Your task is to improve and complete the portfolio while preserving its existing identity.
+
+This is NOT a beginner project.
+
+Every change should look handcrafted by an experienced software engineer.
+
+Think Vercel, Stripe, Linear, Clerk and Framer quality.
+
+----------------------------------------------------
+PROJECT CONTEXT
+----------------------------------------------------
+
+This project has been imported from GitHub into Replit.
+
+The project already contains:
+
+- React
+- TypeScript
+- Tailwind CSS
+- Existing portfolio pages
+- Resume PDF
+- Images
+- GitHub integration
+- LeetCode integration
+- GeeksforGeeks section
+- Contact section
+
+The portfolio is already deployed on Vercel.
+
+DO NOT recreate the project.
+
+Improve the existing codebase.
+
+----------------------------------------------------
+NON-NEGOTIABLE RULES
+----------------------------------------------------
+
+DO NOT change:
+
+- dark color palette
+- branding
+- portfolio content
+- projects
+- resume
+- animations that improve UX
+
+Keep performance excellent.
+
+Avoid unnecessary dependencies.
+
+If a dependency is required, explain why before adding it.
+
+----------------------------------------------------
+PART 1
+HERO IMAGE (BLOCKING BUG)
+----------------------------------------------------
+
+The profile image currently renders as an empty circle.
+
+Find the real root cause.
+
+Check:
+
+- asset path
+- import
+- public folder
+- image optimization
+- hydration
+- lazy loading
+- incorrect image source
+- object-fit
+- object-position
+
+Requirements
+
+✓ Image must always load.
+
+✓ If image fails,
+display a premium fallback avatar.
+
+Never show an empty circle.
+
+Desktop
+
+Image beside hero text.
+
+Mobile
+
+Image above hero text.
+
+Keep:
+
+- circular frame
+- subtle glow
+- premium appearance
+- responsive sizing
+
+----------------------------------------------------
+PART 2
+COMPLETE CODING DASHBOARD REDESIGN
+----------------------------------------------------
+
+The current coding section looks auto-generated.
+
+Redesign it professionally.
+
+Replace it with a recruiter-focused Coding Dashboard.
+
+Section title
+
+Coding Dashboard
+
+Subtitle
+
+Competitive Programming & Open Source Activity
+
+----------------------------------------------------
+SUMMARY BAR
+----------------------------------------------------
+
+At the top create 4 premium stat cards.
+
+Examples
+
+- Total Problems Solved
+- GitHub Contributions
+- Coding Platforms
+- Current Streak
+
+Responsive.
+
+Equal spacing.
+
+----------------------------------------------------
+GITHUB CARD
+----------------------------------------------------
+
+Display
+
+Repositories
+
+Followers
+
+Contributions
+
+Top Languages
+
+Contribution Heatmap
+
+Heatmap must resize automatically.
+
+Never overflow.
+
+----------------------------------------------------
+LEETCODE CARD
+----------------------------------------------------
+
+Keep only
+
+Total Solved
+
+Easy
+
+Medium
+
+Hard
+
+Current Streak
+
+Remove
+
+Acceptance
+
+Reputation
+
+Global Rank
+
+Heatmap
+
+Responsive
+
+No horizontal scrolling
+
+----------------------------------------------------
+GEEKSFORGEEKS CARD
+----------------------------------------------------
+
+If live stats are available
+
+display them.
+
+Otherwise
+
+Never display technical errors.
+
+Instead show
+
+Active GeeksforGeeks Profile
+
+Continuous Learner
+
+View Profile
+
+If solved count is available
+
+display it.
+
+----------------------------------------------------
+CARD SYSTEM
+----------------------------------------------------
+
+Every coding card must have
+
+same height
+
+same padding
+
+same border radius
+
+same spacing
+
+same typography
+
+same hover animation
+
+same shadow
+
+No overlap.
+
+No clipping.
+
+No horizontal scrolling.
+
+----------------------------------------------------
+RESPONSIVE
+----------------------------------------------------
+
+Desktop
+
+Laptop
+
+Tablet
+
+Mobile
+
+Minimum width
+
+320px
+
+Requirements
+
+No overflow
+
+No clipped text
+
+No broken layout
+
+----------------------------------------------------
+TYPOGRAPHY
+----------------------------------------------------
+
+Improve
+
+Hierarchy
+
+Spacing
+
+Alignment
+
+Font sizing
+
+Information density
+
+Whitespace
+
+The dashboard should immediately impress recruiters.
+
+----------------------------------------------------
+PART 3
+EMAILJS INTEGRATION
+----------------------------------------------------
+
+The portfolio already contains a Contact Form.
+
+Integrate EmailJS properly.
+
+Requirements
+
+Use Environment Variables.
+
+Never hardcode credentials.
+
+Read these values from:
+
+VITE_EMAILJS_SERVICE_ID
+
+VITE_EMAILJS_TEMPLATE_ID
+
+VITE_EMAILJS_PUBLIC_KEY
+
+If environment variables are missing
+
+display a helpful console warning.
+
+Do not crash the application.
+
+----------------------------------------------------
+CONTACT FORM
+----------------------------------------------------
+
+Requirements
+
+Validate
+
+Name
+
+Email
+
+Message
+
+Disable submit button while sending.
+
+Prevent duplicate submissions.
+
+Show loading state.
+
+Show success toast.
+
+Show failure toast.
+
+Clear form after successful submission.
+
+Sanitize inputs.
+
+Prevent spam using a cooldown.
+
+----------------------------------------------------
+PART 4
+SEO
+----------------------------------------------------
+
+Review all SEO.
+
+Replace every old Lovable domain.
+
+Current production domain
+
+https://portfolio-immpappu.vercel.app
+
+Update
+
+Canonical URL
+
+OpenGraph URL
+
+Twitter URL
+
+JSON-LD
+
+robots.txt
+
+sitemap.xml
+
+manifest
+
+meta tags
+
+Remove every reference to
+
+lovable.app
+
+----------------------------------------------------
+PART 5
+PERFORMANCE
+----------------------------------------------------
+
+Lazy load images.
+
+Optimize image rendering.
+
+Avoid unnecessary re-renders.
+
+Keep bundle size small.
+
+Improve Lighthouse score.
+
+----------------------------------------------------
+PART 6
+ACCESSIBILITY
+----------------------------------------------------
+
+Semantic HTML
+
+ARIA labels
+
+Keyboard navigation
+
+Focus states
+
+Color contrast
+
+----------------------------------------------------
+PART 7
+FINAL ENGINEERING CLEANUP
+----------------------------------------------------
+
+Remove
+
+unused code
+
+unused CSS
+
+console.log
+
+dead imports
+
+Improve
+
+folder structure
+
+component naming
+
+code readability
+
+maintainability
+
+----------------------------------------------------
+FINAL QA
+----------------------------------------------------
+
+Before finishing
+
+perform a complete engineering audit.
+
+Verify
+
+✓ Hero image always loads
+
+✓ EmailJS works
+
+✓ Contact form sends emails
+
+✓ Resume download works
+
+✓ Resume view works
+
+✓ GitHub card works
+
+✓ LeetCode card works
+
+✓ GeeksforGeeks card works
+
+✓ No overlapping text
+
+✓ No overflow
+
+✓ No horizontal scrolling
+
+✓ Perfect responsiveness
+
+✓ No broken images
+
+✓ No broken links
+
+✓ SEO updated
+
+✓ No lovable.app references remain
+
+The final result should feel like a handcrafted production portfolio built by an experienced software engineer rather than an AI-generated template.
