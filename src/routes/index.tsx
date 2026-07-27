@@ -268,7 +268,7 @@ const SOCIALS = [
 function PortfolioPage() {
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
-    const t = setTimeout(() => setLoaded(true), 1400);
+    const t = setTimeout(() => setLoaded(true), 600);
     return () => clearTimeout(t);
   }, []);
 
@@ -282,7 +282,7 @@ function PortfolioPage() {
     import("lenis").then(({ default: Lenis }) => {
       if (!mounted) return;
       lenis = new Lenis({
-        duration: 1.05,
+        duration: 0.7,
         easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         smoothWheel: true,
       }) as unknown as { raf: (t: number) => void; destroy: () => void };
@@ -456,26 +456,22 @@ function ParticlesBackground() {
         />
       )}
 
-      {/* Particles */}
+      {/* Particles — CSS-animated to keep off the JS thread */}
       {!reduce &&
         dots.map((d) => (
-          <motion.span
+          <span
             key={d.id}
-            className={`absolute rounded-full ${d.blue ? "bg-brand-blue" : "bg-brand-green"}`}
-            style={{
-              width: d.size,
-              height: d.size,
-              left: `${d.x}%`,
-              top: `${d.y}%`,
-              opacity: 0.5,
-            }}
-            animate={{ y: [0, -30, 0], opacity: [0.2, 0.7, 0.2] }}
-            transition={{
-              duration: d.duration,
-              delay: d.delay,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
+            className={`particle absolute rounded-full ${d.blue ? "bg-brand-blue" : "bg-brand-green"}`}
+            style={
+              {
+                width: d.size,
+                height: d.size,
+                left: `${d.x}%`,
+                top: `${d.y}%`,
+                "--dur": `${d.duration}s`,
+                "--delay": `${d.delay}s`,
+              } as React.CSSProperties
+            }
           />
         ))}
     </div>
@@ -1031,7 +1027,6 @@ function Projects() {
         </AnimatePresence>
 
         <motion.div
-          layout
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -1621,46 +1616,40 @@ function LeetCodeSection() {
       `https://alfa-leetcode-api.onrender.com/userProfile/${LEETCODE_USER}`,
     ];
 
-    (async () => {
-      for (const url of endpoints) {
-        try {
-          const res = await fetch(url);
-          if (!res.ok) continue;
-          const raw = await res.json();
-          if (raw?.errors || raw?.error) continue;
-          const totalSolved = raw.totalSolved ?? raw.solvedProblem ?? 0;
-          if (!totalSolved && !raw.easySolved) continue;
-          const acceptanceRate =
-            raw.acceptanceRate ??
-            (raw.matchedUserStats?.actSessionBeatsPercentage ? undefined : undefined);
-          const normalized: LcStats = {
-            status: "success",
-            totalSolved,
-            totalQuestions: raw.totalQuestions ?? 0,
-            easySolved: raw.easySolved ?? 0,
-            totalEasy: raw.totalEasy ?? 0,
-            mediumSolved: raw.mediumSolved ?? 0,
-            totalMedium: raw.totalMedium ?? 0,
-            hardSolved: raw.hardSolved ?? 0,
-            totalHard: raw.totalHard ?? 0,
-            acceptanceRate: typeof acceptanceRate === "number" ? Math.round(acceptanceRate * 10) / 10 : 0,
-            ranking: raw.ranking ?? 0,
-            contributionPoints: raw.contributionPoint ?? raw.contributionPoints ?? 0,
-            reputation: raw.reputation ?? 0,
-            submissionCalendar: raw.submissionCalendar ?? {},
-          };
-          if (cancelled) return;
-          setData(normalized);
-          try {
-            sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: normalized }));
-          } catch {}
-          return;
-        } catch {
-          // try next
-        }
-      }
-      if (!cancelled) setError("Unable to fetch LeetCode data right now.");
-    })();
+    const normalizeLc = async (url: string): Promise<LcStats> => {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("bad status");
+      const raw = await res.json();
+      if (raw?.errors || raw?.error) throw new Error("api error");
+      const totalSolved = raw.totalSolved ?? raw.solvedProblem ?? 0;
+      if (!totalSolved && !raw.easySolved) throw new Error("no data");
+      return {
+        status: "success",
+        totalSolved,
+        totalQuestions: raw.totalQuestions ?? 0,
+        easySolved: raw.easySolved ?? 0,
+        totalEasy: raw.totalEasy ?? 0,
+        mediumSolved: raw.mediumSolved ?? 0,
+        totalMedium: raw.totalMedium ?? 0,
+        hardSolved: raw.hardSolved ?? 0,
+        totalHard: raw.totalHard ?? 0,
+        acceptanceRate: 0,
+        ranking: raw.ranking ?? 0,
+        contributionPoints: raw.contributionPoint ?? raw.contributionPoints ?? 0,
+        reputation: raw.reputation ?? 0,
+        submissionCalendar: raw.submissionCalendar ?? {},
+      };
+    };
+
+    Promise.any(endpoints.map(normalizeLc))
+      .then((normalized) => {
+        if (cancelled) return;
+        setData(normalized);
+        try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: normalized })); } catch {}
+      })
+      .catch(() => {
+        if (!cancelled) setError("Unable to fetch LeetCode data right now.");
+      });
     return () => {
       cancelled = true;
     };
@@ -1855,32 +1844,25 @@ function GfgSection() {
       `https://gfg-api-orpin.vercel.app/${GFG_USER}`,
     ];
 
-    (async () => {
-      for (const url of endpoints) {
-        try {
-          const res = await fetch(url);
-          if (!res.ok) continue;
-          const raw = await res.json();
-          const normalized = normalizeGfg(raw);
-          if (!normalized) continue;
-          if (cancelled) return;
-          setData(normalized);
-          setStatus("success");
-          try {
-            sessionStorage.setItem(
-              CACHE_KEY,
-              JSON.stringify({ t: Date.now(), d: normalized }),
-            );
-          } catch {
-            /* ignore */
-          }
-          return;
-        } catch {
-          /* try next */
-        }
-      }
-      if (!cancelled) setStatus((s) => (s === "success" ? s : "fallback"));
-    })();
+    Promise.any(
+      endpoints.map(async (url) => {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("bad status");
+        const raw = await res.json();
+        const normalized = normalizeGfg(raw);
+        if (!normalized) throw new Error("no data");
+        return normalized;
+      }),
+    )
+      .then((normalized) => {
+        if (cancelled) return;
+        setData(normalized);
+        setStatus("success");
+        try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: normalized })); } catch {}
+      })
+      .catch(() => {
+        if (!cancelled) setStatus((s) => (s === "success" ? s : "fallback"));
+      });
 
     return () => {
       cancelled = true;
@@ -2040,81 +2022,54 @@ function CodingDashboardSummary() {
           if (res.ok) {
             const data = (await res.json()) as { contributions: ContribDay[] };
             contribs = data.contributions.reduce((s, d) => s + d.count, 0);
-            try {
-              sessionStorage.setItem(
-                CACHE_KEY,
-                JSON.stringify({ t: Date.now(), d: contribs }),
-              );
-            } catch {
-              /* ignore */
-            }
+            try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: contribs })); } catch {}
           }
         }
         if (!cancelled && contribs !== null) setGhContribs(contribs);
-      } catch {
-        /* ignore */
-      }
+      } catch { /* ignore */ }
+    })();
 
-      // LeetCode total solved + streak
+    // LeetCode — parallel, independent of GitHub fetch above
+    (async () => {
+      if (cancelled) return;
       try {
         const CACHE_KEY = "lc-summary";
         const CACHE_TTL = 1000 * 60 * 60 * 6;
-        let cached: { lc: number; streak: number } | null = null;
         try {
-          const raw =
-            typeof sessionStorage !== "undefined"
-              ? sessionStorage.getItem(CACHE_KEY)
-              : null;
+          const raw = typeof sessionStorage !== "undefined" ? sessionStorage.getItem(CACHE_KEY) : null;
           if (raw) {
             const p = JSON.parse(raw) as { t: number; lc: number; streak: number };
-            if (Date.now() - p.t < CACHE_TTL) cached = { lc: p.lc, streak: p.streak };
-          }
-        } catch {
-          /* ignore */
-        }
-
-        if (cached) {
-          if (!cancelled) {
-            setProblemsSolved(cached.lc);
-            if (cached.streak > 0) setCurrentStreak(cached.streak);
-          }
-        } else {
-          const endpoints = [
-            `https://leetcode-api-faisalshohag.vercel.app/${LEETCODE_USER}`,
-            `https://alfa-leetcode-api.onrender.com/userProfile/${LEETCODE_USER}`,
-          ];
-          for (const url of endpoints) {
-            try {
-              const res = await fetch(url);
-              if (!res.ok) continue;
-              const d = await res.json();
-              if (d?.errors || d?.error) continue;
-              const lc = d.totalSolved ?? d.solvedProblem ?? 0;
-              if (!lc) continue;
-              const streak = computeLcStreak(
-                (d.submissionCalendar ?? {}) as Record<string, number>,
-              );
+            if (Date.now() - p.t < CACHE_TTL) {
               if (!cancelled) {
-                setProblemsSolved(lc);
-                if (streak > 0) setCurrentStreak(streak);
-                try {
-                  sessionStorage.setItem(
-                    CACHE_KEY,
-                    JSON.stringify({ t: Date.now(), lc, streak }),
-                  );
-                } catch {
-                  /* ignore */
-                }
+                setProblemsSolved(p.lc);
+                if (p.streak > 0) setCurrentStreak(p.streak);
               }
-              break;
-            } catch {
-              /* try next */
+              return;
             }
           }
+        } catch {}
+
+        const lcEndpoints = [
+          `https://leetcode-api-faisalshohag.vercel.app/${LEETCODE_USER}`,
+          `https://alfa-leetcode-api.onrender.com/userProfile/${LEETCODE_USER}`,
+        ];
+        const d = await Promise.any(
+          lcEndpoints.map(async (url) => {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error("bad");
+            const j = await res.json();
+            if (j?.errors || j?.error) throw new Error("err");
+            const lc = j.totalSolved ?? j.solvedProblem ?? 0;
+            if (!lc) throw new Error("empty");
+            return { lc, streak: computeLcStreak((j.submissionCalendar ?? {}) as Record<string, number>) };
+          }),
+        );
+        if (!cancelled) {
+          setProblemsSolved(d.lc);
+          if (d.streak > 0) setCurrentStreak(d.streak);
+          try { sessionStorage.setItem("lc-summary", JSON.stringify({ t: Date.now(), lc: d.lc, streak: d.streak })); } catch {}
         }
-      } catch {
-        /* ignore */
-      }
+      } catch { /* ignore */ }
     })();
 
     return () => {
@@ -2546,11 +2501,10 @@ function TiltProjectCard({ project: p, index: i }: { project: Project; index: nu
 
   return (
     <motion.div
-      layout
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      transition={{ duration: 0.4, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.35, delay: i * 0.04, ease: [0.22, 1, 0.36, 1] }}
       style={{ perspective: 1000 }}
       className="group relative"
     >
