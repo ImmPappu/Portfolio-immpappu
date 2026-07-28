@@ -1832,6 +1832,13 @@ function LeetCodeSection() {
               />
             </div>
 
+            <div>
+              <div className="mb-2 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+                Submission Heatmap · last 26 weeks
+              </div>
+              <LcHeatmap calendar={data?.submissionCalendar ?? null} />
+            </div>
+
             <a
               href={`https://leetcode.com/${LEETCODE_USER}/`}
               target="_blank"
@@ -1846,6 +1853,90 @@ function LeetCodeSection() {
         )}
       </CardShell>
     </motion.div>
+  );
+}
+
+function LcHeatmap({ calendar }: { calendar: Record<string, number> | null }) {
+  if (!calendar) {
+    return <div className="h-[92px] w-full animate-pulse rounded-lg bg-white/5" />;
+  }
+
+  // Build last 26 weeks of cells from unix-second keyed dict
+  const now = Math.floor(Date.now() / 1000);
+  const WEEKS = 26;
+  const startSec = now - WEEKS * 7 * 86400;
+  // Align start to the Sunday of that week
+  const startDate = new Date(startSec * 1000);
+  startDate.setUTCHours(0, 0, 0, 0);
+  startDate.setUTCDate(startDate.getUTCDate() - startDate.getUTCDay());
+
+  const cells: { dateStr: string; count: number }[] = [];
+  const totalDays = WEEKS * 7;
+  for (let i = 0; i < totalDays; i++) {
+    const d = new Date(startDate);
+    d.setUTCDate(d.getUTCDate() + i);
+    const key = Math.floor(d.getTime() / 1000).toString();
+    cells.push({
+      dateStr: d.toISOString().slice(0, 10),
+      count: Number(calendar[key] ?? 0),
+    });
+  }
+
+  const max = cells.reduce((m, c) => Math.max(m, c.count), 0);
+  const levelFor = (n: number) => {
+    if (n <= 0 || max <= 0) return 0;
+    const r = n / max;
+    if (r > 0.75) return 4;
+    if (r > 0.50) return 3;
+    if (r > 0.25) return 2;
+    return 1;
+  };
+  // LeetCode orange palette
+  const levelClass = (lvl: number) =>
+    [
+      "bg-white/5",
+      "bg-orange-500/25",
+      "bg-orange-500/45",
+      "bg-orange-500/70",
+      "bg-orange-500",
+    ][lvl] ?? "bg-white/5";
+
+  // Group into weeks (columns)
+  const weeks: { dateStr: string; count: number }[][] = [];
+  for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
+
+  const totalSubmissions = cells.reduce((s, c) => s + c.count, 0);
+  const activeDays = cells.filter((c) => c.count > 0).length;
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="overflow-x-auto">
+        <div className="flex gap-[3px]" role="img" aria-label="LeetCode submission heatmap">
+          {weeks.map((w, wi) => (
+            <div key={wi} className="flex flex-col gap-[3px]">
+              {w.map((c, di) => (
+                <span
+                  key={di}
+                  title={`${c.dateStr}: ${c.count} submission${c.count !== 1 ? "s" : ""}`}
+                  className={`h-[10px] w-[10px] rounded-[2px] transition-opacity hover:opacity-80 ${levelClass(levelFor(c.count))}`}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Legend row */}
+      <div className="flex items-center justify-between font-mono text-[10px] text-muted-foreground">
+        <span>{totalSubmissions} submissions · {activeDays} active days</span>
+        <div className="flex items-center gap-1">
+          <span>Less</span>
+          {[0, 1, 2, 3, 4].map((lvl) => (
+            <span key={lvl} className={`h-[9px] w-[9px] rounded-[2px] ${levelClass(lvl)}`} />
+          ))}
+          <span>More</span>
+        </div>
+      </div>
+    </div>
   );
 }
 
