@@ -33,7 +33,9 @@ import {
   Mail,
   MapPin,
   Menu,
+  Moon,
   Rocket,
+  Sun,
   ArrowUp,
   Send,
   Sparkles,
@@ -46,6 +48,31 @@ import {
   Youtube,
   type LucideIcon,
 } from "lucide-react";
+
+/* -------------------------------------------------------------------------- */
+/*  Theme hook                                                                 */
+/* -------------------------------------------------------------------------- */
+
+function useTheme() {
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window === "undefined") return true;
+    const stored = localStorage.getItem("theme");
+    if (stored) return stored === "dark";
+    return true; // default dark
+  });
+
+  useEffect(() => {
+    const html = document.documentElement;
+    if (isDark) {
+      html.classList.remove("light");
+    } else {
+      html.classList.add("light");
+    }
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+  }, [isDark]);
+
+  return { isDark, toggle: () => setIsDark((v) => !v) };
+}
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -486,6 +513,7 @@ function Nav() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState<string>("about");
+  const { isDark, toggle } = useTheme();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -559,7 +587,25 @@ function Nav() {
             })}
           </ul>
 
-          <div className="hidden md:block">
+          <div className="hidden items-center gap-2 md:flex">
+            <button
+              onClick={toggle}
+              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+              className="grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/5 text-muted-foreground transition-all hover:bg-white/10 hover:text-foreground"
+            >
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={isDark ? "moon" : "sun"}
+                  initial={{ rotate: -90, opacity: 0, scale: 0.6 }}
+                  animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                  exit={{ rotate: 90, opacity: 0, scale: 0.6 }}
+                  transition={{ duration: 0.18 }}
+                  className="flex items-center justify-center"
+                >
+                  {isDark ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+                </motion.span>
+              </AnimatePresence>
+            </button>
             <a
               href="#contact"
               className="group inline-flex items-center gap-1.5 rounded-lg bg-linear-to-r from-brand-green to-brand-cyan px-4 py-2 text-sm font-medium text-background transition-all hover:shadow-[0_0_30px_-8px_var(--brand-green)]"
@@ -569,13 +615,33 @@ function Nav() {
             </a>
           </div>
 
-          <button
-            className="grid h-9 w-9 place-items-center rounded-lg bg-white/5 md:hidden"
-            onClick={() => setOpen((v) => !v)}
-            aria-label="Toggle menu"
-          >
-            {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-          </button>
+          <div className="flex items-center gap-2 md:hidden">
+            <button
+              onClick={toggle}
+              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+              className="grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/5 text-muted-foreground transition-all hover:bg-white/10 hover:text-foreground"
+            >
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={isDark ? "moon" : "sun"}
+                  initial={{ rotate: -90, opacity: 0, scale: 0.6 }}
+                  animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                  exit={{ rotate: 90, opacity: 0, scale: 0.6 }}
+                  transition={{ duration: 0.18 }}
+                  className="flex items-center justify-center"
+                >
+                  {isDark ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+                </motion.span>
+              </AnimatePresence>
+            </button>
+            <button
+              className="grid h-9 w-9 place-items-center rounded-lg bg-white/5"
+              onClick={() => setOpen((v) => !v)}
+              aria-label="Toggle menu"
+            >
+              {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            </button>
+          </div>
         </nav>
 
         <AnimatePresence>
