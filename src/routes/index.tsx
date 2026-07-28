@@ -1091,7 +1091,7 @@ function SkillBadge({ name, color }: { name: string; color: "green" | "blue" }) 
   const base =
     "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-200 will-change-transform";
   const tone = learning
-    ? "border-yellow-400/40 bg-yellow-400/[0.10] text-yellow-300 hover:border-yellow-400/70 hover:text-yellow-200 hover:shadow-[0_0_20px_-6px_rgba(250,204,21,0.5)]"
+    ? "badge-learning border-yellow-400/40 bg-yellow-400/[0.10] text-yellow-300 hover:border-yellow-400/70 hover:text-yellow-200 hover:shadow-[0_0_20px_-6px_rgba(250,204,21,0.5)]"
     : color === "green"
       ? "border-brand-green/25 bg-brand-green/[0.06] text-foreground/90 hover:border-brand-green/60 hover:text-brand-green hover:shadow-[0_0_22px_-6px_var(--brand-green)]"
       : "border-brand-blue/25 bg-brand-blue/[0.06] text-foreground/90 hover:border-brand-blue/60 hover:text-brand-blue hover:shadow-[0_0_22px_-6px_var(--brand-blue)]";
