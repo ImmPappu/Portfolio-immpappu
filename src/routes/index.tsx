@@ -509,6 +509,101 @@ function ParticlesBackground() {
 /*  Nav                                                                        */
 /* -------------------------------------------------------------------------- */
 
+function ThemeToggle({ isDark, toggle }: { isDark: boolean; toggle: () => void }) {
+  return (
+    <button
+      onClick={toggle}
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      className="relative h-8 w-[54px] shrink-0 cursor-pointer rounded-full p-[3px] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green"
+      style={{
+        background: isDark
+          ? "linear-gradient(135deg, oklch(0.18 0.05 270), oklch(0.23 0.06 250))"
+          : "linear-gradient(135deg, oklch(0.97 0.07 80), oklch(0.93 0.11 70))",
+        border: isDark
+          ? "1px solid oklch(1 0 0 / 14%)"
+          : "1px solid oklch(0.82 0.14 75 / 55%)",
+        boxShadow: isDark
+          ? "inset 0 1px 4px oklch(0 0 0 / 50%)"
+          : "inset 0 1px 3px oklch(0.7 0.1 75 / 30%), 0 0 14px -3px oklch(0.82 0.18 75 / 45%)",
+      }}
+    >
+      {/* Stars — visible in dark mode */}
+      <AnimatePresence>
+        {isDark && (
+          <motion.span
+            key="stars"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="pointer-events-none absolute right-[9px] top-1/2 flex -translate-y-1/2 flex-col gap-[3.5px]"
+          >
+            <span className="block h-[2.5px] w-[2.5px] rounded-full bg-white/60" />
+            <span className="ml-[4px] block h-[2px] w-[2px] rounded-full bg-white/40" />
+            <span className="block h-[2.5px] w-[2.5px] rounded-full bg-white/55" />
+          </motion.span>
+        )}
+      </AnimatePresence>
+
+      {/* Sun rays — visible in light mode */}
+      <AnimatePresence>
+        {!isDark && (
+          <motion.span
+            key="rays"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="pointer-events-none absolute left-[9px] top-1/2 -translate-y-1/2"
+          >
+            {[0, 45, 90, 135].map((deg) => (
+              <span
+                key={deg}
+                className="absolute block h-[2.5px] w-[2.5px] rounded-full bg-amber-400/70"
+                style={{
+                  top: "50%", left: "50%",
+                  transform: `translate(-50%,-50%) rotate(${deg}deg) translateX(7px)`,
+                }}
+              />
+            ))}
+          </motion.span>
+        )}
+      </AnimatePresence>
+
+      {/* Sliding thumb */}
+      <motion.span
+        className="relative flex h-[26px] w-[26px] items-center justify-center rounded-full"
+        style={{
+          background: isDark
+            ? "linear-gradient(145deg, #e2e8f0, #cbd5e1)"
+            : "linear-gradient(145deg, #ffffff, #fef3c7)",
+          boxShadow: isDark
+            ? "0 2px 6px oklch(0 0 0 / 55%), 0 0 0 0.5px oklch(1 0 0 / 18%)"
+            : "0 2px 6px oklch(0.65 0.12 75 / 45%), 0 0 10px -1px oklch(0.82 0.18 75 / 55%)",
+        }}
+        animate={{ x: isDark ? 0 : 22 }}
+        transition={{ type: "spring", stiffness: 520, damping: 34, mass: 0.55 }}
+      >
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.span
+            key={isDark ? "moon" : "sun"}
+            initial={{ opacity: 0, scale: 0.3, rotate: -60 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            exit={{ opacity: 0, scale: 0.3, rotate: 60 }}
+            transition={{ duration: 0.14 }}
+            className="flex items-center justify-center"
+          >
+            {isDark
+              ? <Moon className="h-[13px] w-[13px] text-slate-500" fill="currentColor" />
+              : <Sun className="h-[14px] w-[14px] text-amber-500" />
+            }
+          </motion.span>
+        </AnimatePresence>
+      </motion.span>
+    </button>
+  );
+}
+
 function Nav() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -588,24 +683,7 @@ function Nav() {
           </ul>
 
           <div className="hidden items-center gap-2 md:flex">
-            <button
-              onClick={toggle}
-              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-              className="grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/5 text-muted-foreground transition-all hover:bg-white/10 hover:text-foreground"
-            >
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.span
-                  key={isDark ? "moon" : "sun"}
-                  initial={{ rotate: -90, opacity: 0, scale: 0.6 }}
-                  animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                  exit={{ rotate: 90, opacity: 0, scale: 0.6 }}
-                  transition={{ duration: 0.18 }}
-                  className="flex items-center justify-center"
-                >
-                  {isDark ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-                </motion.span>
-              </AnimatePresence>
-            </button>
+            <ThemeToggle isDark={isDark} toggle={toggle} />
             <a
               href="#contact"
               className="group inline-flex items-center gap-1.5 rounded-lg bg-linear-to-r from-brand-green to-brand-cyan px-4 py-2 text-sm font-medium text-background transition-all hover:shadow-[0_0_30px_-8px_var(--brand-green)]"
@@ -616,24 +694,7 @@ function Nav() {
           </div>
 
           <div className="flex items-center gap-2 md:hidden">
-            <button
-              onClick={toggle}
-              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-              className="grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/5 text-muted-foreground transition-all hover:bg-white/10 hover:text-foreground"
-            >
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.span
-                  key={isDark ? "moon" : "sun"}
-                  initial={{ rotate: -90, opacity: 0, scale: 0.6 }}
-                  animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                  exit={{ rotate: 90, opacity: 0, scale: 0.6 }}
-                  transition={{ duration: 0.18 }}
-                  className="flex items-center justify-center"
-                >
-                  {isDark ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-                </motion.span>
-              </AnimatePresence>
-            </button>
+            <ThemeToggle isDark={isDark} toggle={toggle} />
             <button
               className="grid h-9 w-9 place-items-center rounded-lg bg-white/5"
               onClick={() => setOpen((v) => !v)}
@@ -1030,7 +1091,7 @@ function SkillBadge({ name, color }: { name: string; color: "green" | "blue" }) 
   const base =
     "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-200 will-change-transform";
   const tone = learning
-    ? "border-yellow-400/25 bg-yellow-400/[0.06] text-yellow-200/90 hover:border-yellow-400/50 hover:shadow-[0_0_20px_-6px_rgba(250,204,21,0.5)]"
+    ? "border-yellow-400/40 bg-yellow-400/[0.10] text-yellow-300 hover:border-yellow-400/70 hover:text-yellow-200 hover:shadow-[0_0_20px_-6px_rgba(250,204,21,0.5)]"
     : color === "green"
       ? "border-brand-green/25 bg-brand-green/[0.06] text-foreground/90 hover:border-brand-green/60 hover:text-brand-green hover:shadow-[0_0_22px_-6px_var(--brand-green)]"
       : "border-brand-blue/25 bg-brand-blue/[0.06] text-foreground/90 hover:border-brand-blue/60 hover:text-brand-blue hover:shadow-[0_0_22px_-6px_var(--brand-blue)]";
