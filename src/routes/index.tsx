@@ -874,8 +874,8 @@ function Hero() {
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </a>
             <a
-              href="/Pappu_Kumar_Resume.pdf"
-              download="Pappu_Kumar_Resume.pdf"
+              href="/Pappu_Resume.pdf"
+              download="Pappu_Resume.pdf"
               target="_blank"
               rel="noreferrer"
               data-magnetic
