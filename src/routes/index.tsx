@@ -125,7 +125,7 @@ const SKILL_GROUPS: SkillGroup[] = [
     title: "Frontend",
     icon: Rocket,
     color: "blue",
-    skills: ["React", "TanStack Router", "Tailwind CSS", "Vite"],
+    skills: ["React"],
   },
   {
     title: "Core Computer Science",
