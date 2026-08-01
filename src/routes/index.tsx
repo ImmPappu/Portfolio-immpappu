@@ -216,19 +216,6 @@ const PROJECTS: Project[] = [
     status: "Live",
   },
   {
-    title: "Photo Studio Automation",
-    category: "Automation",
-    description:
-      "Automates passport photo production — removes background, corrects colors, crops precisely, and lays out a print-ready sheet. (In Progress)",
-    stack: ["n8n", "Image APIs", "Node", "Automation"],
-    highlights: [
-      "One-click background removal",
-      "Auto color & crop correction",
-      "Printable passport-sheet output",
-    ],
-    status: "Live",
-  },
-  {
     title: "Personal Portfolio Website",
     category: "Web",
     description:
