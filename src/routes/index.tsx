@@ -3354,10 +3354,9 @@ function TiltProjectCard({
         onPointerMove={onMove}
         onPointerLeave={onLeave}
         style={{ rotateX: srx, rotateY: sry, transformStyle: "preserve-3d" }}
-        whileHover={{ y: -6 }}
-        transition={{ type: "spring", stiffness: 280, damping: 24 }}
-        className={`glass relative flex h-full flex-col overflow-hidden rounded-2xl transition-shadow duration-300 hover:border-white/20 hover:shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6),0_0_40px_-16px_var(--brand-green)] ${p.featured ? "ring-1 ring-brand-green/40 shadow-[0_0_30px_-10px_var(--brand-green)]" : ""
-          }`}
+        whileHover={{ y: -4 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        className="glass relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] transition-all duration-300 ease-out hover:border-white/25 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)]"
       >
         {/* Browser mockup */}
         <div className="relative overflow-hidden border-b border-white/10 bg-linear-to-br from-white/[0.04] to-white/[0.01]">
@@ -3373,8 +3372,8 @@ function TiltProjectCard({
                 .slice(0, 24)}
             </div>
             {p.featured && (
-              <span className="ml-auto inline-flex items-center gap-1 rounded-full border border-brand-green/50 bg-brand-green/20 px-2 py-0.5 font-mono text-[9px] font-semibold text-brand-green">
-                <Sparkles className="h-3 w-3" />
+              <span className="ml-auto inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-2 py-0.5 font-mono text-[9px] font-medium text-foreground/80">
+                <Sparkles className="h-3 w-3 text-brand-green" />
                 Featured
               </span>
             )}
@@ -3384,13 +3383,13 @@ function TiltProjectCard({
               <img
                 src={p.imageUrl}
                 alt={p.title}
-                className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                className="h-full w-full object-cover object-top transition-transform duration-300 ease-out group-hover:scale-[1.02]"
               />
             ) : (
               <>
                 <div className="absolute inset-0 bg-grid opacity-40 [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_75%)]" />
                 <div
-                  className={`absolute -inset-8 opacity-40 blur-3xl transition-transform duration-700 group-hover:scale-110 ${p.category === "AI"
+                  className={`absolute -inset-8 opacity-40 blur-3xl transition-transform duration-500 group-hover:scale-105 ${p.category === "AI"
                     ? "bg-linear-to-tr from-brand-blue/40 via-brand-cyan/30 to-brand-green/30"
                     : p.category === "Automation"
                       ? "bg-linear-to-tr from-brand-green/40 via-brand-cyan/25 to-brand-blue/30"
@@ -3450,14 +3449,14 @@ function TiltProjectCard({
               </motion.span>
             ))}
           </div>
-          <div className="mt-5 flex items-center gap-2 pt-1">
+          <div className="mt-auto flex items-center gap-2 pt-5">
             {p.demoUrl ? (
               <a
                 href={p.demoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`${p.title} Live Demo`}
-                className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-brand-green/40 bg-brand-green/10 px-3 py-2 text-xs font-semibold text-brand-green transition-all hover:-translate-y-0.5 hover:bg-brand-green/20 hover:shadow-[0_0_15px_-3px_var(--brand-green)]"
+                className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-brand-green/40 bg-brand-green/10 px-3 py-2 text-xs font-semibold text-brand-green transition-all hover:bg-brand-green/20"
               >
                 <Rocket className="h-3.5 w-3.5" />
                 🚀 Live Demo
@@ -3478,7 +3477,7 @@ function TiltProjectCard({
               target="_blank"
               rel="noopener noreferrer"
               aria-label={`${p.title} on GitHub`}
-              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-medium text-foreground/80 transition-all hover:-translate-y-0.5 hover:border-brand-green/40 hover:text-brand-green"
+              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-medium text-foreground/80 transition-all hover:border-brand-green/40 hover:text-brand-green"
             >
               <Github className="h-3.5 w-3.5" />
               💻 GitHub
