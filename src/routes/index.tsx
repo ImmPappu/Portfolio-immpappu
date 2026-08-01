@@ -10,7 +10,9 @@ import {
   useReducedMotion,
   AnimatePresence,
 } from "motion/react";
+import Lenis from "lenis";
 import emailjs from "@emailjs/browser";
+import certificatesData from "../data/certificates.json";
 import {
   Activity,
   AlertCircle,
@@ -19,11 +21,13 @@ import {
   Award,
   BookOpen,
   Briefcase,
+  Calendar,
   Cloud,
   Code2,
   Cpu,
   Download,
   CheckCircle2,
+  Eye,
   Loader2,
   Flame,
   GitFork,
@@ -34,6 +38,7 @@ import {
   MapPin,
   Menu,
   Rocket,
+  Search,
   ArrowUp,
   Send,
   Sparkles,
@@ -98,7 +103,7 @@ const SKILL_GROUPS: SkillGroup[] = [
     title: "Frontend",
     icon: Rocket,
     color: "blue",
-    skills: ["React", "TanStack Router", "Tailwind CSS", "Vite"],
+    skills: ["React", "JavaScript", "HTML", "CSS"],
   },
   {
     title: "Core Computer Science",
@@ -268,7 +273,7 @@ const SOCIALS = [
 function PortfolioPage() {
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
-    const t = setTimeout(() => setLoaded(true), 1400);
+    const t = setTimeout(() => setLoaded(true), 200);
     return () => clearTimeout(t);
   }, []);
 
@@ -276,26 +281,20 @@ function PortfolioPage() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    let lenis: { raf: (t: number) => void; destroy: () => void } | null = null;
-    let raf = 0;
-    let mounted = true;
-    import("lenis").then(({ default: Lenis }) => {
-      if (!mounted) return;
-      lenis = new Lenis({
-        duration: 1.05,
-        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smoothWheel: true,
-      }) as unknown as { raf: (t: number) => void; destroy: () => void };
-      const loop = (time: number) => {
-        lenis?.raf(time);
-        raf = requestAnimationFrame(loop);
-      };
-      raf = requestAnimationFrame(loop);
+    const lenis = new Lenis({
+      duration: 1.05,
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
     });
+    let raf = 0;
+    const loop = (time: number) => {
+      lenis.raf(time);
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
     return () => {
-      mounted = false;
       cancelAnimationFrame(raf);
-      lenis?.destroy();
+      lenis.destroy();
     };
   }, []);
 
@@ -435,12 +434,12 @@ function ParticlesBackground() {
 
       {/* Floating blurred blobs */}
       <motion.div
-        className="absolute left-[15%] top-[20%] h-[520px] w-[520px] rounded-full bg-brand-blue/20 blur-[130px]"
+        className="absolute left-[15%] top-[20%] h-[520px] w-[520px] rounded-full bg-brand-blue/20 blur-[130px] transform-gpu will-change-transform"
         animate={reduce ? undefined : { x: [0, 40, -20, 0], y: [0, -30, 20, 0] }}
         transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
-        className="absolute bottom-[5%] right-[5%] h-[520px] w-[520px] rounded-full bg-brand-green/15 blur-[140px]"
+        className="absolute bottom-[5%] right-[5%] h-[520px] w-[520px] rounded-full bg-brand-green/15 blur-[140px] transform-gpu will-change-transform"
         animate={reduce ? undefined : { x: [0, -40, 20, 0], y: [0, 30, -20, 0] }}
         transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
       />
@@ -448,7 +447,7 @@ function ParticlesBackground() {
       {/* Mouse-follow spotlight */}
       {!reduce && (
         <div
-          className="absolute inset-0 opacity-70"
+          className="absolute inset-0 opacity-70 transform-gpu"
           style={{
             background:
               "radial-gradient(600px circle at var(--mx, 50%) var(--my, 30%), oklch(0.82 0.19 152 / 0.10), transparent 55%)",
@@ -461,7 +460,7 @@ function ParticlesBackground() {
         dots.map((d) => (
           <motion.span
             key={d.id}
-            className={`absolute rounded-full ${d.blue ? "bg-brand-blue" : "bg-brand-green"}`}
+            className={`absolute rounded-full transform-gpu ${d.blue ? "bg-brand-blue" : "bg-brand-green"}`}
             style={{
               width: d.size,
               height: d.size,
@@ -494,7 +493,7 @@ function Nav() {
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     onScroll();
-    window.addEventListener("scroll", onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
@@ -520,7 +519,7 @@ function Nav() {
     <motion.header
       initial={{ y: -30, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5, delay: 0.7 }}
+      transition={{ duration: 0.5, delay: 0.15 }}
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
         scrolled ? "py-3" : "py-5"
       }`}
@@ -626,7 +625,7 @@ function Section({
   children: ReactNode;
 }) {
   return (
-    <section id={id} className="relative scroll-mt-24 px-4 py-24 sm:py-32">
+    <section id={id} className="section-contain relative scroll-mt-24 px-4 py-24 sm:py-32">
       <div className="mx-auto max-w-6xl">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -692,7 +691,7 @@ function Hero() {
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.8 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
         >
           <div className="inline-flex items-center gap-2 rounded-full border border-brand-green/30 bg-brand-green/10 px-3 py-1 font-mono text-[11px] uppercase tracking-widest text-brand-green">
             <span className="relative flex h-1.5 w-1.5">
@@ -708,7 +707,7 @@ function Hero() {
                 key={w + i}
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.55, delay: 0.85 + i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.45, delay: 0.25 + i * 0.05, ease: [0.22, 1, 0.36, 1] }}
                 className="mr-3 inline-block"
               >
                 {w}
@@ -719,7 +718,7 @@ function Hero() {
                 key={w + i}
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.55, delay: 1.05 + i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.45, delay: 0.35 + i * 0.05, ease: [0.22, 1, 0.36, 1] }}
                 className="text-gradient mr-3 inline-block"
               >
                 {w}
@@ -785,7 +784,7 @@ function Hero() {
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, delay: 1 }}
+          transition={{ duration: 0.5, delay: 0.25 }}
           className="relative order-first mx-auto w-full max-w-sm lg:order-none"
         >
           <motion.div
@@ -799,8 +798,9 @@ function Hero() {
                 <img
                   src={pappuPhoto.url}
                   alt="Pappu Kumar - Software Engineering Student"
-                  loading="lazy"
+                  loading="eager"
                   decoding="async"
+                  fetchPriority="high"
                   width={640}
                   height={640}
                   className="h-full w-full object-cover object-center"
@@ -1095,66 +1095,367 @@ function Timeline() {
 /*  Certifications                                                             */
 /* -------------------------------------------------------------------------- */
 
+/* -------------------------------------------------------------------------- */
+/*  Certifications                                                             */
+/* -------------------------------------------------------------------------- */
+
+type CertificateItem = {
+  id: string;
+  title: string;
+  issuer: string;
+  issueDate: string;
+  description: string;
+  categories: string[];
+  fileName: string;
+  imagePath: string;
+  downloadPath: string;
+};
+
+const CERT_CATEGORIES = [
+  "All",
+  "Cloud",
+  "AWS",
+  "Java",
+  "Development",
+  "Workshop",
+  "Leadership",
+  "Hackathon",
+  "AI",
+] as const;
+
 function Certifications() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [selectedCert, setSelectedCert] = useState<CertificateItem | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+
+  // Filter & sort certificates (newest date first)
+  const filteredCertificates = useMemo(() => {
+    let result = [...(certificatesData as CertificateItem[])];
+
+    // Filter by Category
+    if (selectedCategory !== "All") {
+      result = result.filter((cert) =>
+        cert.categories.some(
+          (cat) => cat.toLowerCase() === selectedCategory.toLowerCase()
+        )
+      );
+    }
+
+    // Filter by Search Query
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      result = result.filter(
+        (cert) =>
+          cert.title.toLowerCase().includes(q) ||
+          cert.issuer.toLowerCase().includes(q) ||
+          cert.description.toLowerCase().includes(q) ||
+          cert.categories.some((cat) => cat.toLowerCase().includes(q))
+      );
+    }
+
+    // Sort newest date first
+    return result.sort(
+      (a, b) => new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime()
+    );
+  }, [searchQuery, selectedCategory]);
+
+  const handleCategoryChange = (category: string) => {
+    setIsSearching(true);
+    setSelectedCategory(category);
+    setTimeout(() => setIsSearching(false), 180);
+  };
+
   return (
     <Section
       id="certifications"
-      eyebrow="Certifications & Achievements"
+      eyebrow="Certifications"
       title={
         <>
-          Wins along the <span className="text-gradient">way.</span>
+          Courses, Workshops and <span className="text-gradient">Professional Learning.</span>
         </>
       }
+      intro="Verified completion credentials automatically recognized and displayed."
     >
-      <div className="grid gap-5 md:grid-cols-2">
-        <div className="grid gap-4">
-          {CERTIFICATIONS.map((c, i) => (
-            <motion.div
-              key={c.title}
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.05 }}
-              className="glass flex items-center gap-4 rounded-2xl p-5"
-            >
-              <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brand-green/15 text-brand-green">
-                <Award className="h-5 w-5" />
-              </div>
-              <div className="min-w-0">
-                <div className="font-display font-semibold">{c.title}</div>
-                <div className="text-xs text-muted-foreground">{c.issuer}</div>
-              </div>
-            </motion.div>
-          ))}
+      <div className="space-y-6">
+        {/* Controls: Search Bar & Category Filters */}
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          {/* Search Input */}
+          <div className="relative w-full max-w-md">
+            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search certificates by title, issuer, keyword..."
+              className="glass w-full rounded-xl border border-white/10 bg-white/[0.03] pl-10 pr-9 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-green/50 focus:outline-none focus:ring-1 focus:ring-brand-green/30 transition-all"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground"
+                aria-label="Clear search"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+
+          {/* Category Filter Pills */}
+          <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto pb-2 lg:pb-0">
+            {CERT_CATEGORIES.map((cat) => {
+              const active = selectedCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => handleCategoryChange(cat)}
+                  className={`rounded-lg px-3 py-1.5 font-mono text-xs transition-all ${
+                    active
+                      ? "bg-linear-to-r from-brand-green to-brand-cyan font-semibold text-background shadow-md shadow-brand-green/20"
+                      : "border border-white/10 bg-white/[0.04] text-muted-foreground hover:border-white/20 hover:text-foreground"
+                  }`}
+                >
+                  {cat}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        <div className="glass rounded-2xl p-6">
-          <h3 className="font-display text-lg font-semibold">Achievements</h3>
-          <ul className="mt-4 space-y-3 text-sm">
-            <li className="flex items-start gap-3">
-              <Youtube className="mt-0.5 h-4 w-4 shrink-0 text-brand-blue" />
-              <span>
-                <span className="text-foreground">3.6K+ YouTube Subscribers</span> —
-                sharing tutorials & builds.
-              </span>
-            </li>
-            <li className="flex items-start gap-3">
-              <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-brand-green" />
-              <span>
-                Designed & deployed <span className="text-foreground">10+ automation workflows</span>{" "}
-                using n8n.
-              </span>
-            </li>
-            <li className="flex items-start gap-3">
-              <Cloud className="mt-0.5 h-4 w-4 shrink-0 text-brand-cyan" />
-              <span>
-                Active learner in{" "}
-                <span className="text-foreground">Cloud Computing & DevOps</span>.
-              </span>
-            </li>
-          </ul>
-        </div>
+        {/* Certificate Cards Responsive Grid (Desktop 4 col, Laptop 3 col, Tablet 2 col, Mobile 1 col) */}
+        {isSearching ? (
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, idx) => (
+              <div
+                key={idx}
+                className="glass flex h-[380px] flex-col overflow-hidden rounded-2xl p-4 animate-pulse"
+              >
+                <div className="h-44 w-full rounded-xl bg-white/5" />
+                <div className="mt-4 h-5 w-3/4 rounded-md bg-white/5" />
+                <div className="mt-2 h-4 w-1/2 rounded-md bg-white/5" />
+                <div className="mt-4 h-12 w-full rounded-md bg-white/5" />
+              </div>
+            ))}
+          </div>
+        ) : filteredCertificates.length === 0 ? (
+          <div className="glass rounded-2xl py-16 text-center">
+            <Award className="mx-auto h-10 w-10 text-muted-foreground opacity-50" />
+            <h3 className="mt-3 font-display text-lg font-semibold text-foreground">
+              No certificates found
+            </h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Try adjusting your search query or filter category.
+            </p>
+            <button
+              onClick={() => {
+                setSearchQuery("");
+                setSelectedCategory("All");
+              }}
+              className="mt-4 rounded-xl border border-brand-green/40 bg-brand-green/10 px-4 py-2 font-mono text-xs text-brand-green hover:bg-brand-green/20 transition-all"
+            >
+              Reset Filters
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            <AnimatePresence mode="popLayout">
+              {filteredCertificates.map((cert, index) => (
+                <motion.article
+                  key={cert.id}
+                  layout
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.3, delay: index * 0.04 }}
+                  className="glass group flex h-full flex-col overflow-hidden rounded-2xl transition-all duration-300 hover:border-brand-green/40 hover:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5),0_0_20px_-8px_var(--brand-green)] transform-gpu"
+                >
+                  {/* Thumbnail */}
+                  <div className="relative aspect-[16/11] w-full overflow-hidden bg-black/40 border-b border-white/10">
+                    <img
+                      src={cert.imagePath}
+                      alt={cert.title}
+                      loading="lazy"
+                      decoding="async"
+                      className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-background/80 opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex items-center justify-center gap-2">
+                      <button
+                        onClick={() => setSelectedCert(cert)}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-brand-green px-3 py-1.5 text-xs font-semibold text-background shadow-lg transition-transform hover:scale-105"
+                      >
+                        <Eye className="h-3.5 w-3.5" />
+                        Preview
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Body */}
+                  <div className="flex flex-1 flex-col p-5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="truncate font-mono text-[11px] font-semibold uppercase tracking-wider text-brand-green">
+                        {cert.issuer}
+                      </span>
+                      {cert.issueDate && (
+                        <span className="flex items-center gap-1 font-mono text-[10px] text-muted-foreground shrink-0">
+                          <Calendar className="h-3 w-3" />
+                          {cert.issueDate}
+                        </span>
+                      )}
+                    </div>
+
+                    <h3 className="mt-2 font-display text-base font-semibold leading-tight text-foreground line-clamp-2 group-hover:text-brand-green transition-colors">
+                      {cert.title}
+                    </h3>
+
+                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground line-clamp-2 flex-1">
+                      {cert.description}
+                    </p>
+
+                    {/* Category tags */}
+                    <div className="mt-3 flex flex-wrap gap-1">
+                      {cert.categories.map((cat) => (
+                        <span
+                          key={cat}
+                          className="rounded-md bg-white/5 px-2 py-0.5 font-mono text-[10px] text-muted-foreground"
+                        >
+                          {cat}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="mt-4 flex items-center gap-2 pt-3 border-t border-white/10">
+                      <button
+                        onClick={() => setSelectedCert(cert)}
+                        className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-linear-to-r from-brand-green/20 to-brand-cyan/20 px-3 py-2 font-mono text-xs font-semibold text-brand-green border border-brand-green/30 transition-all hover:bg-brand-green/30"
+                      >
+                        <Eye className="h-3.5 w-3.5" />
+                        View Certificate
+                      </button>
+
+                      <a
+                        href={cert.imagePath}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="grid h-8 w-8 place-items-center rounded-lg border border-white/10 bg-white/5 text-muted-foreground transition-colors hover:border-white/20 hover:text-foreground"
+                        title="Open in new tab"
+                        aria-label="Open certificate in new tab"
+                      >
+                        <ArrowUpRight className="h-3.5 w-3.5" />
+                      </a>
+
+                      <a
+                        href={cert.downloadPath}
+                        download={cert.fileName}
+                        className="grid h-8 w-8 place-items-center rounded-lg border border-white/10 bg-white/5 text-muted-foreground transition-colors hover:border-white/20 hover:text-foreground"
+                        title="Download Certificate"
+                        aria-label="Download certificate"
+                      >
+                        <Download className="h-3.5 w-3.5" />
+                      </a>
+                    </div>
+                  </div>
+                </motion.article>
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
       </div>
+
+      {/* Certificate Modal Lightbox */}
+      <AnimatePresence>
+        {selectedCert && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedCert(null)}
+              className="fixed inset-0 bg-black/80 backdrop-blur-md"
+            />
+
+            {/* Modal Content */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              className="glass-strong relative z-10 my-auto w-full max-w-3xl overflow-hidden rounded-2xl border border-white/15 shadow-2xl"
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between border-b border-white/10 bg-black/40 px-6 py-4">
+                <div className="flex items-center gap-2">
+                  <Award className="h-5 w-5 text-brand-green" />
+                  <span className="font-display font-semibold text-foreground truncate max-w-xs sm:max-w-md">
+                    {selectedCert.title}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setSelectedCert(null)}
+                  className="grid h-8 w-8 place-items-center rounded-lg bg-white/5 text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
+                  aria-label="Close modal"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Certificate Image Preview */}
+              <div className="relative max-h-[60vh] overflow-hidden bg-black/60 p-4 flex items-center justify-center">
+                <img
+                  src={selectedCert.imagePath}
+                  alt={selectedCert.title}
+                  className="max-h-[55vh] w-auto max-w-full rounded-lg object-contain shadow-xl"
+                />
+              </div>
+
+              {/* Certificate Info & Actions */}
+              <div className="p-6">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <span className="font-mono text-xs uppercase tracking-wider text-brand-green">
+                      {selectedCert.issuer}
+                    </span>
+                    <h3 className="mt-1 font-display text-xl font-bold text-foreground">
+                      {selectedCert.title}
+                    </h3>
+                  </div>
+                  {selectedCert.issueDate && (
+                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs text-muted-foreground">
+                      Issued: {selectedCert.issueDate}
+                    </span>
+                  )}
+                </div>
+
+                <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+                  {selectedCert.description}
+                </p>
+
+                {/* Footer Buttons */}
+                <div className="mt-6 flex flex-wrap items-center justify-end gap-3 pt-4 border-t border-white/10">
+                  <a
+                    href={selectedCert.imagePath}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 font-mono text-xs font-semibold text-foreground hover:bg-white/10 transition-all"
+                  >
+                    <ArrowUpRight className="h-4 w-4" />
+                    Open in new tab
+                  </a>
+                  <a
+                    href={selectedCert.downloadPath}
+                    download={selectedCert.fileName}
+                    className="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-brand-green to-brand-cyan px-5 py-2.5 font-mono text-xs font-semibold text-background shadow-lg shadow-brand-green/20 hover:shadow-brand-green/40 transition-all"
+                  >
+                    <Download className="h-4 w-4" />
+                    Download Certificate
+                  </a>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </Section>
   );
 }
@@ -2178,6 +2479,7 @@ function ContactForm() {
 
     try {
       if (SERVICE_ID && TEMPLATE_ID && PUBLIC_KEY) {
+        const { default: emailjs } = await import("@emailjs/browser");
         await emailjs.send(
           SERVICE_ID,
           TEMPLATE_ID,

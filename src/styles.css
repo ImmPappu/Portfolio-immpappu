@@ -89,19 +89,25 @@
   * {
     border-color: var(--color-border);
   }
-  html {
-    scroll-behavior: smooth;
-  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
+    position: relative;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -10;
+    transform: translateZ(0);
+    will-change: transform;
     background-image:
       radial-gradient(circle at 20% 10%, oklch(0.68 0.18 240 / 12%), transparent 45%),
       radial-gradient(circle at 85% 85%, oklch(0.82 0.19 152 / 10%), transparent 45%);
-    background-attachment: fixed;
   }
   h1, h2, h3, h4 {
     font-family: var(--font-display);
@@ -123,13 +129,17 @@
 @utility glass {
   background: color-mix(in oklab, var(--surface) 55%, transparent);
   backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
   border: 1px solid oklch(1 0 0 / 8%);
+  transform: translateZ(0);
 }
 
 @utility glass-strong {
   background: color-mix(in oklab, var(--surface-elevated) 75%, transparent);
   backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid oklch(1 0 0 / 10%);
+  transform: translateZ(0);
 }
 
 @utility glow-green {
@@ -146,3 +156,9 @@
     linear-gradient(90deg, oklch(1 0 0 / 4%) 1px, transparent 1px);
   background-size: 40px 40px;
 }
+
+@utility section-contain {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 700px;
+}
+

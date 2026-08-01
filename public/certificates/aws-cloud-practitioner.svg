@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+  <rect width="1200" height="800" fill="#ffffff" />
+  <rect x="25" y="25" width="1150" height="750" fill="none" stroke="#ff9900" stroke-width="10" rx="6" />
+  <rect x="40" y="40" width="1120" height="720" fill="none" stroke="#232f3e" stroke-width="2" rx="4" />
+
+  <g transform="translate(100, 90)">
+    <text x="0" y="50" font-family="'Space Grotesk', system-ui, sans-serif" font-size="44" font-weight="900" fill="#232f3e">aws</text>
+    <path d="M 0 65 Q 40 85 90 65 L 82 58 M 90 65 L 80 75" stroke="#ff9900" stroke-width="6" fill="none" stroke-linecap="round" />
+  </g>
+
+  <text x="600" y="160" font-family="'Space Grotesk', system-ui, sans-serif" font-size="44" font-weight="800" fill="#0f172a" text-anchor="middle">AWS Cloud Practitioner Certification</text>
+  <text x="600" y="200" font-family="'Inter', system-ui, sans-serif" font-size="16" font-weight="600" fill="#64748b" text-anchor="middle">Foundational Cloud Accreditation</text>
+
+  <text x="600" y="270" font-family="'Inter', system-ui, sans-serif" font-size="20" font-weight="400" fill="#475569" text-anchor="middle">This is to certify that</text>
+  <text x="600" y="340" font-family="'Space Grotesk', system-ui, sans-serif" font-size="52" font-weight="800" fill="#ff9900" text-anchor="middle">Pappu Kumar</text>
+  <line x1="300" y1="365" x2="900" y2="365" stroke="#cbd5e1" stroke-width="2" />
+
+  <text x="600" y="420" font-family="'Inter', system-ui, sans-serif" font-size="22" font-weight="400" fill="#334155" text-anchor="middle">has successfully demonstrated foundational knowledge of</text>
+  <text x="600" y="465" font-family="'Space Grotesk', system-ui, sans-serif" font-size="30" font-weight="700" fill="#232f3e" text-anchor="middle">AWS Cloud Architecture, Core Services &amp; Security</text>
+
+  <g transform="translate(600, 640)">
+    <line x1="-120" y1="0" x2="120" y2="0" stroke="#cbd5e1" stroke-width="1.5" />
+    <text x="0" y="24" font-family="'Inter', system-ui, sans-serif" font-size="16" font-weight="700" fill="#0f172a" text-anchor="middle">AWS Training &amp; Certification</text>
+  </g>
+</svg>

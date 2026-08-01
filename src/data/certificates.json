@@ -1,0 +1,92 @@
+[
+  {
+    "id": "cert-ycat-aptitude",
+    "title": "Internship Common Aptitude Test (YCAT)",
+    "issuer": "YCAT / Internship Aptitude",
+    "issueDate": "2026-06-24",
+    "description": "Certificate of Participation presented for performance in the National Internship Common Aptitude Test (CIT-P-3464512).",
+    "categories": [
+      "Hackathon",
+      "Leadership",
+      "Development"
+    ],
+    "fileName": "ycat-internship-aptitude-test.svg",
+    "imagePath": "/certificates/ycat-internship-aptitude-test.svg",
+    "downloadPath": "/certificates/ycat-internship-aptitude-test.svg"
+  },
+  {
+    "id": "cert-unstop-cloud-ai",
+    "title": "Cloud Computing with AI",
+    "issuer": "Unstop",
+    "issueDate": "2026-06-15",
+    "description": "Certificate of Completion for successfully completing the course Cloud Computing with AI provided by Unstop.",
+    "categories": [
+      "Cloud",
+      "AI",
+      "Development"
+    ],
+    "fileName": "unstop-cloud-computing-ai.svg",
+    "imagePath": "/certificates/unstop-cloud-computing-ai.svg",
+    "downloadPath": "/certificates/unstop-cloud-computing-ai.svg"
+  },
+  {
+    "id": "cert-gfg-softskills",
+    "title": "Soft Skills & Professional Development",
+    "issuer": "GeeksforGeeks",
+    "issueDate": "2026-04-10",
+    "description": "Completed comprehensive training on Soft Skills Course Online - Complete Professional Development Training.",
+    "categories": [
+      "Leadership",
+      "Workshop",
+      "Development"
+    ],
+    "fileName": "geeksforgeeks-soft-skills-course.svg",
+    "imagePath": "/certificates/geeksforgeeks-soft-skills-course.svg",
+    "downloadPath": "/certificates/geeksforgeeks-soft-skills-course.svg"
+  },
+  {
+    "id": "cert-gcp-arcade",
+    "title": "Google Cloud Arcade Skill Badges",
+    "issuer": "Google Cloud",
+    "issueDate": "2026-03-05",
+    "description": "Skill badge credentials for Google Cloud infrastructure management, security operations, and cloud automation.",
+    "categories": [
+      "Cloud",
+      "AI",
+      "Development"
+    ],
+    "fileName": "google-cloud-arcade-skills.svg",
+    "imagePath": "/certificates/google-cloud-arcade-skills.svg",
+    "downloadPath": "/certificates/google-cloud-arcade-skills.svg"
+  },
+  {
+    "id": "cert-aws-cloud",
+    "title": "AWS Cloud Practitioner Training",
+    "issuer": "AWS / GeeksforGeeks",
+    "issueDate": "2026-01-20",
+    "description": "Foundational certification covering AWS core cloud services, security standards, and cloud deployment architecture.",
+    "categories": [
+      "AWS",
+      "Cloud",
+      "Development"
+    ],
+    "fileName": "aws-cloud-practitioner.svg",
+    "imagePath": "/certificates/aws-cloud-practitioner.svg",
+    "downloadPath": "/certificates/aws-cloud-practitioner.svg"
+  },
+  {
+    "id": "cert-softpro-python",
+    "title": "Python Programming Workshop",
+    "issuer": "Softpro India Technologies",
+    "issueDate": "2025-09-12",
+    "description": "Participated in two-day hands-on workshop 'A Journey from Beginner to Expert' on Python programming.",
+    "categories": [
+      "Workshop",
+      "Development",
+      "Java"
+    ],
+    "fileName": "softpro-python-programming-workshop.svg",
+    "imagePath": "/certificates/softpro-python-programming-workshop.svg",
+    "downloadPath": "/certificates/softpro-python-programming-workshop.svg"
+  }
+]
