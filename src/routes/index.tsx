@@ -37,8 +37,13 @@ import {
   Mail,
   MapPin,
   Menu,
+  Moon,
   Rocket,
+<<<<<<< HEAD
   Search,
+=======
+  Sun,
+>>>>>>> 7151e557448dfe24eada374f6a8a9b0e78347415
   ArrowUp,
   Send,
   Sparkles,
@@ -51,6 +56,31 @@ import {
   Youtube,
   type LucideIcon,
 } from "lucide-react";
+
+/* -------------------------------------------------------------------------- */
+/*  Theme hook                                                                 */
+/* -------------------------------------------------------------------------- */
+
+function useTheme() {
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window === "undefined") return true;
+    const stored = localStorage.getItem("theme");
+    if (stored) return stored === "dark";
+    return true; // default dark
+  });
+
+  useEffect(() => {
+    const html = document.documentElement;
+    if (isDark) {
+      html.classList.remove("light");
+    } else {
+      html.classList.add("light");
+    }
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+  }, [isDark]);
+
+  return { isDark, toggle: () => setIsDark((v) => !v) };
+}
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -103,7 +133,11 @@ const SKILL_GROUPS: SkillGroup[] = [
     title: "Frontend",
     icon: Rocket,
     color: "blue",
+<<<<<<< HEAD
     skills: ["React", "JavaScript", "HTML", "CSS"],
+=======
+    skills: ["React"],
+>>>>>>> 7151e557448dfe24eada374f6a8a9b0e78347415
   },
   {
     title: "Core Computer Science",
@@ -273,7 +307,11 @@ const SOCIALS = [
 function PortfolioPage() {
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
+<<<<<<< HEAD
     const t = setTimeout(() => setLoaded(true), 200);
+=======
+    const t = setTimeout(() => setLoaded(true), 600);
+>>>>>>> 7151e557448dfe24eada374f6a8a9b0e78347415
     return () => clearTimeout(t);
   }, []);
 
@@ -281,10 +319,28 @@ function PortfolioPage() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+<<<<<<< HEAD
     const lenis = new Lenis({
       duration: 1.05,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
+=======
+    let lenis: { raf: (t: number) => void; destroy: () => void } | null = null;
+    let raf = 0;
+    let mounted = true;
+    import("lenis").then(({ default: Lenis }) => {
+      if (!mounted) return;
+      lenis = new Lenis({
+        duration: 0.7,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
+      }) as unknown as { raf: (t: number) => void; destroy: () => void };
+      const loop = (time: number) => {
+        lenis?.raf(time);
+        raf = requestAnimationFrame(loop);
+      };
+      raf = requestAnimationFrame(loop);
+>>>>>>> 7151e557448dfe24eada374f6a8a9b0e78347415
     });
     let raf = 0;
     const loop = (time: number) => {
@@ -455,11 +511,12 @@ function ParticlesBackground() {
         />
       )}
 
-      {/* Particles */}
+      {/* Particles — CSS-animated to keep off the JS thread */}
       {!reduce &&
         dots.map((d) => (
-          <motion.span
+          <span
             key={d.id}
+<<<<<<< HEAD
             className={`absolute rounded-full transform-gpu ${d.blue ? "bg-brand-blue" : "bg-brand-green"}`}
             style={{
               width: d.size,
@@ -475,6 +532,19 @@ function ParticlesBackground() {
               repeat: Infinity,
               ease: "easeInOut",
             }}
+=======
+            className={`particle absolute rounded-full ${d.blue ? "bg-brand-blue" : "bg-brand-green"}`}
+            style={
+              {
+                width: d.size,
+                height: d.size,
+                left: `${d.x}%`,
+                top: `${d.y}%`,
+                "--dur": `${d.duration}s`,
+                "--delay": `${d.delay}s`,
+              } as React.CSSProperties
+            }
+>>>>>>> 7151e557448dfe24eada374f6a8a9b0e78347415
           />
         ))}
     </div>
@@ -485,10 +555,106 @@ function ParticlesBackground() {
 /*  Nav                                                                        */
 /* -------------------------------------------------------------------------- */
 
+function ThemeToggle({ isDark, toggle }: { isDark: boolean; toggle: () => void }) {
+  return (
+    <button
+      onClick={toggle}
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      className="relative h-8 w-[54px] shrink-0 cursor-pointer rounded-full p-[3px] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green"
+      style={{
+        background: isDark
+          ? "linear-gradient(135deg, oklch(0.18 0.05 270), oklch(0.23 0.06 250))"
+          : "linear-gradient(135deg, oklch(0.97 0.07 80), oklch(0.93 0.11 70))",
+        border: isDark
+          ? "1px solid oklch(1 0 0 / 14%)"
+          : "1px solid oklch(0.82 0.14 75 / 55%)",
+        boxShadow: isDark
+          ? "inset 0 1px 4px oklch(0 0 0 / 50%)"
+          : "inset 0 1px 3px oklch(0.7 0.1 75 / 30%), 0 0 14px -3px oklch(0.82 0.18 75 / 45%)",
+      }}
+    >
+      {/* Stars — visible in dark mode */}
+      <AnimatePresence>
+        {isDark && (
+          <motion.span
+            key="stars"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="pointer-events-none absolute right-[9px] top-1/2 flex -translate-y-1/2 flex-col gap-[3.5px]"
+          >
+            <span className="block h-[2.5px] w-[2.5px] rounded-full bg-white/60" />
+            <span className="ml-[4px] block h-[2px] w-[2px] rounded-full bg-white/40" />
+            <span className="block h-[2.5px] w-[2.5px] rounded-full bg-white/55" />
+          </motion.span>
+        )}
+      </AnimatePresence>
+
+      {/* Sun rays — visible in light mode */}
+      <AnimatePresence>
+        {!isDark && (
+          <motion.span
+            key="rays"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="pointer-events-none absolute left-[9px] top-1/2 -translate-y-1/2"
+          >
+            {[0, 45, 90, 135].map((deg) => (
+              <span
+                key={deg}
+                className="absolute block h-[2.5px] w-[2.5px] rounded-full bg-amber-400/70"
+                style={{
+                  top: "50%", left: "50%",
+                  transform: `translate(-50%,-50%) rotate(${deg}deg) translateX(7px)`,
+                }}
+              />
+            ))}
+          </motion.span>
+        )}
+      </AnimatePresence>
+
+      {/* Sliding thumb */}
+      <motion.span
+        className="relative flex h-[26px] w-[26px] items-center justify-center rounded-full"
+        style={{
+          background: isDark
+            ? "linear-gradient(145deg, #e2e8f0, #cbd5e1)"
+            : "linear-gradient(145deg, #ffffff, #fef3c7)",
+          boxShadow: isDark
+            ? "0 2px 6px oklch(0 0 0 / 55%), 0 0 0 0.5px oklch(1 0 0 / 18%)"
+            : "0 2px 6px oklch(0.65 0.12 75 / 45%), 0 0 10px -1px oklch(0.82 0.18 75 / 55%)",
+        }}
+        animate={{ x: isDark ? 0 : 22 }}
+        transition={{ type: "spring", stiffness: 520, damping: 34, mass: 0.55 }}
+      >
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.span
+            key={isDark ? "moon" : "sun"}
+            initial={{ opacity: 0, scale: 0.3, rotate: -60 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            exit={{ opacity: 0, scale: 0.3, rotate: 60 }}
+            transition={{ duration: 0.14 }}
+            className="flex items-center justify-center"
+          >
+            {isDark
+              ? <Moon className="h-[13px] w-[13px] text-slate-500" fill="currentColor" />
+              : <Sun className="h-[14px] w-[14px] text-amber-500" />
+            }
+          </motion.span>
+        </AnimatePresence>
+      </motion.span>
+    </button>
+  );
+}
+
 function Nav() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState<string>("about");
+  const { isDark, toggle } = useTheme();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -562,7 +728,8 @@ function Nav() {
             })}
           </ul>
 
-          <div className="hidden md:block">
+          <div className="hidden items-center gap-2 md:flex">
+            <ThemeToggle isDark={isDark} toggle={toggle} />
             <a
               href="#contact"
               className="group inline-flex items-center gap-1.5 rounded-lg bg-linear-to-r from-brand-green to-brand-cyan px-4 py-2 text-sm font-medium text-background transition-all hover:shadow-[0_0_30px_-8px_var(--brand-green)]"
@@ -572,13 +739,16 @@ function Nav() {
             </a>
           </div>
 
-          <button
-            className="grid h-9 w-9 place-items-center rounded-lg bg-white/5 md:hidden"
-            onClick={() => setOpen((v) => !v)}
-            aria-label="Toggle menu"
-          >
-            {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-          </button>
+          <div className="flex items-center gap-2 md:hidden">
+            <ThemeToggle isDark={isDark} toggle={toggle} />
+            <button
+              className="grid h-9 w-9 place-items-center rounded-lg bg-white/5"
+              onClick={() => setOpen((v) => !v)}
+              aria-label="Toggle menu"
+            >
+              {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            </button>
+          </div>
         </nav>
 
         <AnimatePresence>
@@ -685,6 +855,8 @@ function TypingEffect() {
 }
 
 function Hero() {
+  const [imgError, setImgError] = useState(false);
+
   return (
     <section id="top" className="relative flex min-h-screen items-center px-4 pt-28">
       <div className="mx-auto grid w-full max-w-6xl gap-12 lg:grid-cols-[1.3fr_1fr] lg:items-center">
@@ -748,8 +920,8 @@ function Hero() {
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </a>
             <a
-              href="/Pappu_Kumar_Resume.pdf"
-              download="Pappu_Kumar_Resume.pdf"
+              href="/Pappu_Resume.pdf"
+              download="Pappu_Resume.pdf"
               target="_blank"
               rel="noreferrer"
               data-magnetic
@@ -795,6 +967,7 @@ function Hero() {
             <div className="absolute -inset-4 -z-10 rounded-full bg-linear-to-br from-brand-green/40 via-brand-cyan/20 to-brand-blue/40 opacity-60 blur-3xl" />
             <div className="glass-strong relative h-full w-full overflow-hidden rounded-full p-1.5 shadow-2xl shadow-brand-green/20 ring-1 ring-white/10 transition-transform duration-500 hover:scale-[1.02]">
               <div className="relative h-full w-full overflow-hidden rounded-full">
+<<<<<<< HEAD
                 <img
                   src={pappuPhoto.url}
                   alt="Pappu Kumar - Software Engineering Student"
@@ -805,6 +978,27 @@ function Hero() {
                   height={640}
                   className="h-full w-full object-cover object-center"
                 />
+=======
+                {imgError ? (
+                  <div
+                    aria-label="Pappu Kumar"
+                    className="flex h-full w-full items-center justify-center bg-linear-to-br from-brand-green/20 via-background to-brand-blue/20"
+                  >
+                    <span className="font-display text-6xl font-bold text-gradient select-none">PK</span>
+                  </div>
+                ) : (
+                  <img
+                    src="/pappu-kumar.png"
+                    alt="Pappu Kumar - Software Engineering Student"
+                    loading="eager"
+                    decoding="async"
+                    width={640}
+                    height={640}
+                    onError={() => setImgError(true)}
+                    className="h-full w-full object-cover object-center"
+                  />
+                )}
+>>>>>>> 7151e557448dfe24eada374f6a8a9b0e78347415
                 <div className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-inset ring-white/10" />
               </div>
             </div>
@@ -956,7 +1150,7 @@ function SkillBadge({ name, color }: { name: string; color: "green" | "blue" }) 
   const base =
     "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-200 will-change-transform";
   const tone = learning
-    ? "border-yellow-400/25 bg-yellow-400/[0.06] text-yellow-200/90 hover:border-yellow-400/50 hover:shadow-[0_0_20px_-6px_rgba(250,204,21,0.5)]"
+    ? "badge-learning border-yellow-400/40 bg-yellow-400/[0.10] text-yellow-300 hover:border-yellow-400/70 hover:text-yellow-200 hover:shadow-[0_0_20px_-6px_rgba(250,204,21,0.5)]"
     : color === "green"
       ? "border-brand-green/25 bg-brand-green/[0.06] text-foreground/90 hover:border-brand-green/60 hover:text-brand-green hover:shadow-[0_0_22px_-6px_var(--brand-green)]"
       : "border-brand-blue/25 bg-brand-blue/[0.06] text-foreground/90 hover:border-brand-blue/60 hover:text-brand-blue hover:shadow-[0_0_22px_-6px_var(--brand-blue)]";
@@ -1019,7 +1213,6 @@ function Projects() {
         </AnimatePresence>
 
         <motion.div
-          layout
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -1564,7 +1757,7 @@ function CardShell({
   children: ReactNode;
 }) {
   return (
-    <div className="glass relative flex flex-col overflow-hidden rounded-2xl p-6">
+    <div className="glass relative flex h-full flex-col overflow-hidden rounded-2xl p-6">
       <div className="mb-5 flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/5 text-brand-green">
@@ -1645,6 +1838,23 @@ function computeStreaks(days: ContribDay[]) {
   }
   const total = sorted.reduce((s, d) => s + d.count, 0);
   return { current, longest, total };
+}
+
+/** Compute current LeetCode streak from submissionCalendar (unix-second keys). */
+function computeLcStreak(calendar: Record<string, number>): number {
+  if (!calendar || Object.keys(calendar).length === 0) return 0;
+  const dayS = 86400;
+  const nowS = Math.floor(Date.now() / 1000);
+  const todayStart = nowS - (nowS % dayS);
+  let streak = 0;
+  let d = todayStart;
+  // If no submission today, start counting from yesterday
+  if (!calendar[d.toString()]) d -= dayS;
+  while (calendar[d.toString()]) {
+    streak++;
+    d -= dayS;
+  }
+  return streak;
 }
 
 function GitHubSection() {
@@ -1893,46 +2103,40 @@ function LeetCodeSection() {
       `https://alfa-leetcode-api.onrender.com/userProfile/${LEETCODE_USER}`,
     ];
 
-    (async () => {
-      for (const url of endpoints) {
-        try {
-          const res = await fetch(url);
-          if (!res.ok) continue;
-          const raw = await res.json();
-          if (raw?.errors || raw?.error) continue;
-          const totalSolved = raw.totalSolved ?? raw.solvedProblem ?? 0;
-          if (!totalSolved && !raw.easySolved) continue;
-          const acceptanceRate =
-            raw.acceptanceRate ??
-            (raw.matchedUserStats?.actSessionBeatsPercentage ? undefined : undefined);
-          const normalized: LcStats = {
-            status: "success",
-            totalSolved,
-            totalQuestions: raw.totalQuestions ?? 0,
-            easySolved: raw.easySolved ?? 0,
-            totalEasy: raw.totalEasy ?? 0,
-            mediumSolved: raw.mediumSolved ?? 0,
-            totalMedium: raw.totalMedium ?? 0,
-            hardSolved: raw.hardSolved ?? 0,
-            totalHard: raw.totalHard ?? 0,
-            acceptanceRate: typeof acceptanceRate === "number" ? Math.round(acceptanceRate * 10) / 10 : 0,
-            ranking: raw.ranking ?? 0,
-            contributionPoints: raw.contributionPoint ?? raw.contributionPoints ?? 0,
-            reputation: raw.reputation ?? 0,
-            submissionCalendar: raw.submissionCalendar ?? {},
-          };
-          if (cancelled) return;
-          setData(normalized);
-          try {
-            sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: normalized }));
-          } catch {}
-          return;
-        } catch {
-          // try next
-        }
-      }
-      if (!cancelled) setError("Unable to fetch LeetCode data right now.");
-    })();
+    const normalizeLc = async (url: string): Promise<LcStats> => {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("bad status");
+      const raw = await res.json();
+      if (raw?.errors || raw?.error) throw new Error("api error");
+      const totalSolved = raw.totalSolved ?? raw.solvedProblem ?? 0;
+      if (!totalSolved && !raw.easySolved) throw new Error("no data");
+      return {
+        status: "success",
+        totalSolved,
+        totalQuestions: raw.totalQuestions ?? 0,
+        easySolved: raw.easySolved ?? 0,
+        totalEasy: raw.totalEasy ?? 0,
+        mediumSolved: raw.mediumSolved ?? 0,
+        totalMedium: raw.totalMedium ?? 0,
+        hardSolved: raw.hardSolved ?? 0,
+        totalHard: raw.totalHard ?? 0,
+        acceptanceRate: 0,
+        ranking: raw.ranking ?? 0,
+        contributionPoints: raw.contributionPoint ?? raw.contributionPoints ?? 0,
+        reputation: raw.reputation ?? 0,
+        submissionCalendar: raw.submissionCalendar ?? {},
+      };
+    };
+
+    Promise.any(endpoints.map(normalizeLc))
+      .then((normalized) => {
+        if (cancelled) return;
+        setData(normalized);
+        try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: normalized })); } catch {}
+      })
+      .catch(() => {
+        if (!cancelled) setError("Unable to fetch LeetCode data right now.");
+      });
     return () => {
       cancelled = true;
     };
@@ -1956,26 +2160,12 @@ function LeetCodeSection() {
           <ErrorState message={error} />
         ) : (
           <div className="flex flex-col gap-5">
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <StatTile icon={Trophy} label="Solved" value={data?.totalSolved ?? null} loading={!data} />
+            <div className="grid grid-cols-2 gap-3">
+              <StatTile icon={Trophy} label="Total Solved" value={data?.totalSolved ?? null} loading={!data} />
               <StatTile
-                icon={Activity}
-                label="Acceptance"
-                value={data ? `${data.acceptanceRate}%` : null}
-                loading={!data}
-                accent="cyan"
-              />
-              <StatTile
-                icon={Users}
-                label="Global Rank"
-                value={data?.ranking ?? null}
-                loading={!data}
-                accent="blue"
-              />
-              <StatTile
-                icon={Star}
-                label="Reputation"
-                value={data?.reputation ?? null}
+                icon={Flame}
+                label="Current Streak"
+                value={data ? `${computeLcStreak(data.submissionCalendar)}d` : null}
                 loading={!data}
                 accent="cyan"
               />
@@ -2004,14 +2194,109 @@ function LeetCodeSection() {
 
             <div>
               <div className="mb-2 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
-                Submission Calendar · 52 weeks
+                Submission Heatmap · last 26 weeks
               </div>
-              <LeetHeatmap calendar={data?.submissionCalendar ?? null} />
+              <LcHeatmap calendar={data?.submissionCalendar ?? null} />
             </div>
+
+            <a
+              href={`https://leetcode.com/${LEETCODE_USER}/`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Open LeetCode profile in a new tab"
+              className="group inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-brand-cyan/50 hover:bg-brand-cyan/10 hover:text-brand-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan/60"
+            >
+              View LeetCode Profile
+              <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            </a>
           </div>
         )}
       </CardShell>
     </motion.div>
+  );
+}
+
+function LcHeatmap({ calendar }: { calendar: Record<string, number> | null }) {
+  if (!calendar) {
+    return <div className="h-[92px] w-full animate-pulse rounded-lg bg-white/5" />;
+  }
+
+  // Build last 26 weeks of cells from unix-second keyed dict
+  const now = Math.floor(Date.now() / 1000);
+  const WEEKS = 26;
+  const startSec = now - WEEKS * 7 * 86400;
+  // Align start to the Sunday of that week
+  const startDate = new Date(startSec * 1000);
+  startDate.setUTCHours(0, 0, 0, 0);
+  startDate.setUTCDate(startDate.getUTCDate() - startDate.getUTCDay());
+
+  const cells: { dateStr: string; count: number }[] = [];
+  const totalDays = WEEKS * 7;
+  for (let i = 0; i < totalDays; i++) {
+    const d = new Date(startDate);
+    d.setUTCDate(d.getUTCDate() + i);
+    const key = Math.floor(d.getTime() / 1000).toString();
+    cells.push({
+      dateStr: d.toISOString().slice(0, 10),
+      count: Number(calendar[key] ?? 0),
+    });
+  }
+
+  const max = cells.reduce((m, c) => Math.max(m, c.count), 0);
+  const levelFor = (n: number) => {
+    if (n <= 0 || max <= 0) return 0;
+    const r = n / max;
+    if (r > 0.75) return 4;
+    if (r > 0.50) return 3;
+    if (r > 0.25) return 2;
+    return 1;
+  };
+  // LeetCode orange palette
+  const levelClass = (lvl: number) =>
+    [
+      "bg-white/5",
+      "bg-orange-500/25",
+      "bg-orange-500/45",
+      "bg-orange-500/70",
+      "bg-orange-500",
+    ][lvl] ?? "bg-white/5";
+
+  // Group into weeks (columns)
+  const weeks: { dateStr: string; count: number }[][] = [];
+  for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
+
+  const totalSubmissions = cells.reduce((s, c) => s + c.count, 0);
+  const activeDays = cells.filter((c) => c.count > 0).length;
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="overflow-x-auto">
+        <div className="flex gap-[3px]" role="img" aria-label="LeetCode submission heatmap">
+          {weeks.map((w, wi) => (
+            <div key={wi} className="flex flex-col gap-[3px]">
+              {w.map((c, di) => (
+                <span
+                  key={di}
+                  title={`${c.dateStr}: ${c.count} submission${c.count !== 1 ? "s" : ""}`}
+                  className={`h-[10px] w-[10px] rounded-[2px] transition-opacity hover:opacity-80 ${levelClass(levelFor(c.count))}`}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Legend row */}
+      <div className="flex items-center justify-between font-mono text-[10px] text-muted-foreground">
+        <span>{totalSubmissions} submissions · {activeDays} active days</span>
+        <div className="flex items-center gap-1">
+          <span>Less</span>
+          {[0, 1, 2, 3, 4].map((lvl) => (
+            <span key={lvl} className={`h-[9px] w-[9px] rounded-[2px] ${levelClass(lvl)}`} />
+          ))}
+          <span>More</span>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -2050,65 +2335,6 @@ function DifficultyRow({
   );
 }
 
-function LeetHeatmap({ calendar }: { calendar: Record<string, number> | null }) {
-  if (!calendar) {
-    return <div className="h-[92px] w-full animate-pulse rounded-lg bg-white/5" />;
-  }
-  const now = Math.floor(Date.now() / 1000);
-  const weeks = 52;
-  const startDate = new Date((now - weeks * 7 * 86400) * 1000);
-  startDate.setUTCHours(0, 0, 0, 0);
-  const dow = startDate.getUTCDay();
-  startDate.setUTCDate(startDate.getUTCDate() - dow);
-
-  const cells: { ts: number; count: number }[] = [];
-  const totalDays = (weeks + 1) * 7;
-  for (let i = 0; i < totalDays; i++) {
-    const d = new Date(startDate);
-    d.setUTCDate(d.getUTCDate() + i);
-    const key = Math.floor(d.getTime() / 1000).toString();
-    cells.push({ ts: d.getTime(), count: Number(calendar[key] ?? 0) });
-  }
-
-  const max = cells.reduce((m, c) => Math.max(m, c.count), 0);
-  const levelFor = (n: number) => {
-    if (n <= 0 || max <= 0) return 0;
-    const r = n / max;
-    if (r > 0.75) return 4;
-    if (r > 0.5) return 3;
-    if (r > 0.25) return 2;
-    return 1;
-  };
-  const levelClass = (lvl: number) =>
-    [
-      "bg-white/5",
-      "bg-brand-blue/25",
-      "bg-brand-blue/45",
-      "bg-brand-blue/70",
-      "bg-brand-blue",
-    ][lvl];
-
-  const weeksArr: { ts: number; count: number }[][] = [];
-  for (let i = 0; i < cells.length; i += 7) weeksArr.push(cells.slice(i, i + 7));
-
-  return (
-    <div className="overflow-x-auto">
-      <div className="flex gap-[3px]" role="img" aria-label="LeetCode submission heatmap">
-        {weeksArr.map((w, wi) => (
-          <div key={wi} className="flex flex-col gap-[3px]">
-            {w.map((c, di) => (
-              <span
-                key={di}
-                title={`${new Date(c.ts).toISOString().slice(0, 10)}: ${c.count} submissions`}
-                className={`h-[10px] w-[10px] rounded-[2px] ${levelClass(levelFor(c.count))}`}
-              />
-            ))}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 /* ---------- GeeksforGeeks ---------- */
 
@@ -2196,32 +2422,25 @@ function GfgSection() {
       `https://gfg-api-orpin.vercel.app/${GFG_USER}`,
     ];
 
-    (async () => {
-      for (const url of endpoints) {
-        try {
-          const res = await fetch(url);
-          if (!res.ok) continue;
-          const raw = await res.json();
-          const normalized = normalizeGfg(raw);
-          if (!normalized) continue;
-          if (cancelled) return;
-          setData(normalized);
-          setStatus("success");
-          try {
-            sessionStorage.setItem(
-              CACHE_KEY,
-              JSON.stringify({ t: Date.now(), d: normalized }),
-            );
-          } catch {
-            /* ignore */
-          }
-          return;
-        } catch {
-          /* try next */
-        }
-      }
-      if (!cancelled) setStatus((s) => (s === "success" ? s : "fallback"));
-    })();
+    Promise.any(
+      endpoints.map(async (url) => {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("bad status");
+        const raw = await res.json();
+        const normalized = normalizeGfg(raw);
+        if (!normalized) throw new Error("no data");
+        return normalized;
+      }),
+    )
+      .then((normalized) => {
+        if (cancelled) return;
+        setData(normalized);
+        setStatus("success");
+        try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: normalized })); } catch {}
+      })
+      .catch(() => {
+        if (!cancelled) setStatus((s) => (s === "success" ? s : "fallback"));
+      });
 
     return () => {
       cancelled = true;
@@ -2263,12 +2482,18 @@ function GfgSection() {
       >
         <div className="flex flex-col gap-5">
           {showFallback ? (
-            <div className="rounded-xl border border-white/10 bg-white/[0.03] p-5 text-sm text-muted-foreground">
-              <p className="text-foreground">Live statistics are temporarily unavailable.</p>
-              <p className="mt-1">
-                My full coding progress, solved problems and achievements are always up to date on
-                my GeeksforGeeks profile.
-              </p>
+            <div className="flex flex-col gap-4">
+              <div className="rounded-xl border border-brand-green/20 bg-brand-green/[0.04] p-5">
+                <div className="flex items-center gap-3">
+                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-green/15 text-brand-green">
+                    <BookOpen className="h-5 w-5" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <p className="font-display text-sm font-semibold text-foreground">Active GeeksforGeeks Profile</p>
+                    <p className="text-xs text-brand-green">Continuous Learner</p>
+                  </div>
+                </div>
+              </div>
             </div>
           ) : (
             <>
@@ -2336,19 +2561,158 @@ function GfgSection() {
   );
 }
 
+/* -------------------------------------------------------------------------- */
+/*  Coding Dashboard — summary bar                                             */
+/* -------------------------------------------------------------------------- */
+
+function CodingDashboardSummary() {
+  const { ref, inView } = useInView<HTMLDivElement>();
+  const [problemsSolved, setProblemsSolved] = useState<number | null>(null);
+  const [ghContribs, setGhContribs] = useState<number | null>(null);
+  const [currentStreak, setCurrentStreak] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!inView) return;
+    let cancelled = false;
+
+    (async () => {
+      // GitHub contributions (1 year)
+      try {
+        const CACHE_KEY = "gh-contribs-summary";
+        const CACHE_TTL = 1000 * 60 * 60 * 6;
+        let contribs: number | null = null;
+        try {
+          const cached =
+            typeof sessionStorage !== "undefined"
+              ? sessionStorage.getItem(CACHE_KEY)
+              : null;
+          if (cached) {
+            const p = JSON.parse(cached) as { t: number; d: number };
+            if (Date.now() - p.t < CACHE_TTL) contribs = p.d;
+          }
+        } catch {
+          /* ignore */
+        }
+        if (contribs === null) {
+          const res = await fetch(
+            `https://github-contributions-api.jogruber.de/v4/${GITHUB_USER}?y=last`,
+          );
+          if (res.ok) {
+            const data = (await res.json()) as { contributions: ContribDay[] };
+            contribs = data.contributions.reduce((s, d) => s + d.count, 0);
+            try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: contribs })); } catch {}
+          }
+        }
+        if (!cancelled && contribs !== null) setGhContribs(contribs);
+      } catch { /* ignore */ }
+    })();
+
+    // LeetCode — parallel, independent of GitHub fetch above
+    (async () => {
+      if (cancelled) return;
+      try {
+        const CACHE_KEY = "lc-summary";
+        const CACHE_TTL = 1000 * 60 * 60 * 6;
+        try {
+          const raw = typeof sessionStorage !== "undefined" ? sessionStorage.getItem(CACHE_KEY) : null;
+          if (raw) {
+            const p = JSON.parse(raw) as { t: number; lc: number; streak: number };
+            if (Date.now() - p.t < CACHE_TTL) {
+              if (!cancelled) {
+                setProblemsSolved(p.lc);
+                if (p.streak > 0) setCurrentStreak(p.streak);
+              }
+              return;
+            }
+          }
+        } catch {}
+
+        const lcEndpoints = [
+          `https://leetcode-api-faisalshohag.vercel.app/${LEETCODE_USER}`,
+          `https://alfa-leetcode-api.onrender.com/userProfile/${LEETCODE_USER}`,
+        ];
+        const d = await Promise.any(
+          lcEndpoints.map(async (url) => {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error("bad");
+            const j = await res.json();
+            if (j?.errors || j?.error) throw new Error("err");
+            const lc = j.totalSolved ?? j.solvedProblem ?? 0;
+            if (!lc) throw new Error("empty");
+            return { lc, streak: computeLcStreak((j.submissionCalendar ?? {}) as Record<string, number>) };
+          }),
+        );
+        if (!cancelled) {
+          setProblemsSolved(d.lc);
+          if (d.streak > 0) setCurrentStreak(d.streak);
+          try { sessionStorage.setItem("lc-summary", JSON.stringify({ t: Date.now(), lc: d.lc, streak: d.streak })); } catch {}
+        }
+      } catch { /* ignore */ }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [inView]);
+
+  const summaryStats = [
+    {
+      icon: Trophy,
+      label: "Problems Solved",
+      value: problemsSolved,
+      accent: "green" as const,
+    },
+    {
+      icon: Activity,
+      label: "GitHub Contributions",
+      value: ghContribs,
+      accent: "blue" as const,
+    },
+    {
+      icon: Code2,
+      label: "Coding Platforms",
+      value: 3,
+      accent: "cyan" as const,
+    },
+    {
+      icon: Flame,
+      label: "Current Streak",
+      value: currentStreak != null ? `${currentStreak}d` : null,
+      accent: "green" as const,
+    },
+  ] as const;
+
+  return (
+    <div ref={ref} className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      {summaryStats.map((s) => (
+        <StatTile
+          key={s.label}
+          icon={s.icon}
+          label={s.label}
+          value={s.value}
+          loading={s.value === null && s.label !== "Coding Platforms"}
+          accent={s.accent}
+        />
+      ))}
+    </div>
+  );
+}
+
 function Stats() {
   return (
     <Section
       id="stats"
-      eyebrow="Live Coding Stats"
+      eyebrow="Coding Dashboard"
       title={
         <>
-          Numbers that keep me <span className="text-gradient">building.</span>
+          Competitive Programming &amp;{" "}
+          <span className="text-gradient">Open Source Activity.</span>
         </>
       }
       intro="Real-time GitHub, LeetCode and GeeksforGeeks activity — fetched live, never hardcoded."
     >
-      <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
+      <CodingDashboardSummary />
+      <div className="grid gap-5 lg:grid-cols-3">
         <GitHubSection />
         <LeetCodeSection />
         <GfgSection />
@@ -2433,19 +2797,37 @@ function Contact() {
 
 type FormStatus = "idle" | "sending" | "success" | "error";
 
+const CONTACT_COOLDOWN_MS = 60 * 1000; // 1 minute between submissions
+
 function ContactForm() {
   const [status, setStatus] = useState<FormStatus>("idle");
   const [errorMsg, setErrorMsg] = useState<string>("");
   const formRef = useRef<HTMLFormElement>(null);
+  const lastSentRef = useRef<number>(0);
 
   const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID as string | undefined;
   const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID as string | undefined;
   const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY as string | undefined;
 
+  if (!SERVICE_ID || !TEMPLATE_ID || !PUBLIC_KEY) {
+    console.warn(
+      "[Contact] EmailJS env vars missing. Set VITE_EMAILJS_SERVICE_ID, VITE_EMAILJS_TEMPLATE_ID, VITE_EMAILJS_PUBLIC_KEY.",
+    );
+  }
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
     const fd = new FormData(form);
+
+    // Cooldown check — prevent spam
+    const timeSinceLast = Date.now() - lastSentRef.current;
+    if (lastSentRef.current > 0 && timeSinceLast < CONTACT_COOLDOWN_MS) {
+      const remaining = Math.ceil((CONTACT_COOLDOWN_MS - timeSinceLast) / 1000);
+      setStatus("error");
+      setErrorMsg(`Please wait ${remaining}s before sending another message.`);
+      return;
+    }
     // Honeypot — bots fill hidden fields; humans don't.
     if (String(fd.get("website") ?? "").length > 0) {
       setStatus("success");
@@ -2493,6 +2875,7 @@ function ContactForm() {
           },
           { publicKey: PUBLIC_KEY },
         );
+        lastSentRef.current = Date.now();
         setStatus("success");
         form.reset();
         setTimeout(() => setStatus("idle"), 5000);
@@ -2503,6 +2886,7 @@ function ContactForm() {
           subject || "Portfolio contact",
         )}&body=${encodeURIComponent(body)}`;
         window.location.href = mailto;
+        lastSentRef.current = Date.now();
         setStatus("success");
         setTimeout(() => setStatus("idle"), 5000);
       }
@@ -2696,11 +3080,10 @@ function TiltProjectCard({ project: p, index: i }: { project: Project; index: nu
 
   return (
     <motion.div
-      layout
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      transition={{ duration: 0.4, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.35, delay: i * 0.04, ease: [0.22, 1, 0.36, 1] }}
       style={{ perspective: 1000 }}
       className="group relative"
     >

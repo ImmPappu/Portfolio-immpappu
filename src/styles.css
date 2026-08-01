@@ -1,4 +1,13 @@
 @import "tailwindcss" source(none);
+
+@keyframes particle-float {
+  0%, 100% { transform: translateY(0);   opacity: 0.2; }
+  50%       { transform: translateY(-30px); opacity: 0.7; }
+}
+.particle {
+  animation: particle-float var(--dur, 20s) var(--delay, 0s) infinite ease-in-out;
+  will-change: transform, opacity;
+}
 @source "../src";
 @import "tw-animate-css";
 
@@ -85,6 +94,75 @@
   --shadow-glow-blue: 0 0 40px -8px oklch(0.68 0.18 240 / 45%);
 }
 
+/* ── Light mode ────────────────────────────────────────────────────────── */
+html.light {
+  --background: oklch(0.98 0.005 240);
+  --foreground: oklch(0.13 0.02 240);
+  --surface: oklch(0.94 0.007 240);
+  --surface-elevated: oklch(0.97 0.005 240);
+
+  --card: oklch(1 0 0 / 70%);
+  --card-foreground: oklch(0.13 0.02 240);
+  --popover: oklch(0.97 0.005 240);
+  --popover-foreground: oklch(0.13 0.02 240);
+
+  --primary: oklch(0.55 0.18 155);
+  --primary-foreground: oklch(0.98 0.005 240);
+  --secondary: oklch(0.90 0.01 240);
+  --secondary-foreground: oklch(0.13 0.02 240);
+
+  --muted: oklch(0.92 0.01 240);
+  --muted-foreground: oklch(0.45 0.02 240);
+  --accent: oklch(0.55 0.16 235);
+  --accent-foreground: oklch(0.98 0.005 240);
+
+  --destructive: oklch(0.55 0.22 25);
+  --destructive-foreground: oklch(0.98 0.005 240);
+
+  --border: oklch(0 0 0 / 10%);
+  --input: oklch(0 0 0 / 8%);
+  --ring: oklch(0.55 0.18 155);
+
+  --brand-green: oklch(0.52 0.18 152);
+  --brand-blue: oklch(0.45 0.18 240);
+  --brand-cyan: oklch(0.50 0.13 200);
+
+  --gradient-brand: linear-gradient(135deg, oklch(0.52 0.18 152), oklch(0.45 0.18 240));
+  --gradient-radial: radial-gradient(circle at 30% 20%, oklch(0.45 0.18 240 / 12%), transparent 55%),
+                     radial-gradient(circle at 75% 70%, oklch(0.52 0.18 152 / 10%), transparent 55%);
+  --shadow-glow-green: 0 0 40px -8px oklch(0.52 0.18 152 / 35%);
+  --shadow-glow-blue: 0 0 40px -8px oklch(0.45 0.18 240 / 35%);
+}
+
+html.light .glass {
+  background: color-mix(in oklab, var(--surface) 70%, transparent);
+  border-color: oklch(0 0 0 / 8%);
+}
+html.light .glass-strong {
+  background: color-mix(in oklab, var(--surface-elevated) 85%, transparent);
+  border-color: oklch(0 0 0 / 10%);
+}
+/* Learning badges need dark amber text on light backgrounds */
+html.light .badge-learning {
+  color: oklch(0.42 0.14 75);
+  border-color: oklch(0.72 0.15 75 / 55%);
+  background-color: oklch(0.96 0.07 80 / 70%);
+}
+html.light .badge-learning:hover {
+  color: oklch(0.34 0.14 75);
+  border-color: oklch(0.60 0.16 75 / 80%);
+}
+html.light .badge-learning .bg-yellow-400 {
+  background-color: oklch(0.60 0.17 75);
+}
+
+html.light .bg-grid {
+  background-image:
+    linear-gradient(oklch(0 0 0 / 5%) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0 0 0 / 5%) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
@@ -108,6 +186,16 @@
     background-image:
       radial-gradient(circle at 20% 10%, oklch(0.68 0.18 240 / 12%), transparent 45%),
       radial-gradient(circle at 85% 85%, oklch(0.82 0.19 152 / 10%), transparent 45%);
+<<<<<<< HEAD
+=======
+    background-attachment: fixed;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  html.light body {
+    background-image:
+      radial-gradient(circle at 20% 10%, oklch(0.45 0.18 240 / 8%), transparent 45%),
+      radial-gradient(circle at 85% 85%, oklch(0.52 0.18 152 / 6%), transparent 45%);
+>>>>>>> 7151e557448dfe24eada374f6a8a9b0e78347415
   }
   h1, h2, h3, h4 {
     font-family: var(--font-display);
