@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import pappuPhoto from "@/assets/pappu-kumar.jpg.asset.json";
+import profilePhoto from "@/assets/pappu-kumar.png";
 import {
   motion,
   useScroll,
@@ -961,22 +961,35 @@ function Hero() {
             className="relative mx-auto aspect-square w-64 sm:w-80 lg:w-full"
           >
             <div className="absolute -inset-4 -z-10 rounded-full bg-linear-to-br from-brand-green/40 via-brand-cyan/20 to-brand-blue/40 opacity-60 blur-3xl" />
-            <div className="glass-strong relative h-full w-full overflow-hidden rounded-full p-1.5 shadow-2xl shadow-brand-green/20 ring-1 ring-white/10 transition-transform duration-500 hover:scale-[1.02]">
-              <div className="relative h-full w-full overflow-hidden rounded-full">
+            <div className="glass-strong relative z-10 h-full w-full overflow-hidden rounded-full p-1.5 shadow-2xl shadow-brand-green/20 ring-1 ring-white/10 transition-transform duration-500 hover:scale-[1.02]">
+              <div className="relative z-10 h-full w-full overflow-hidden rounded-full">
                 <img
-                  src={pappuPhoto.url}
+                  src={profilePhoto}
                   alt="Pappu Kumar - Software Engineering Student"
                   loading="eager"
                   decoding="async"
                   fetchPriority="high"
                   width={640}
                   height={640}
-                  className="h-full w-full object-cover object-center"
+                  className="relative z-10 h-full w-full rounded-full object-cover object-center"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    objectPosition: "center",
+                    borderRadius: "50%",
+                  }}
+                  onError={(e) => {
+                    const target = e.currentTarget as HTMLImageElement;
+                    if (!target.src.endsWith("/pappu-kumar.png")) {
+                      target.src = "/pappu-kumar.png";
+                    }
+                  }}
                 />
-                <div className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-inset ring-white/10" />
+                <div className="pointer-events-none absolute inset-0 z-20 rounded-full ring-1 ring-inset ring-white/10" />
               </div>
             </div>
-            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 rounded-full border border-brand-green/40 bg-background/80 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-brand-green shadow-lg backdrop-blur">
+            <div className="absolute -bottom-3 left-1/2 z-30 -translate-x-1/2 whitespace-nowrap rounded-full border border-brand-green/40 bg-background/90 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-brand-green shadow-lg backdrop-blur">
               <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-brand-green" />
               Available
             </div>
