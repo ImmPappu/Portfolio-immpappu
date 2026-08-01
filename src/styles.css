@@ -1,13 +1,23 @@
 @import "tailwindcss" source(none);
 
 @keyframes particle-float {
-  0%, 100% { transform: translateY(0);   opacity: 0.2; }
-  50%       { transform: translateY(-30px); opacity: 0.7; }
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.2;
+  }
+
+  50% {
+    transform: translateY(-30px);
+    opacity: 0.7;
+  }
 }
+
 .particle {
   animation: particle-float var(--dur, 20s) var(--delay, 0s) infinite ease-in-out;
   will-change: transform, opacity;
 }
+
 @source "../src";
 @import "tw-animate-css";
 
@@ -88,8 +98,9 @@
   --brand-cyan: oklch(0.82 0.13 200);
 
   --gradient-brand: linear-gradient(135deg, oklch(0.82 0.19 152), oklch(0.68 0.18 240));
-  --gradient-radial: radial-gradient(circle at 30% 20%, oklch(0.68 0.18 240 / 25%), transparent 55%),
-                     radial-gradient(circle at 75% 70%, oklch(0.82 0.19 152 / 20%), transparent 55%);
+  --gradient-radial:
+    radial-gradient(circle at 30% 20%, oklch(0.68 0.18 240 / 25%), transparent 55%),
+    radial-gradient(circle at 75% 70%, oklch(0.82 0.19 152 / 20%), transparent 55%);
   --shadow-glow-green: 0 0 40px -8px oklch(0.82 0.19 152 / 45%);
   --shadow-glow-blue: 0 0 40px -8px oklch(0.68 0.18 240 / 45%);
 }
@@ -108,7 +119,7 @@ html.light {
 
   --primary: oklch(0.55 0.18 155);
   --primary-foreground: oklch(0.98 0.005 240);
-  --secondary: oklch(0.90 0.01 240);
+  --secondary: oklch(0.9 0.01 240);
   --secondary-foreground: oklch(0.13 0.02 240);
 
   --muted: oklch(0.92 0.01 240);
@@ -125,11 +136,12 @@ html.light {
 
   --brand-green: oklch(0.52 0.18 152);
   --brand-blue: oklch(0.45 0.18 240);
-  --brand-cyan: oklch(0.50 0.13 200);
+  --brand-cyan: oklch(0.5 0.13 200);
 
   --gradient-brand: linear-gradient(135deg, oklch(0.52 0.18 152), oklch(0.45 0.18 240));
-  --gradient-radial: radial-gradient(circle at 30% 20%, oklch(0.45 0.18 240 / 12%), transparent 55%),
-                     radial-gradient(circle at 75% 70%, oklch(0.52 0.18 152 / 10%), transparent 55%);
+  --gradient-radial:
+    radial-gradient(circle at 30% 20%, oklch(0.45 0.18 240 / 12%), transparent 55%),
+    radial-gradient(circle at 75% 70%, oklch(0.52 0.18 152 / 10%), transparent 55%);
   --shadow-glow-green: 0 0 40px -8px oklch(0.52 0.18 152 / 35%);
   --shadow-glow-blue: 0 0 40px -8px oklch(0.45 0.18 240 / 35%);
 }
@@ -138,22 +150,26 @@ html.light .glass {
   background: color-mix(in oklab, var(--surface) 70%, transparent);
   border-color: oklch(0 0 0 / 8%);
 }
+
 html.light .glass-strong {
   background: color-mix(in oklab, var(--surface-elevated) 85%, transparent);
   border-color: oklch(0 0 0 / 10%);
 }
+
 /* Learning badges need dark amber text on light backgrounds */
 html.light .badge-learning {
   color: oklch(0.42 0.14 75);
   border-color: oklch(0.72 0.15 75 / 55%);
   background-color: oklch(0.96 0.07 80 / 70%);
 }
+
 html.light .badge-learning:hover {
   color: oklch(0.34 0.14 75);
-  border-color: oklch(0.60 0.16 75 / 80%);
+  border-color: oklch(0.6 0.16 75 / 80%);
 }
+
 html.light .badge-learning .bg-yellow-400 {
-  background-color: oklch(0.60 0.17 75);
+  background-color: oklch(0.6 0.17 75);
 }
 
 html.light .bg-grid {
@@ -167,6 +183,7 @@ html.light .bg-grid {
   * {
     border-color: var(--color-border);
   }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -175,6 +192,7 @@ html.light .bg-grid {
     -webkit-font-smoothing: antialiased;
     position: relative;
   }
+
   body::before {
     content: "";
     position: fixed;
@@ -186,21 +204,26 @@ html.light .bg-grid {
     background-image:
       radial-gradient(circle at 20% 10%, oklch(0.68 0.18 240 / 12%), transparent 45%),
       radial-gradient(circle at 85% 85%, oklch(0.82 0.19 152 / 10%), transparent 45%);
-<<<<<<< HEAD
-=======
     background-attachment: fixed;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
   }
-  html.light body {
+
+  html.light body::before {
     background-image:
       radial-gradient(circle at 20% 10%, oklch(0.45 0.18 240 / 8%), transparent 45%),
       radial-gradient(circle at 85% 85%, oklch(0.52 0.18 152 / 6%), transparent 45%);
->>>>>>> 7151e557448dfe24eada374f6a8a9b0e78347415
   }
-  h1, h2, h3, h4 {
+
+  h1,
+  h2,
+  h3,
+  h4 {
     font-family: var(--font-display);
     letter-spacing: -0.02em;
   }
+
   ::selection {
     background: oklch(0.82 0.19 152 / 30%);
     color: var(--color-foreground);
@@ -249,4 +272,3 @@ html.light .bg-grid {
   content-visibility: auto;
   contain-intrinsic-size: 1px 700px;
 }
-

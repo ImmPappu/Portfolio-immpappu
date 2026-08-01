@@ -8,26 +8,16 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
   vite: {
-    build: {
-      rolldownOptions: {
-        external: ["lenis"],
-      },
-    },
-    ssr: {
-      external: ["lenis"],
-    },
-  },
-  tanstackStart: {
-    // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
-    // nitro/vite builds from this
-    server: { entry: "server" },
-  },
-  vite: {
     server: {
       // Replit requires 0.0.0.0 (IPv4) on port 5000 for the preview pane
       host: "0.0.0.0",
       port: 5000,
       allowedHosts: true,
     },
+  },
+  tanstackStart: {
+    // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
+    // nitro/vite builds from this
+    server: { entry: "server" },
   },
 });

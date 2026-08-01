@@ -10,7 +10,6 @@ import {
   useReducedMotion,
   AnimatePresence,
 } from "motion/react";
-import Lenis from "lenis";
 import emailjs from "@emailjs/browser";
 import certificatesData from "../data/certificates.json";
 import {
@@ -39,11 +38,8 @@ import {
   Menu,
   Moon,
   Rocket,
-<<<<<<< HEAD
   Search,
-=======
   Sun,
->>>>>>> 7151e557448dfe24eada374f6a8a9b0e78347415
   ArrowUp,
   Send,
   Sparkles,
@@ -133,11 +129,7 @@ const SKILL_GROUPS: SkillGroup[] = [
     title: "Frontend",
     icon: Rocket,
     color: "blue",
-<<<<<<< HEAD
     skills: ["React", "JavaScript", "HTML", "CSS"],
-=======
-    skills: ["React"],
->>>>>>> 7151e557448dfe24eada374f6a8a9b0e78347415
   },
   {
     title: "Core Computer Science",
@@ -169,26 +161,13 @@ const SKILL_GROUPS: SkillGroup[] = [
     title: "Automation",
     icon: Sparkles,
     color: "green",
-    skills: [
-      "n8n",
-      "Gemini API",
-      "YouTube Data API",
-      "Google Sheets API",
-      "Google Drive API",
-    ],
+    skills: ["n8n", "Gemini API", "YouTube Data API", "Google Sheets API", "Google Drive API"],
   },
   {
     title: "Tools",
     icon: Wrench,
     color: "blue",
-    skills: [
-      "VS Code",
-      "IntelliJ IDEA",
-      "GitHub Desktop",
-      "Canva",
-      "Adobe Photoshop",
-      "n8n",
-    ],
+    skills: ["VS Code", "IntelliJ IDEA", "GitHub Desktop", "Canva", "Adobe Photoshop", "n8n"],
   },
 ];
 
@@ -199,9 +178,68 @@ type Project = {
   stack: string[];
   highlights: string[];
   status: "Live" | "In Progress";
+  featured?: boolean;
+  demoUrl?: string;
+  githubUrl?: string;
+  longDescription?: string;
+  problemStatement?: string;
+  challengesSolved?: string[];
+  featuresList?: string[];
+  imageUrl?: string;
 };
 
 const PROJECTS: Project[] = [
+  {
+    title: "InfinityFitAI",
+    category: "AI",
+    featured: true,
+    description:
+      "Modern AI-assisted fitness & nutrition app providing BMI, BMR, TDEE & water calculators, meal planning, workout recommendations, yoga guidance, and PDF health reports.",
+    longDescription:
+      "InfinityFitAI is a modern AI-assisted fitness and nutrition web application designed to empower users with personalized health analytics. It calculates critical biometric metrics including BMI, BMR, TDEE, daily calorie intake, protein requirements, and water intake while offering tailored meal planning, workout guidance, yoga routines, and downloadable PDF health reports.",
+    problemStatement:
+      "Tracking accurate fitness metrics, computing TDEE/BMR precisely, and receiving customized nutrition or workout advice typically requires multiple fragmented tools or expensive subscriptions. InfinityFitAI unifies biometric calculations, meal planning, workout guidance, and exportable PDF reports into one responsive, PWA-enabled application.",
+    stack: [
+      "React",
+      "TypeScript",
+      "Tailwind CSS",
+      "Vite",
+      "Framer Motion",
+      "jsPDF",
+      "html2canvas",
+      "PWA",
+      "Netlify",
+    ],
+    highlights: [
+      "BMI, BMR & TDEE Biometric Calculators",
+      "Personalized Meal Planner & Yoga Guidance",
+      "Downloadable PDF Health Reports & PWA Support",
+    ],
+    featuresList: [
+      "BMI, BMR & TDEE Calculator",
+      "Daily Protein & Water Requirement Calculator",
+      "Personalized Meal Planner",
+      "Workout Recommendations",
+      "Yoga Guidance",
+      "Nutrition Dashboard",
+      "Downloadable PDF Health Report",
+      "Responsive Design",
+      "Progressive Web App (PWA)",
+      "Multi-language Support",
+      "SEO Optimized",
+    ],
+    challengesSolved: [
+      "Redesigned the UI from a dark theme to a clean modern interface.",
+      "Fixed responsive layout issues across multiple screen sizes.",
+      "Debugged and fixed PDF export generation using jsPDF and html2canvas.",
+      "Resolved TypeScript build and deployment issues.",
+      "Improved application performance and user experience.",
+    ],
+    status: "Live",
+    demoUrl: "https://infinityfitai.netlify.app/",
+    githubUrl: "https://github.com/ImmPappu/InfinityfitAI",
+    imageUrl: "/infinityfit-ai.png",
+  },
   {
     title: "AI Powered YouTube Automation System",
     category: "AI",
@@ -214,19 +252,8 @@ const PROJECTS: Project[] = [
       "Live status alerts on Telegram",
     ],
     status: "Live",
-  },
-  {
-    title: "Photo Studio Automation",
-    category: "Automation",
-    description:
-      "Automates passport photo production — removes background, corrects colors, crops precisely, and lays out a print-ready sheet. (In Progress)",
-    stack: ["n8n", "Image APIs", "Node", "Automation"],
-    highlights: [
-      "One-click background removal",
-      "Auto color & crop correction",
-      "Printable passport-sheet output",
-    ],
-    status: "Live",
+    githubUrl: "https://github.com/ImmPappu",
+    imageUrl: "/youtube-automation-banner.png",
   },
   {
     title: "Personal Portfolio Website",
@@ -240,6 +267,9 @@ const PROJECTS: Project[] = [
       "Framer-style micro-interactions",
     ],
     status: "Live",
+    demoUrl: "https://portfolio-immpappu.vercel.app/",
+    githubUrl: "https://github.com/ImmPappu/Portfolio-immpappu",
+    imageUrl: "/portfolio-banner.png",
   },
 ];
 
@@ -307,31 +337,20 @@ const SOCIALS = [
 function PortfolioPage() {
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
-<<<<<<< HEAD
     const t = setTimeout(() => setLoaded(true), 200);
-=======
-    const t = setTimeout(() => setLoaded(true), 600);
->>>>>>> 7151e557448dfe24eada374f6a8a9b0e78347415
     return () => clearTimeout(t);
   }, []);
 
   // Lenis smooth scrolling — respects reduced-motion, disabled on touch
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-<<<<<<< HEAD
-    const lenis = new Lenis({
-      duration: 1.05,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-=======
     let lenis: { raf: (t: number) => void; destroy: () => void } | null = null;
     let raf = 0;
     let mounted = true;
     import("lenis").then(({ default: Lenis }) => {
       if (!mounted) return;
       lenis = new Lenis({
-        duration: 0.7,
+        duration: 1.05,
         easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         smoothWheel: true,
       }) as unknown as { raf: (t: number) => void; destroy: () => void };
@@ -340,17 +359,11 @@ function PortfolioPage() {
         raf = requestAnimationFrame(loop);
       };
       raf = requestAnimationFrame(loop);
->>>>>>> 7151e557448dfe24eada374f6a8a9b0e78347415
     });
-    let raf = 0;
-    const loop = (time: number) => {
-      lenis.raf(time);
-      raf = requestAnimationFrame(loop);
-    };
-    raf = requestAnimationFrame(loop);
     return () => {
+      mounted = false;
       cancelAnimationFrame(raf);
-      lenis.destroy();
+      lenis?.destroy();
     };
   }, []);
 
@@ -440,7 +453,7 @@ function ParticlesBackground() {
         delay: Math.random() * 5,
         blue: Math.random() > 0.5,
       })),
-    []
+    [],
   );
 
   // Mouse-follow spotlight via CSS variables (cheap, no re-renders)
@@ -511,12 +524,11 @@ function ParticlesBackground() {
         />
       )}
 
-      {/* Particles — CSS-animated to keep off the JS thread */}
+      {/* Particles */}
       {!reduce &&
         dots.map((d) => (
-          <span
+          <motion.span
             key={d.id}
-<<<<<<< HEAD
             className={`absolute rounded-full transform-gpu ${d.blue ? "bg-brand-blue" : "bg-brand-green"}`}
             style={{
               width: d.size,
@@ -532,19 +544,6 @@ function ParticlesBackground() {
               repeat: Infinity,
               ease: "easeInOut",
             }}
-=======
-            className={`particle absolute rounded-full ${d.blue ? "bg-brand-blue" : "bg-brand-green"}`}
-            style={
-              {
-                width: d.size,
-                height: d.size,
-                left: `${d.x}%`,
-                top: `${d.y}%`,
-                "--dur": `${d.duration}s`,
-                "--delay": `${d.delay}s`,
-              } as React.CSSProperties
-            }
->>>>>>> 7151e557448dfe24eada374f6a8a9b0e78347415
           />
         ))}
     </div>
@@ -565,9 +564,7 @@ function ThemeToggle({ isDark, toggle }: { isDark: boolean; toggle: () => void }
         background: isDark
           ? "linear-gradient(135deg, oklch(0.18 0.05 270), oklch(0.23 0.06 250))"
           : "linear-gradient(135deg, oklch(0.97 0.07 80), oklch(0.93 0.11 70))",
-        border: isDark
-          ? "1px solid oklch(1 0 0 / 14%)"
-          : "1px solid oklch(0.82 0.14 75 / 55%)",
+        border: isDark ? "1px solid oklch(1 0 0 / 14%)" : "1px solid oklch(0.82 0.14 75 / 55%)",
         boxShadow: isDark
           ? "inset 0 1px 4px oklch(0 0 0 / 50%)"
           : "inset 0 1px 3px oklch(0.7 0.1 75 / 30%), 0 0 14px -3px oklch(0.82 0.18 75 / 45%)",
@@ -607,7 +604,8 @@ function ThemeToggle({ isDark, toggle }: { isDark: boolean; toggle: () => void }
                 key={deg}
                 className="absolute block h-[2.5px] w-[2.5px] rounded-full bg-amber-400/70"
                 style={{
-                  top: "50%", left: "50%",
+                  top: "50%",
+                  left: "50%",
                   transform: `translate(-50%,-50%) rotate(${deg}deg) translateX(7px)`,
                 }}
               />
@@ -639,10 +637,11 @@ function ThemeToggle({ isDark, toggle }: { isDark: boolean; toggle: () => void }
             transition={{ duration: 0.14 }}
             className="flex items-center justify-center"
           >
-            {isDark
-              ? <Moon className="h-[13px] w-[13px] text-slate-500" fill="currentColor" />
-              : <Sun className="h-[14px] w-[14px] text-amber-500" />
-            }
+            {isDark ? (
+              <Moon className="h-[13px] w-[13px] text-slate-500" fill="currentColor" />
+            ) : (
+              <Sun className="h-[14px] w-[14px] text-amber-500" />
+            )}
           </motion.span>
         </AnimatePresence>
       </motion.span>
@@ -665,7 +664,7 @@ function Nav() {
 
   useEffect(() => {
     const els = NAV.map((n) => document.getElementById(n.id)).filter(
-      (el): el is HTMLElement => !!el
+      (el): el is HTMLElement => !!el,
     );
     if (!els.length) return;
     const io = new IntersectionObserver(
@@ -675,7 +674,7 @@ function Nav() {
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
         if (visible?.target.id) setActive(visible.target.id);
       },
-      { rootMargin: "-40% 0px -50% 0px", threshold: [0, 0.25, 0.5, 1] }
+      { rootMargin: "-40% 0px -50% 0px", threshold: [0, 0.25, 0.5, 1] },
     );
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
@@ -686,15 +685,13 @@ function Nav() {
       initial={{ y: -30, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, delay: 0.15 }}
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
-        scrolled ? "py-3" : "py-5"
-      }`}
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${scrolled ? "py-3" : "py-5"
+        }`}
     >
       <div className="mx-auto max-w-6xl px-4">
         <nav
-          className={`glass-strong flex items-center justify-between rounded-2xl px-4 py-3 transition-shadow ${
-            scrolled ? "shadow-2xl shadow-black/40" : ""
-          }`}
+          className={`glass-strong flex items-center justify-between rounded-2xl px-4 py-3 transition-shadow ${scrolled ? "shadow-2xl shadow-black/40" : ""
+            }`}
         >
           <a href="#top" className="flex items-center gap-2">
             <span className="grid h-8 w-8 place-items-center rounded-lg bg-linear-to-br from-brand-green to-brand-blue font-display text-sm font-bold text-background">
@@ -710,9 +707,8 @@ function Nav() {
                 <li key={n.id} className="relative">
                   <a
                     href={`#${n.id}`}
-                    className={`relative rounded-lg px-3 py-1.5 text-sm transition-colors ${
-                      isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
-                    }`}
+                    className={`relative rounded-lg px-3 py-1.5 text-sm transition-colors ${isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                      }`}
                   >
                     {n.label}
                     {isActive && (
@@ -967,7 +963,6 @@ function Hero() {
             <div className="absolute -inset-4 -z-10 rounded-full bg-linear-to-br from-brand-green/40 via-brand-cyan/20 to-brand-blue/40 opacity-60 blur-3xl" />
             <div className="glass-strong relative h-full w-full overflow-hidden rounded-full p-1.5 shadow-2xl shadow-brand-green/20 ring-1 ring-white/10 transition-transform duration-500 hover:scale-[1.02]">
               <div className="relative h-full w-full overflow-hidden rounded-full">
-<<<<<<< HEAD
                 <img
                   src={pappuPhoto.url}
                   alt="Pappu Kumar - Software Engineering Student"
@@ -978,27 +973,6 @@ function Hero() {
                   height={640}
                   className="h-full w-full object-cover object-center"
                 />
-=======
-                {imgError ? (
-                  <div
-                    aria-label="Pappu Kumar"
-                    className="flex h-full w-full items-center justify-center bg-linear-to-br from-brand-green/20 via-background to-brand-blue/20"
-                  >
-                    <span className="font-display text-6xl font-bold text-gradient select-none">PK</span>
-                  </div>
-                ) : (
-                  <img
-                    src="/pappu-kumar.png"
-                    alt="Pappu Kumar - Software Engineering Student"
-                    loading="eager"
-                    decoding="async"
-                    width={640}
-                    height={640}
-                    onError={() => setImgError(true)}
-                    className="h-full w-full object-cover object-center"
-                  />
-                )}
->>>>>>> 7151e557448dfe24eada374f6a8a9b0e78347415
                 <div className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-inset ring-white/10" />
               </div>
             </div>
@@ -1032,8 +1006,7 @@ function About() {
       eyebrow="About Me"
       title={
         <>
-          Curious builder,{" "}
-          <span className="text-gradient">relentless learner.</span>
+          Curious builder, <span className="text-gradient">relentless learner.</span>
         </>
       }
       intro="I'm passionate about software development, Java, and DSA — with a strong interest in Cloud, DevOps, and AI Automation. I love designing workflows that remove repetitive work and building products that solve real problems."
@@ -1115,17 +1088,15 @@ function Skills() {
             className="glass group relative overflow-hidden rounded-2xl p-6 transition-all hover:-translate-y-1 hover:border-white/20"
           >
             <div
-              className={`pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full blur-3xl transition-opacity duration-500 ${
-                group.color === "green" ? "bg-brand-green/10" : "bg-brand-blue/10"
-              } opacity-60 group-hover:opacity-100`}
+              className={`pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full blur-3xl transition-opacity duration-500 ${group.color === "green" ? "bg-brand-green/10" : "bg-brand-blue/10"
+                } opacity-60 group-hover:opacity-100`}
             />
             <div className="relative flex items-center gap-3">
               <div
-                className={`grid h-10 w-10 place-items-center rounded-xl ${
-                  group.color === "green"
-                    ? "bg-brand-green/15 text-brand-green"
-                    : "bg-brand-blue/15 text-brand-blue"
-                }`}
+                className={`grid h-10 w-10 place-items-center rounded-xl ${group.color === "green"
+                  ? "bg-brand-green/15 text-brand-green"
+                  : "bg-brand-blue/15 text-brand-blue"
+                  }`}
               >
                 <group.icon className="h-5 w-5" aria-hidden="true" />
               </div>
@@ -1157,13 +1128,8 @@ function SkillBadge({ name, color }: { name: string; color: "green" | "blue" }) 
   return (
     <span className={`${base} ${tone} hover:-translate-y-0.5`}>
       <span
-        className={`h-1.5 w-1.5 rounded-full ${
-          learning
-            ? "bg-yellow-400"
-            : color === "green"
-              ? "bg-brand-green"
-              : "bg-brand-blue"
-        }`}
+        className={`h-1.5 w-1.5 rounded-full ${learning ? "bg-yellow-400" : color === "green" ? "bg-brand-green" : "bg-brand-blue"
+          }`}
       />
       {name}
     </span>
@@ -1176,58 +1142,72 @@ function SkillBadge({ name, color }: { name: string; color: "green" | "blue" }) 
 
 function Projects() {
   const [filter, setFilter] = useState<(typeof PROJECT_FILTERS)[number]>("All");
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const filtered = PROJECTS.filter((p) => filter === "All" || p.category === filter);
 
   return (
-    <Section
-      id="projects"
-      eyebrow="Projects"
-      title={
-        <>
-          Things I've <span className="text-gradient">built.</span>
-        </>
-      }
-      intro="A few projects I've shipped. More coming as I keep learning and building."
-    >
-      <div className="mb-8 flex flex-wrap gap-2">
-        {PROJECT_FILTERS.map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`rounded-full border px-4 py-1.5 text-sm transition-all ${
-              filter === f
+    <>
+      <Section
+        id="projects"
+        eyebrow="Projects"
+        title={
+          <>
+            Things I've <span className="text-gradient">built.</span>
+          </>
+        }
+        intro="A few projects I've shipped. More coming as I keep learning and building."
+      >
+        <div className="mb-8 flex flex-wrap gap-2">
+          {PROJECT_FILTERS.map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`rounded-full border px-4 py-1.5 text-sm transition-all ${filter === f
                 ? "border-brand-green/50 bg-brand-green/15 text-brand-green"
                 : "border-white/10 bg-white/[0.03] text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {f}
-          </button>
-        ))}
-      </div>
-
-      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-        <AnimatePresence mode="popLayout">
-          {filtered.map((p, i) => (
-            <TiltProjectCard key={p.title} project={p} index={i} />
+                }`}
+            >
+              {f}
+            </button>
           ))}
-        </AnimatePresence>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="glass flex min-h-[240px] flex-col items-center justify-center gap-2 rounded-2xl border-dashed p-6 text-center"
-        >
-          <div className="grid h-10 w-10 place-items-center rounded-full bg-white/5 text-brand-green">
-            <Sparkles className="h-5 w-5" />
-          </div>
-          <p className="font-display font-semibold">More projects incoming</p>
-          <p className="text-xs text-muted-foreground">
-            Space reserved for what I'm building next.
-          </p>
-        </motion.div>
-      </div>
-    </Section>
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <AnimatePresence mode="popLayout">
+            {filtered.map((p, i) => (
+              <TiltProjectCard
+                key={p.title}
+                project={p}
+                index={i}
+                onSelect={(proj) => setSelectedProject(proj)}
+              />
+            ))}
+          </AnimatePresence>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="glass flex min-h-[240px] flex-col items-center justify-center gap-2 rounded-2xl border-dashed p-6 text-center"
+          >
+            <div className="grid h-10 w-10 place-items-center rounded-full bg-white/5 text-brand-green">
+              <Sparkles className="h-5 w-5" />
+            </div>
+            <p className="font-display font-semibold">More projects incoming</p>
+            <p className="text-xs text-muted-foreground">
+              Space reserved for what I'm building next.
+            </p>
+          </motion.div>
+        </div>
+      </Section>
+
+      {/* Project Details Modal */}
+      <AnimatePresence>
+        {selectedProject && (
+          <ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
@@ -1259,14 +1239,11 @@ function Timeline() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.05 }}
-                className={`relative grid gap-4 pl-12 sm:grid-cols-2 sm:pl-0 ${
-                  left ? "" : "sm:[&>*:first-child]:col-start-2"
-                }`}
+                className={`relative grid gap-4 pl-12 sm:grid-cols-2 sm:pl-0 ${left ? "" : "sm:[&>*:first-child]:col-start-2"
+                  }`}
               >
                 <div
-                  className={`glass rounded-2xl p-5 ${
-                    left ? "sm:mr-8 sm:text-right" : "sm:ml-8"
-                  }`}
+                  className={`glass rounded-2xl p-5 ${left ? "sm:mr-8 sm:text-right" : "sm:ml-8"}`}
                 >
                   <div className="font-mono text-[11px] uppercase tracking-widest text-brand-green">
                     Step {String(i + 1).padStart(2, "0")}
@@ -1329,9 +1306,7 @@ function Certifications() {
     // Filter by Category
     if (selectedCategory !== "All") {
       result = result.filter((cert) =>
-        cert.categories.some(
-          (cat) => cat.toLowerCase() === selectedCategory.toLowerCase()
-        )
+        cert.categories.some((cat) => cat.toLowerCase() === selectedCategory.toLowerCase()),
       );
     }
 
@@ -1343,14 +1318,12 @@ function Certifications() {
           cert.title.toLowerCase().includes(q) ||
           cert.issuer.toLowerCase().includes(q) ||
           cert.description.toLowerCase().includes(q) ||
-          cert.categories.some((cat) => cat.toLowerCase().includes(q))
+          cert.categories.some((cat) => cat.toLowerCase().includes(q)),
       );
     }
 
     // Sort newest date first
-    return result.sort(
-      (a, b) => new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime()
-    );
+    return result.sort((a, b) => new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime());
   }, [searchQuery, selectedCategory]);
 
   const handleCategoryChange = (category: string) => {
@@ -1402,11 +1375,10 @@ function Certifications() {
                 <button
                   key={cat}
                   onClick={() => handleCategoryChange(cat)}
-                  className={`rounded-lg px-3 py-1.5 font-mono text-xs transition-all ${
-                    active
-                      ? "bg-linear-to-r from-brand-green to-brand-cyan font-semibold text-background shadow-md shadow-brand-green/20"
-                      : "border border-white/10 bg-white/[0.04] text-muted-foreground hover:border-white/20 hover:text-foreground"
-                  }`}
+                  className={`rounded-lg px-3 py-1.5 font-mono text-xs transition-all ${active
+                    ? "bg-linear-to-r from-brand-green to-brand-cyan font-semibold text-background shadow-md shadow-brand-green/20"
+                    : "border border-white/10 bg-white/[0.04] text-muted-foreground hover:border-white/20 hover:text-foreground"
+                    }`}
                 >
                   {cat}
                 </button>
@@ -1715,11 +1687,7 @@ function StatTile({
   const numeric = typeof value === "number" ? value : null;
   const animated = useAnimatedCount(numeric);
   const display =
-    loading || value == null
-      ? null
-      : numeric != null
-        ? animated.toLocaleString()
-        : value;
+    loading || value == null ? null : numeric != null ? animated.toLocaleString() : value;
   const accentText =
     accent === "blue"
       ? "text-brand-blue"
@@ -1953,10 +1921,33 @@ function GitHubSection() {
             </div>
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <StatTile icon={BookOpen} label="Repos" value={user?.public_repos ?? null} loading={!user} />
-              <StatTile icon={Star} label="Stars" value={stars} loading={stars === null} accent="cyan" />
-              <StatTile icon={Users} label="Followers" value={user?.followers ?? null} loading={!user} accent="blue" />
-              <StatTile icon={GitFork} label="Following" value={user?.following ?? null} loading={!user} accent="blue" />
+              <StatTile
+                icon={BookOpen}
+                label="Repos"
+                value={user?.public_repos ?? null}
+                loading={!user}
+              />
+              <StatTile
+                icon={Star}
+                label="Stars"
+                value={stars}
+                loading={stars === null}
+                accent="cyan"
+              />
+              <StatTile
+                icon={Users}
+                label="Followers"
+                value={user?.followers ?? null}
+                loading={!user}
+                accent="blue"
+              />
+              <StatTile
+                icon={GitFork}
+                label="Following"
+                value={user?.following ?? null}
+                loading={!user}
+                accent="blue"
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -2029,13 +2020,9 @@ function ContribHeatmap({ days }: { days: ContribDay[] | null }) {
   for (let i = 0; i < padded.length; i += 7) weeks.push(padded.slice(i, i + 7));
 
   const levelClass = (lvl: number) =>
-    [
-      "bg-white/5",
-      "bg-brand-green/25",
-      "bg-brand-green/45",
-      "bg-brand-green/70",
-      "bg-brand-green",
-    ][lvl] ?? "bg-white/5";
+    ["bg-white/5", "bg-brand-green/25", "bg-brand-green/45", "bg-brand-green/70", "bg-brand-green"][
+    lvl
+    ] ?? "bg-white/5";
 
   return (
     <div className="overflow-x-auto">
@@ -2048,9 +2035,8 @@ function ContribHeatmap({ days }: { days: ContribDay[] | null }) {
                 <span
                   key={di}
                   title={d ? `${d.date}: ${d.count} contributions` : ""}
-                  className={`h-[10px] w-[10px] rounded-[2px] ${
-                    d ? levelClass(d.level) : "bg-transparent"
-                  }`}
+                  className={`h-[10px] w-[10px] rounded-[2px] ${d ? levelClass(d.level) : "bg-transparent"
+                    }`}
                 />
               );
             })}
@@ -2091,12 +2077,15 @@ function LeetCodeSection() {
     const CACHE_KEY = `lc-stats-${LEETCODE_USER}`;
     const CACHE_TTL = 1000 * 60 * 60 * 6; // 6h
     try {
-      const cached = typeof sessionStorage !== "undefined" ? sessionStorage.getItem(CACHE_KEY) : null;
+      const cached =
+        typeof sessionStorage !== "undefined" ? sessionStorage.getItem(CACHE_KEY) : null;
       if (cached) {
         const parsed = JSON.parse(cached) as { t: number; d: LcStats };
         if (Date.now() - parsed.t < CACHE_TTL) setData(parsed.d);
       }
-    } catch {}
+    } catch {
+      /* ignore storage/fetch error */
+    }
 
     const endpoints = [
       `https://leetcode-api-faisalshohag.vercel.app/${LEETCODE_USER}`,
@@ -2132,7 +2121,11 @@ function LeetCodeSection() {
       .then((normalized) => {
         if (cancelled) return;
         setData(normalized);
-        try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: normalized })); } catch {}
+        try {
+          sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: normalized }));
+        } catch {
+          /* ignore storage/fetch error */
+        }
       })
       .catch(() => {
         if (!cancelled) setError("Unable to fetch LeetCode data right now.");
@@ -2161,7 +2154,12 @@ function LeetCodeSection() {
         ) : (
           <div className="flex flex-col gap-5">
             <div className="grid grid-cols-2 gap-3">
-              <StatTile icon={Trophy} label="Total Solved" value={data?.totalSolved ?? null} loading={!data} />
+              <StatTile
+                icon={Trophy}
+                label="Total Solved"
+                value={data?.totalSolved ?? null}
+                loading={!data}
+              />
               <StatTile
                 icon={Flame}
                 label="Current Streak"
@@ -2247,19 +2245,15 @@ function LcHeatmap({ calendar }: { calendar: Record<string, number> | null }) {
     if (n <= 0 || max <= 0) return 0;
     const r = n / max;
     if (r > 0.75) return 4;
-    if (r > 0.50) return 3;
+    if (r > 0.5) return 3;
     if (r > 0.25) return 2;
     return 1;
   };
   // LeetCode orange palette
   const levelClass = (lvl: number) =>
-    [
-      "bg-white/5",
-      "bg-orange-500/25",
-      "bg-orange-500/45",
-      "bg-orange-500/70",
-      "bg-orange-500",
-    ][lvl] ?? "bg-white/5";
+    ["bg-white/5", "bg-orange-500/25", "bg-orange-500/45", "bg-orange-500/70", "bg-orange-500"][
+    lvl
+    ] ?? "bg-white/5";
 
   // Group into weeks (columns)
   const weeks: { dateStr: string; count: number }[][] = [];
@@ -2287,7 +2281,9 @@ function LcHeatmap({ calendar }: { calendar: Record<string, number> | null }) {
       </div>
       {/* Legend row */}
       <div className="flex items-center justify-between font-mono text-[10px] text-muted-foreground">
-        <span>{totalSubmissions} submissions · {activeDays} active days</span>
+        <span>
+          {totalSubmissions} submissions · {activeDays} active days
+        </span>
         <div className="flex items-center gap-1">
           <span>Less</span>
           {[0, 1, 2, 3, 4].map((lvl) => (
@@ -2321,7 +2317,11 @@ function DifficultyRow({
         </span>
       </div>
       <div className="mt-2 font-display text-xl font-bold text-foreground">
-        {solved != null ? solved : <span className="inline-block h-6 w-10 animate-pulse rounded bg-white/5" />}
+        {solved != null ? (
+          solved
+        ) : (
+          <span className="inline-block h-6 w-10 animate-pulse rounded bg-white/5" />
+        )}
       </div>
       <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/5">
         <motion.div
@@ -2334,7 +2334,6 @@ function DifficultyRow({
     </div>
   );
 }
-
 
 /* ---------- GeeksforGeeks ---------- */
 
@@ -2380,7 +2379,11 @@ function normalizeGfg(raw: unknown): GfgStats | null {
     ),
     codingScore: pickNumber(info.codingScore, info.coding_score, info.score),
     instituteRank: pickNumber(info.instituteRank, info.institute_rank),
-    currentStreak: pickNumber(info.currentStreak, info.current_streak, info.pod_solved_longest_streak),
+    currentStreak: pickNumber(
+      info.currentStreak,
+      info.current_streak,
+      info.pod_solved_longest_streak,
+    ),
     maxStreak: pickNumber(info.maxStreak, info.max_streak, info.longestStreak),
     monthlyScore: pickNumber(info.monthlyCodingScore, info.monthly_coding_score),
     easy: bucket("easy") ?? bucket("Easy"),
@@ -2436,7 +2439,11 @@ function GfgSection() {
         if (cancelled) return;
         setData(normalized);
         setStatus("success");
-        try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: normalized })); } catch {}
+        try {
+          sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: normalized }));
+        } catch {
+          /* ignore storage/fetch error */
+        }
       })
       .catch(() => {
         if (!cancelled) setStatus((s) => (s === "success" ? s : "fallback"));
@@ -2448,19 +2455,45 @@ function GfgSection() {
   }, [inView]);
 
   const tiles = useMemo(() => {
-    if (!data) return [] as { icon: LucideIcon; label: string; value: number; accent?: "green" | "blue" | "cyan" }[];
-    const list: { icon: LucideIcon; label: string; value: number; accent?: "green" | "blue" | "cyan" }[] = [];
+    if (!data)
+      return [] as {
+        icon: LucideIcon;
+        label: string;
+        value: number;
+        accent?: "green" | "blue" | "cyan";
+      }[];
+    const list: {
+      icon: LucideIcon;
+      label: string;
+      value: number;
+      accent?: "green" | "blue" | "cyan";
+    }[] = [];
     if (data.totalSolved != null)
       list.push({ icon: Trophy, label: "Solved", value: data.totalSolved });
     if (data.codingScore != null)
       list.push({ icon: Sparkles, label: "Coding Score", value: data.codingScore, accent: "cyan" });
     if (data.instituteRank != null)
-      list.push({ icon: Users, label: "Institute Rank", value: data.instituteRank, accent: "blue" });
+      list.push({
+        icon: Users,
+        label: "Institute Rank",
+        value: data.instituteRank,
+        accent: "blue",
+      });
     const streak = data.currentStreak ?? data.maxStreak;
     if (streak != null)
-      list.push({ icon: Flame, label: data.currentStreak != null ? "Current Streak" : "Longest Streak", value: streak, accent: "cyan" });
+      list.push({
+        icon: Flame,
+        label: data.currentStreak != null ? "Current Streak" : "Longest Streak",
+        value: streak,
+        accent: "cyan",
+      });
     if (data.monthlyScore != null && list.length < 4)
-      list.push({ icon: Activity, label: "Monthly Score", value: data.monthlyScore, accent: "blue" });
+      list.push({
+        icon: Activity,
+        label: "Monthly Score",
+        value: data.monthlyScore,
+        accent: "blue",
+      });
     return list.slice(0, 4);
   }, [data]);
 
@@ -2489,7 +2522,9 @@ function GfgSection() {
                     <BookOpen className="h-5 w-5" aria-hidden="true" />
                   </div>
                   <div>
-                    <p className="font-display text-sm font-semibold text-foreground">Active GeeksforGeeks Profile</p>
+                    <p className="font-display text-sm font-semibold text-foreground">
+                      Active GeeksforGeeks Profile
+                    </p>
                     <p className="text-xs text-brand-green">Continuous Learner</p>
                   </div>
                 </div>
@@ -2500,48 +2535,48 @@ function GfgSection() {
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {status !== "success"
                   ? Array.from({ length: 4 }).map((_, i) => (
-                      <StatTile
-                        key={i}
-                        icon={Trophy}
-                        label="Loading"
-                        value={null}
-                        loading
-                        accent={i % 2 ? "cyan" : "green"}
-                      />
-                    ))
+                    <StatTile
+                      key={i}
+                      icon={Trophy}
+                      label="Loading"
+                      value={null}
+                      loading
+                      accent={i % 2 ? "cyan" : "green"}
+                    />
+                  ))
                   : tiles.map((t) => (
-                      <StatTile
-                        key={t.label}
-                        icon={t.icon}
-                        label={t.label}
-                        value={t.value}
-                        accent={t.accent}
-                      />
-                    ))}
+                    <StatTile
+                      key={t.label}
+                      icon={t.icon}
+                      label={t.label}
+                      value={t.value}
+                      accent={t.accent}
+                    />
+                  ))}
               </div>
 
               {(status !== "success" ||
                 data?.easy != null ||
                 data?.medium != null ||
                 data?.hard != null) && (
-                <div className="grid grid-cols-3 gap-3">
-                  <DifficultyRow
-                    label="Easy"
-                    solved={data?.easy ?? undefined}
-                    color="from-brand-green to-brand-cyan"
-                  />
-                  <DifficultyRow
-                    label="Medium"
-                    solved={data?.medium ?? undefined}
-                    color="from-yellow-400 to-orange-400"
-                  />
-                  <DifficultyRow
-                    label="Hard"
-                    solved={data?.hard ?? undefined}
-                    color="from-rose-400 to-red-500"
-                  />
-                </div>
-              )}
+                  <div className="grid grid-cols-3 gap-3">
+                    <DifficultyRow
+                      label="Easy"
+                      solved={data?.easy ?? undefined}
+                      color="from-brand-green to-brand-cyan"
+                    />
+                    <DifficultyRow
+                      label="Medium"
+                      solved={data?.medium ?? undefined}
+                      color="from-yellow-400 to-orange-400"
+                    />
+                    <DifficultyRow
+                      label="Hard"
+                      solved={data?.hard ?? undefined}
+                      color="from-rose-400 to-red-500"
+                    />
+                  </div>
+                )}
             </>
           )}
 
@@ -2583,9 +2618,7 @@ function CodingDashboardSummary() {
         let contribs: number | null = null;
         try {
           const cached =
-            typeof sessionStorage !== "undefined"
-              ? sessionStorage.getItem(CACHE_KEY)
-              : null;
+            typeof sessionStorage !== "undefined" ? sessionStorage.getItem(CACHE_KEY) : null;
           if (cached) {
             const p = JSON.parse(cached) as { t: number; d: number };
             if (Date.now() - p.t < CACHE_TTL) contribs = p.d;
@@ -2600,11 +2633,17 @@ function CodingDashboardSummary() {
           if (res.ok) {
             const data = (await res.json()) as { contributions: ContribDay[] };
             contribs = data.contributions.reduce((s, d) => s + d.count, 0);
-            try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: contribs })); } catch {}
+            try {
+              sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: contribs }));
+            } catch {
+              /* ignore storage/fetch error */
+            }
           }
         }
         if (!cancelled && contribs !== null) setGhContribs(contribs);
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     })();
 
     // LeetCode — parallel, independent of GitHub fetch above
@@ -2614,7 +2653,8 @@ function CodingDashboardSummary() {
         const CACHE_KEY = "lc-summary";
         const CACHE_TTL = 1000 * 60 * 60 * 6;
         try {
-          const raw = typeof sessionStorage !== "undefined" ? sessionStorage.getItem(CACHE_KEY) : null;
+          const raw =
+            typeof sessionStorage !== "undefined" ? sessionStorage.getItem(CACHE_KEY) : null;
           if (raw) {
             const p = JSON.parse(raw) as { t: number; lc: number; streak: number };
             if (Date.now() - p.t < CACHE_TTL) {
@@ -2625,7 +2665,9 @@ function CodingDashboardSummary() {
               return;
             }
           }
-        } catch {}
+        } catch {
+          /* ignore storage/fetch error */
+        }
 
         const lcEndpoints = [
           `https://leetcode-api-faisalshohag.vercel.app/${LEETCODE_USER}`,
@@ -2639,15 +2681,27 @@ function CodingDashboardSummary() {
             if (j?.errors || j?.error) throw new Error("err");
             const lc = j.totalSolved ?? j.solvedProblem ?? 0;
             if (!lc) throw new Error("empty");
-            return { lc, streak: computeLcStreak((j.submissionCalendar ?? {}) as Record<string, number>) };
+            return {
+              lc,
+              streak: computeLcStreak((j.submissionCalendar ?? {}) as Record<string, number>),
+            };
           }),
         );
         if (!cancelled) {
           setProblemsSolved(d.lc);
           if (d.streak > 0) setCurrentStreak(d.streak);
-          try { sessionStorage.setItem("lc-summary", JSON.stringify({ t: Date.now(), lc: d.lc, streak: d.streak })); } catch {}
+          try {
+            sessionStorage.setItem(
+              "lc-summary",
+              JSON.stringify({ t: Date.now(), lc: d.lc, streak: d.streak }),
+            );
+          } catch {
+            /* ignore storage/fetch error */
+          }
         }
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     })();
 
     return () => {
@@ -2690,7 +2744,7 @@ function CodingDashboardSummary() {
           icon={s.icon}
           label={s.label}
           value={s.value}
-          loading={s.value === null && s.label !== "Coding Platforms"}
+          loading={s.value === null}
           accent={s.accent}
         />
       ))}
@@ -2705,8 +2759,7 @@ function Stats() {
       eyebrow="Coding Dashboard"
       title={
         <>
-          Competitive Programming &amp;{" "}
-          <span className="text-gradient">Open Source Activity.</span>
+          Competitive Programming &amp; <span className="text-gradient">Open Source Activity.</span>
         </>
       }
       intro="Real-time GitHub, LeetCode and GeeksforGeeks activity — fetched live, never hardcoded."
@@ -2738,12 +2791,14 @@ function Experience() {
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h3 className="font-display text-lg font-semibold">Student Developer Club — Coordinator</h3>
+            <h3 className="font-display text-lg font-semibold">
+              Student Developer Club — Coordinator
+            </h3>
             <span className="font-mono text-xs text-muted-foreground">Ongoing</span>
           </div>
           <p className="mt-2 text-sm text-muted-foreground">
-            Coordinating with the campus developer community — organizing sessions,
-            supporting peers, and sharing what I learn about Java, Cloud, and Automation.
+            Coordinating with the campus developer community — organizing sessions, supporting
+            peers, and sharing what I learn about Java, Cloud, and Automation.
           </p>
         </div>
       </div>
@@ -2893,7 +2948,9 @@ function ContactForm() {
     } catch (err) {
       console.error("EmailJS send failed", err);
       setStatus("error");
-      setErrorMsg("Sorry, message failed to send. Please email me directly at appubdm06@gmail.com.");
+      setErrorMsg(
+        "Sorry, message failed to send. Please email me directly at appubdm06@gmail.com.",
+      );
     }
   }
 
@@ -2988,7 +3045,10 @@ function ContactForm() {
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
         <p className="text-xs text-muted-foreground">
           Or email me directly at{" "}
-          <a href="mailto:appubdm06@gmail.com" className="text-foreground underline-offset-4 hover:underline">
+          <a
+            href="mailto:appubdm06@gmail.com"
+            className="text-foreground underline-offset-4 hover:underline"
+          >
             appubdm06@gmail.com
           </a>
         </p>
@@ -3026,7 +3086,9 @@ function Footer() {
           <span className="grid h-7 w-7 place-items-center rounded-md bg-linear-to-br from-brand-green to-brand-blue font-display text-xs font-bold text-background">
             PK
           </span>
-          <span>Designed &amp; Developed by <span className="text-foreground">Pappu Kumar</span></span>
+          <span>
+            Designed &amp; Developed by <span className="text-foreground">Pappu Kumar</span>
+          </span>
         </div>
         <div className="flex items-center gap-3">
           {SOCIALS.slice(1).map((s) => (
@@ -3055,7 +3117,194 @@ function Footer() {
 /*  Motion FX — Tilt cards, Custom cursor, Back-to-top                         */
 /* -------------------------------------------------------------------------- */
 
-function TiltProjectCard({ project: p, index: i }: { project: Project; index: number }) {
+/* -------------------------------------------------------------------------- */
+/*  Project Modal & Tilt Card                                                  */
+/* -------------------------------------------------------------------------- */
+
+function ProjectModal({ project, onClose }: { project: Project; onClose: () => void }) {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+      className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/80 p-4 backdrop-blur-md"
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+        onClick={(e) => e.stopPropagation()}
+        className="glass-strong relative my-8 max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-white/20 p-6 shadow-2xl md:p-8"
+      >
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5 text-muted-foreground transition-all hover:bg-white/10 hover:text-foreground"
+          aria-label="Close modal"
+        >
+          <X className="h-5 w-5" />
+        </button>
+
+        {/* Top Badges */}
+        <div className="flex flex-wrap items-center gap-2 pr-10">
+          {project.featured && (
+            <span className="inline-flex items-center gap-1 rounded-full border border-brand-green/50 bg-brand-green/15 px-3 py-1 font-mono text-xs font-semibold text-brand-green shadow-[0_0_15px_-3px_var(--brand-green)]">
+              <Sparkles className="h-3.5 w-3.5" />
+              Featured Project
+            </span>
+          )}
+          <span className="rounded-full border border-brand-blue/30 bg-brand-blue/10 px-3 py-1 font-mono text-xs uppercase tracking-wider text-brand-blue">
+            {project.category}
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-green/30 bg-brand-green/10 px-3 py-1 font-mono text-xs font-semibold text-brand-green">
+            <span className="h-2 w-2 rounded-full bg-brand-green animate-pulse" />
+            {project.status}
+          </span>
+        </div>
+
+        {/* Header Title */}
+        <h2 className="mt-4 font-display text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+          {project.title}
+        </h2>
+
+        {/* Preview Image if available */}
+        {project.imageUrl && (
+          <div className="relative mt-5 aspect-video w-full overflow-hidden rounded-2xl border border-white/10 bg-black/40 shadow-xl">
+            <img
+              src={project.imageUrl}
+              alt={project.title}
+              className="h-full w-full object-cover object-center"
+            />
+          </div>
+        )}
+
+        {/* Overview & Problem Statement */}
+        <div className="mt-6 space-y-4">
+          <div>
+            <h4 className="font-mono text-xs uppercase tracking-wider text-brand-green">
+              Project Overview
+            </h4>
+            <p className="mt-1 text-sm leading-relaxed text-foreground/90">
+              {project.longDescription || project.description}
+            </p>
+          </div>
+
+          {project.problemStatement && (
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+              <h4 className="font-mono text-xs uppercase tracking-wider text-brand-cyan">
+                Problem Statement &amp; Solution
+              </h4>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                {project.problemStatement}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Key Features */}
+        {project.featuresList && project.featuresList.length > 0 && (
+          <div className="mt-6">
+            <h4 className="font-mono text-xs uppercase tracking-wider text-brand-green">
+              Key Features
+            </h4>
+            <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {project.featuresList.map((feat) => (
+                <div
+                  key={feat}
+                  className="flex items-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] p-2.5 text-xs text-foreground/80"
+                >
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-brand-green" />
+                  <span>{feat}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Tech Stack */}
+        <div className="mt-6">
+          <h4 className="font-mono text-xs uppercase tracking-wider text-brand-blue">
+            Tech Stack &amp; Tools
+          </h4>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {project.stack.map((tech) => (
+              <span
+                key={tech}
+                className="rounded-lg border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs text-muted-foreground transition-colors hover:border-brand-green/30 hover:text-foreground"
+              >
+                {tech}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Challenges Solved */}
+        {project.challengesSolved && project.challengesSolved.length > 0 && (
+          <div className="mt-6 rounded-2xl border border-brand-green/20 bg-brand-green/5 p-5">
+            <h4 className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-brand-green">
+              <Wrench className="h-4 w-4" />
+              Challenges Solved &amp; What I Learned
+            </h4>
+            <ul className="mt-3 space-y-2 text-xs leading-relaxed text-foreground/90">
+              {project.challengesSolved.map((chal) => (
+                <li key={chal} className="flex items-start gap-2">
+                  <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-green" />
+                  <span>{chal}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="mt-8 flex flex-wrap items-center gap-3 border-t border-white/10 pt-5">
+          {project.demoUrl && (
+            <a
+              href={project.demoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl border border-brand-green/50 bg-brand-green px-5 py-2.5 font-mono text-xs font-semibold text-background shadow-lg transition-transform hover:scale-105"
+            >
+              <Rocket className="h-4 w-4" />
+              🚀 Live Demo
+            </a>
+          )}
+          {project.githubUrl && (
+            <a
+              href={project.githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 font-mono text-xs font-semibold text-foreground hover:bg-white/10 transition-all"
+            >
+              <Github className="h-4 w-4" />
+              💻 GitHub Repository
+            </a>
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function TiltProjectCard({
+  project: p,
+  index: i,
+  onSelect,
+}: {
+  project: Project;
+  index: number;
+  onSelect?: (project: Project) => void;
+}) {
   const reduce = useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
   const rx = useMotionValue(0);
@@ -3094,7 +3343,8 @@ function TiltProjectCard({ project: p, index: i }: { project: Project; index: nu
         style={{ rotateX: srx, rotateY: sry, transformStyle: "preserve-3d" }}
         whileHover={{ y: -6 }}
         transition={{ type: "spring", stiffness: 280, damping: 24 }}
-        className="glass relative flex h-full flex-col overflow-hidden rounded-2xl transition-shadow duration-300 hover:border-white/20 hover:shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6),0_0_40px_-16px_var(--brand-green)]"
+        className={`glass relative flex h-full flex-col overflow-hidden rounded-2xl transition-shadow duration-300 hover:border-white/20 hover:shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6),0_0_40px_-16px_var(--brand-green)] ${p.featured ? "ring-1 ring-brand-green/40 shadow-[0_0_30px_-10px_var(--brand-green)]" : ""
+          }`}
       >
         {/* Browser mockup */}
         <div className="relative overflow-hidden border-b border-white/10 bg-linear-to-br from-white/[0.04] to-white/[0.01]">
@@ -3103,28 +3353,47 @@ function TiltProjectCard({ project: p, index: i }: { project: Project; index: nu
             <span className="h-2.5 w-2.5 rounded-full bg-yellow-500/60" />
             <span className="h-2.5 w-2.5 rounded-full bg-brand-green/70" />
             <div className="ml-3 flex-1 truncate rounded-md bg-white/[0.04] px-2 py-0.5 text-center font-mono text-[10px] text-muted-foreground">
-              pappu.dev/{p.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 24)}
-            </div>
-          </div>
-          <div className="relative grid h-32 place-items-center overflow-hidden">
-            <div className="absolute inset-0 bg-grid opacity-40 [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_75%)]" />
-            <div
-              className={`absolute -inset-8 opacity-40 blur-3xl transition-transform duration-700 group-hover:scale-110 ${
-                p.category === "AI"
-                  ? "bg-linear-to-tr from-brand-blue/40 via-brand-cyan/30 to-brand-green/30"
-                  : p.category === "Automation"
-                    ? "bg-linear-to-tr from-brand-green/40 via-brand-cyan/25 to-brand-blue/30"
-                    : "bg-linear-to-tr from-brand-cyan/30 via-brand-green/30 to-brand-blue/40"
-              }`}
-            />
-            <span className="relative font-display text-4xl font-bold text-gradient opacity-80">
+              pappu.dev/
               {p.title
-                .split(" ")
-                .map((w) => w[0])
-                .join("")
-                .slice(0, 3)
-                .toUpperCase()}
-            </span>
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, "-")
+                .slice(0, 24)}
+            </div>
+            {p.featured && (
+              <span className="ml-auto inline-flex items-center gap-1 rounded-full border border-brand-green/50 bg-brand-green/20 px-2 py-0.5 font-mono text-[9px] font-semibold text-brand-green">
+                <Sparkles className="h-3 w-3" />
+                Featured
+              </span>
+            )}
+          </div>
+          <div className="relative grid h-36 place-items-center overflow-hidden">
+            {p.imageUrl ? (
+              <img
+                src={p.imageUrl}
+                alt={p.title}
+                className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+              />
+            ) : (
+              <>
+                <div className="absolute inset-0 bg-grid opacity-40 [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_75%)]" />
+                <div
+                  className={`absolute -inset-8 opacity-40 blur-3xl transition-transform duration-700 group-hover:scale-110 ${p.category === "AI"
+                    ? "bg-linear-to-tr from-brand-blue/40 via-brand-cyan/30 to-brand-green/30"
+                    : p.category === "Automation"
+                      ? "bg-linear-to-tr from-brand-green/40 via-brand-cyan/25 to-brand-blue/30"
+                      : "bg-linear-to-tr from-brand-cyan/30 via-brand-green/30 to-brand-blue/40"
+                    }`}
+                />
+                <span className="relative font-display text-4xl font-bold text-gradient opacity-80">
+                  {p.title
+                    .split(" ")
+                    .map((w) => w[0])
+                    .join("")
+                    .slice(0, 3)
+                    .toUpperCase()}
+                </span>
+              </>
+            )}
           </div>
         </div>
 
@@ -3134,14 +3403,12 @@ function TiltProjectCard({ project: p, index: i }: { project: Project; index: nu
               {p.category}
             </span>
             <span
-              className={`inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider ${
-                p.status === "Live" ? "text-brand-green" : "text-yellow-400"
-              }`}
+              className={`inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider ${p.status === "Live" ? "text-brand-green" : "text-yellow-400"
+                }`}
             >
               <span
-                className={`h-1.5 w-1.5 rounded-full ${
-                  p.status === "Live" ? "bg-brand-green" : "bg-yellow-400"
-                }`}
+                className={`h-1.5 w-1.5 rounded-full ${p.status === "Live" ? "bg-brand-green" : "bg-yellow-400"
+                  }`}
               />
               {p.status}
             </span>
@@ -3170,32 +3437,56 @@ function TiltProjectCard({ project: p, index: i }: { project: Project; index: nu
               </motion.span>
             ))}
           </div>
-          <div className="mt-5 flex gap-2 pt-1">
+          <div className="mt-5 flex items-center gap-2 pt-1">
+            {p.demoUrl ? (
+              <a
+                href={p.demoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${p.title} Live Demo`}
+                className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-brand-green/40 bg-brand-green/10 px-3 py-2 text-xs font-semibold text-brand-green transition-all hover:-translate-y-0.5 hover:bg-brand-green/20 hover:shadow-[0_0_15px_-3px_var(--brand-green)]"
+              >
+                <Rocket className="h-3.5 w-3.5" />
+                🚀 Live Demo
+              </a>
+            ) : (
+              <span
+                aria-hidden="true"
+                className="inline-flex flex-1 cursor-default items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2 text-xs font-medium text-muted-foreground/70"
+                title="Live demo coming soon"
+              >
+                <ArrowUpRight className="h-3.5 w-3.5" />
+                Live
+              </span>
+            )}
+
             <a
-              href={`https://github.com/${GITHUB_USER}`}
+              href={p.githubUrl || `https://github.com/${GITHUB_USER}`}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               aria-label={`${p.title} on GitHub`}
               className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-medium text-foreground/80 transition-all hover:-translate-y-0.5 hover:border-brand-green/40 hover:text-brand-green"
             >
               <Github className="h-3.5 w-3.5" />
-              Code
+              💻 GitHub
             </a>
-            <span
-              aria-hidden="true"
-              className="inline-flex flex-1 cursor-default items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2 text-xs font-medium text-muted-foreground/70"
-              title="Live demo coming soon"
-            >
-              <ArrowUpRight className="h-3.5 w-3.5" />
-              Live
-            </span>
+
+            {onSelect && (
+              <button
+                onClick={() => onSelect(p)}
+                aria-label={`View details for ${p.title}`}
+                className="grid h-8 w-8 place-items-center rounded-lg border border-white/10 bg-white/5 text-muted-foreground transition-all hover:border-white/20 hover:text-foreground"
+                title="View details"
+              >
+                <Eye className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
         </div>
       </motion.article>
     </motion.div>
   );
 }
-
 
 function BackToTop() {
   const [show, setShow] = useState(false);

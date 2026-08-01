@@ -31,11 +31,11 @@ npm run format     # Prettier
 
 ## Environment variables
 
-| Variable | Purpose |
-|---|---|
-| `VITE_EMAILJS_SERVICE_ID` | EmailJS service ID |
+| Variable                   | Purpose             |
+| -------------------------- | ------------------- |
+| `VITE_EMAILJS_SERVICE_ID`  | EmailJS service ID  |
 | `VITE_EMAILJS_TEMPLATE_ID` | EmailJS template ID |
-| `VITE_EMAILJS_PUBLIC_KEY` | EmailJS public key |
+| `VITE_EMAILJS_PUBLIC_KEY`  | EmailJS public key  |
 
 Set in Replit Secrets. All three must be present for the contact form to send emails; if missing, a `mailto:` fallback is used and a console warning is shown.
 
