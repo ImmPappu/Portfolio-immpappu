@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import profilePhoto from "@/assets/pappu-kumar.png";
+import { CreativeStudio } from "@/components/CreativeStudio";
 import {
   motion,
   useScroll,
@@ -388,6 +389,7 @@ function PortfolioPage() {
         <About />
         <Skills />
         <Projects />
+        <CreativeStudio />
         <Timeline />
         <Certifications />
         <Stats />
@@ -685,13 +687,15 @@ function Nav() {
       initial={{ y: -30, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, delay: 0.15 }}
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${scrolled ? "py-3" : "py-5"
-        }`}
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
+        scrolled ? "py-3" : "py-5"
+      }`}
     >
       <div className="mx-auto max-w-6xl px-4">
         <nav
-          className={`glass-strong flex items-center justify-between rounded-2xl px-4 py-3 transition-shadow ${scrolled ? "shadow-2xl shadow-black/40" : ""
-            }`}
+          className={`glass-strong flex items-center justify-between rounded-2xl px-4 py-3 transition-shadow ${
+            scrolled ? "shadow-2xl shadow-black/40" : ""
+          }`}
         >
           <a href="#top" className="flex items-center gap-2">
             <span className="grid h-8 w-8 place-items-center rounded-lg bg-linear-to-br from-brand-green to-brand-blue font-display text-sm font-bold text-background">
@@ -707,8 +711,9 @@ function Nav() {
                 <li key={n.id} className="relative">
                   <a
                     href={`#${n.id}`}
-                    className={`relative rounded-lg px-3 py-1.5 text-sm transition-colors ${isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
-                      }`}
+                    className={`relative rounded-lg px-3 py-1.5 text-sm transition-colors ${
+                      isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                    }`}
                   >
                     {n.label}
                     {isActive && (
@@ -1101,15 +1106,17 @@ function Skills() {
             className="glass group relative overflow-hidden rounded-2xl p-6 transition-all hover:-translate-y-1 hover:border-white/20"
           >
             <div
-              className={`pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full blur-3xl transition-opacity duration-500 ${group.color === "green" ? "bg-brand-green/10" : "bg-brand-blue/10"
-                } opacity-60 group-hover:opacity-100`}
+              className={`pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full blur-3xl transition-opacity duration-500 ${
+                group.color === "green" ? "bg-brand-green/10" : "bg-brand-blue/10"
+              } opacity-60 group-hover:opacity-100`}
             />
             <div className="relative flex items-center gap-3">
               <div
-                className={`grid h-10 w-10 place-items-center rounded-xl ${group.color === "green"
-                  ? "bg-brand-green/15 text-brand-green"
-                  : "bg-brand-blue/15 text-brand-blue"
-                  }`}
+                className={`grid h-10 w-10 place-items-center rounded-xl ${
+                  group.color === "green"
+                    ? "bg-brand-green/15 text-brand-green"
+                    : "bg-brand-blue/15 text-brand-blue"
+                }`}
               >
                 <group.icon className="h-5 w-5" aria-hidden="true" />
               </div>
@@ -1141,8 +1148,9 @@ function SkillBadge({ name, color }: { name: string; color: "green" | "blue" }) 
   return (
     <span className={`${base} ${tone} hover:-translate-y-0.5`}>
       <span
-        className={`h-1.5 w-1.5 rounded-full ${learning ? "bg-yellow-400" : color === "green" ? "bg-brand-green" : "bg-brand-blue"
-          }`}
+        className={`h-1.5 w-1.5 rounded-full ${
+          learning ? "bg-yellow-400" : color === "green" ? "bg-brand-green" : "bg-brand-blue"
+        }`}
       />
       {name}
     </span>
@@ -1175,10 +1183,11 @@ function Projects() {
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`rounded-full border px-4 py-1.5 text-sm transition-all ${filter === f
-                ? "border-brand-green/50 bg-brand-green/15 text-brand-green"
-                : "border-white/10 bg-white/[0.03] text-muted-foreground hover:text-foreground"
-                }`}
+              className={`rounded-full border px-4 py-1.5 text-sm transition-all ${
+                filter === f
+                  ? "border-brand-green/50 bg-brand-green/15 text-brand-green"
+                  : "border-white/10 bg-white/[0.03] text-muted-foreground hover:text-foreground"
+              }`}
             >
               {f}
             </button>
@@ -1252,8 +1261,9 @@ function Timeline() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.05 }}
-                className={`relative grid gap-4 pl-12 sm:grid-cols-2 sm:pl-0 ${left ? "" : "sm:[&>*:first-child]:col-start-2"
-                  }`}
+                className={`relative grid gap-4 pl-12 sm:grid-cols-2 sm:pl-0 ${
+                  left ? "" : "sm:[&>*:first-child]:col-start-2"
+                }`}
               >
                 <div
                   className={`glass rounded-2xl p-5 ${left ? "sm:mr-8 sm:text-right" : "sm:ml-8"}`}
@@ -1388,10 +1398,11 @@ function Certifications() {
                 <button
                   key={cat}
                   onClick={() => handleCategoryChange(cat)}
-                  className={`rounded-lg px-3 py-1.5 font-mono text-xs transition-all ${active
-                    ? "bg-linear-to-r from-brand-green to-brand-cyan font-semibold text-background shadow-md shadow-brand-green/20"
-                    : "border border-white/10 bg-white/[0.04] text-muted-foreground hover:border-white/20 hover:text-foreground"
-                    }`}
+                  className={`rounded-lg px-3 py-1.5 font-mono text-xs transition-all ${
+                    active
+                      ? "bg-linear-to-r from-brand-green to-brand-cyan font-semibold text-background shadow-md shadow-brand-green/20"
+                      : "border border-white/10 bg-white/[0.04] text-muted-foreground hover:border-white/20 hover:text-foreground"
+                  }`}
                 >
                   {cat}
                 </button>
@@ -2034,7 +2045,7 @@ function ContribHeatmap({ days }: { days: ContribDay[] | null }) {
 
   const levelClass = (lvl: number) =>
     ["bg-white/5", "bg-brand-green/25", "bg-brand-green/45", "bg-brand-green/70", "bg-brand-green"][
-    lvl
+      lvl
     ] ?? "bg-white/5";
 
   return (
@@ -2048,8 +2059,9 @@ function ContribHeatmap({ days }: { days: ContribDay[] | null }) {
                 <span
                   key={di}
                   title={d ? `${d.date}: ${d.count} contributions` : ""}
-                  className={`h-[10px] w-[10px] rounded-[2px] ${d ? levelClass(d.level) : "bg-transparent"
-                    }`}
+                  className={`h-[10px] w-[10px] rounded-[2px] ${
+                    d ? levelClass(d.level) : "bg-transparent"
+                  }`}
                 />
               );
             })}
@@ -2265,7 +2277,7 @@ function LcHeatmap({ calendar }: { calendar: Record<string, number> | null }) {
   // LeetCode orange palette
   const levelClass = (lvl: number) =>
     ["bg-white/5", "bg-orange-500/25", "bg-orange-500/45", "bg-orange-500/70", "bg-orange-500"][
-    lvl
+      lvl
     ] ?? "bg-white/5";
 
   // Group into weeks (columns)
@@ -2548,48 +2560,48 @@ function GfgSection() {
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {status !== "success"
                   ? Array.from({ length: 4 }).map((_, i) => (
-                    <StatTile
-                      key={i}
-                      icon={Trophy}
-                      label="Loading"
-                      value={null}
-                      loading
-                      accent={i % 2 ? "cyan" : "green"}
-                    />
-                  ))
+                      <StatTile
+                        key={i}
+                        icon={Trophy}
+                        label="Loading"
+                        value={null}
+                        loading
+                        accent={i % 2 ? "cyan" : "green"}
+                      />
+                    ))
                   : tiles.map((t) => (
-                    <StatTile
-                      key={t.label}
-                      icon={t.icon}
-                      label={t.label}
-                      value={t.value}
-                      accent={t.accent}
-                    />
-                  ))}
+                      <StatTile
+                        key={t.label}
+                        icon={t.icon}
+                        label={t.label}
+                        value={t.value}
+                        accent={t.accent}
+                      />
+                    ))}
               </div>
 
               {(status !== "success" ||
                 data?.easy != null ||
                 data?.medium != null ||
                 data?.hard != null) && (
-                  <div className="grid grid-cols-3 gap-3">
-                    <DifficultyRow
-                      label="Easy"
-                      solved={data?.easy ?? undefined}
-                      color="from-brand-green to-brand-cyan"
-                    />
-                    <DifficultyRow
-                      label="Medium"
-                      solved={data?.medium ?? undefined}
-                      color="from-yellow-400 to-orange-400"
-                    />
-                    <DifficultyRow
-                      label="Hard"
-                      solved={data?.hard ?? undefined}
-                      color="from-rose-400 to-red-500"
-                    />
-                  </div>
-                )}
+                <div className="grid grid-cols-3 gap-3">
+                  <DifficultyRow
+                    label="Easy"
+                    solved={data?.easy ?? undefined}
+                    color="from-brand-green to-brand-cyan"
+                  />
+                  <DifficultyRow
+                    label="Medium"
+                    solved={data?.medium ?? undefined}
+                    color="from-yellow-400 to-orange-400"
+                  />
+                  <DifficultyRow
+                    label="Hard"
+                    solved={data?.hard ?? undefined}
+                    color="from-rose-400 to-red-500"
+                  />
+                </div>
+              )}
             </>
           )}
 
@@ -3389,12 +3401,13 @@ function TiltProjectCard({
               <>
                 <div className="absolute inset-0 bg-grid opacity-40 [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_75%)]" />
                 <div
-                  className={`absolute -inset-8 opacity-40 blur-3xl transition-transform duration-500 group-hover:scale-105 ${p.category === "AI"
-                    ? "bg-linear-to-tr from-brand-blue/40 via-brand-cyan/30 to-brand-green/30"
-                    : p.category === "Automation"
-                      ? "bg-linear-to-tr from-brand-green/40 via-brand-cyan/25 to-brand-blue/30"
-                      : "bg-linear-to-tr from-brand-cyan/30 via-brand-green/30 to-brand-blue/40"
-                    }`}
+                  className={`absolute -inset-8 opacity-40 blur-3xl transition-transform duration-500 group-hover:scale-105 ${
+                    p.category === "AI"
+                      ? "bg-linear-to-tr from-brand-blue/40 via-brand-cyan/30 to-brand-green/30"
+                      : p.category === "Automation"
+                        ? "bg-linear-to-tr from-brand-green/40 via-brand-cyan/25 to-brand-blue/30"
+                        : "bg-linear-to-tr from-brand-cyan/30 via-brand-green/30 to-brand-blue/40"
+                  }`}
                 />
                 <span className="relative font-display text-4xl font-bold text-gradient opacity-80">
                   {p.title
@@ -3415,12 +3428,14 @@ function TiltProjectCard({
               {p.category}
             </span>
             <span
-              className={`inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider ${p.status === "Live" ? "text-brand-green" : "text-yellow-400"
-                }`}
+              className={`inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider ${
+                p.status === "Live" ? "text-brand-green" : "text-yellow-400"
+              }`}
             >
               <span
-                className={`h-1.5 w-1.5 rounded-full ${p.status === "Live" ? "bg-brand-green" : "bg-yellow-400"
-                  }`}
+                className={`h-1.5 w-1.5 rounded-full ${
+                  p.status === "Live" ? "bg-brand-green" : "bg-yellow-400"
+                }`}
               />
               {p.status}
             </span>
