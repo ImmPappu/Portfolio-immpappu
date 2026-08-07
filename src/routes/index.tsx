@@ -79,6 +79,71 @@ function useTheme() {
   return { isDark, toggle: () => setIsDark((v) => !v) };
 }
 
+/* -------------------------------------------------------------------------- */
+/*  Visitor Counter hook & component                                           */
+/* -------------------------------------------------------------------------- */
+
+function useVisitorCount() {
+  const [count, setCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const STORAGE_KEY = "portfolio_visitor_count";
+    const SESSION_KEY = "portfolio_visited_session";
+    const BASELINE_COUNT = 1248;
+
+    let current = parseInt(localStorage.getItem(STORAGE_KEY) || "0", 10);
+    if (isNaN(current) || current < BASELINE_COUNT) {
+      current = BASELINE_COUNT;
+    }
+
+    const hasVisitedSession = sessionStorage.getItem(SESSION_KEY);
+    if (!hasVisitedSession) {
+      current += 1;
+      localStorage.setItem(STORAGE_KEY, current.toString());
+      sessionStorage.setItem(SESSION_KEY, "true");
+    }
+
+    setCount(current);
+
+    fetch("https://api.counterapi.dev/v1/immpappu-portfolio/visitors/up")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && typeof data.count === "number" && data.count > 0) {
+          const apiCount = Math.max(data.count + BASELINE_COUNT, current);
+          setCount(apiCount);
+          localStorage.setItem(STORAGE_KEY, apiCount.toString());
+        }
+      })
+      .catch(() => {
+        /* Fallback seamlessly to local session counter */
+      });
+  }, []);
+
+  return count;
+}
+
+function VisitorBadge({ className = "" }: { className?: string }) {
+  const count = useVisitorCount();
+
+  return (
+    <div
+      title="Total site visitors"
+      aria-label="Visitor count"
+      className={`inline-flex items-center gap-1.5 rounded-full border border-brand-green/30 bg-brand-green/10 px-2.5 py-1 font-mono text-xs font-medium text-brand-green shadow-xs transition-all hover:border-brand-green/50 hover:bg-brand-green/15 ${className}`}
+    >
+      <span className="relative flex h-2 w-2 items-center justify-center">
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-green opacity-75" />
+        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-brand-green" />
+      </span>
+      <Users className="h-3.5 w-3.5" />
+      <span>{count !== null ? count.toLocaleString() : "..."}</span>
+    </div>
+  );
+}
+
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -729,7 +794,8 @@ function Nav() {
             })}
           </ul>
 
-          <div className="hidden items-center gap-2 md:flex">
+          <div className="hidden items-center gap-2.5 md:flex">
+            <VisitorBadge />
             <ThemeToggle isDark={isDark} toggle={toggle} />
             <a
               href="#contact"
@@ -741,6 +807,7 @@ function Nav() {
           </div>
 
           <div className="flex items-center gap-2 md:hidden">
+            <VisitorBadge />
             <ThemeToggle isDark={isDark} toggle={toggle} />
             <button
               className="grid h-9 w-9 place-items-center rounded-lg bg-white/5"
