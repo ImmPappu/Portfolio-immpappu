@@ -91,7 +91,7 @@ function useVisitorCount() {
 
     const STORAGE_KEY = "portfolio_visitor_count";
     const SESSION_KEY = "portfolio_visited_session";
-    const BASELINE_COUNT = 1248;
+    const BASELINE_COUNT = 0;
 
     let current = parseInt(localStorage.getItem(STORAGE_KEY) || "0", 10);
     if (isNaN(current) || current < BASELINE_COUNT) {
@@ -111,7 +111,7 @@ function useVisitorCount() {
       .then((res) => res.json())
       .then((data) => {
         if (data && typeof data.count === "number" && data.count > 0) {
-          const apiCount = Math.max(data.count + BASELINE_COUNT, current);
+          const apiCount = Math.max(data.count, current);
           setCount(apiCount);
           localStorage.setItem(STORAGE_KEY, apiCount.toString());
         }
