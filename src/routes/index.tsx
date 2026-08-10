@@ -62,8 +62,12 @@ import {
 function useTheme() {
   const [isDark, setIsDark] = useState(() => {
     if (typeof window === "undefined") return true;
-    const stored = localStorage.getItem("theme");
-    if (stored) return stored === "dark";
+    try {
+      const stored = localStorage.getItem("theme");
+      if (stored) return stored === "dark";
+    } catch {
+      /* ignore storage access restriction */
+    }
     return true; // default dark
   });
 
@@ -74,7 +78,11 @@ function useTheme() {
     } else {
       html.classList.add("light");
     }
-    localStorage.setItem("theme", isDark ? "dark" : "light");
+    try {
+      localStorage.setItem("theme", isDark ? "dark" : "light");
+    } catch {
+      /* ignore storage access restriction */
+    }
   }, [isDark]);
 
   return { isDark, toggle: () => setIsDark((v) => !v) };
@@ -94,16 +102,21 @@ function useVisitorCount() {
     const SESSION_KEY = "portfolio_visited_session";
     const BASELINE_COUNT = 0;
 
-    let current = parseInt(localStorage.getItem(STORAGE_KEY) || "0", 10);
-    if (isNaN(current) || current < BASELINE_COUNT) {
-      current = BASELINE_COUNT;
-    }
+    let current = BASELINE_COUNT;
+    try {
+      current = parseInt(localStorage.getItem(STORAGE_KEY) || "0", 10);
+      if (isNaN(current) || current < BASELINE_COUNT) {
+        current = BASELINE_COUNT;
+      }
 
-    const hasVisitedSession = sessionStorage.getItem(SESSION_KEY);
-    if (!hasVisitedSession) {
-      current += 1;
-      localStorage.setItem(STORAGE_KEY, current.toString());
-      sessionStorage.setItem(SESSION_KEY, "true");
+      const hasVisitedSession = sessionStorage.getItem(SESSION_KEY);
+      if (!hasVisitedSession) {
+        current += 1;
+        localStorage.setItem(STORAGE_KEY, current.toString());
+        sessionStorage.setItem(SESSION_KEY, "true");
+      }
+    } catch {
+      /* ignore storage access restriction */
     }
 
     setCount(current);
@@ -114,7 +127,11 @@ function useVisitorCount() {
         if (data && typeof data.count === "number" && data.count > 0) {
           const apiCount = Math.max(data.count, current);
           setCount(apiCount);
-          localStorage.setItem(STORAGE_KEY, apiCount.toString());
+          try {
+            localStorage.setItem(STORAGE_KEY, apiCount.toString());
+          } catch {
+            /* ignore storage access restriction */
+          }
         }
       })
       .catch(() => {

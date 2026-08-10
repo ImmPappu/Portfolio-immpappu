@@ -6,6 +6,11 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
+// Force Nitro to build using Vercel output format when on Vercel or when building for Vercel
+if (process.env.VERCEL || process.env.NOW_BUILDER || process.env.VERCEL_ENV || process.env.NITRO_PRESET === "vercel") {
+  process.env.NITRO_PRESET = "vercel";
+}
+
 export default defineConfig({
   vite: {
     server: {
