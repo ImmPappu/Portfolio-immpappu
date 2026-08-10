@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import profilePhoto from "@/assets/pappu-kumar.png";
+import skillforgeBanner from "@/assets/skillforge-banner.png";
 import { CreativeStudio } from "@/components/CreativeStudio";
 import {
   motion,
@@ -143,7 +144,6 @@ function VisitorBadge({ className = "" }: { className?: string }) {
   );
 }
 
-
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -164,6 +164,7 @@ const NAV = [
   { id: "about", label: "About" },
   { id: "skills", label: "Skills" },
   { id: "projects", label: "Projects" },
+  { id: "creative", label: "Creative" },
   { id: "timeline", label: "Journey" },
   { id: "certifications", label: "Certs" },
   { id: "stats", label: "Stats" },
@@ -247,14 +248,72 @@ type Project = {
   featured?: boolean;
   demoUrl?: string;
   githubUrl?: string;
+  isWorkflowProject?: boolean;
+  workflowUrl?: string;
+  workflowArchitecture?: string[];
   longDescription?: string;
   problemStatement?: string;
   challengesSolved?: string[];
   featuresList?: string[];
   imageUrl?: string;
+  hackathonBadge?: string;
+  developmentWindow?: string;
 };
 
 const PROJECTS: Project[] = [
+  {
+    title: "SkillForge",
+    category: "Web",
+    featured: true,
+    hackathonBadge: "⚡ Built in 10 Hours",
+    description:
+      "SkillForge is a full-stack student career development platform that helps students build and track their career journey through skill tracking, learning roadmaps, technical assessments, project management and personalized progress monitoring. Built from scratch and deployed during a 10-hour one-day hackathon.",
+    longDescription:
+      "SkillForge is a full-stack student career development platform designed to help students build and track their career journey through structured skill tracking, role selection, learning roadmaps, technical assessments, project management, and personalized progress monitoring. SkillForge combines authentication, student profiles, skill tracking, learning roadmaps, assessments, project management, progress monitoring and a responsive dashboard in one platform.",
+    problemStatement:
+      "Hackathon Challenge: Build and deploy a functional student-focused career development platform within a single 10-hour development window (Sunday, 9 August 2026 · 9:00 AM – 7:00 PM).",
+    developmentWindow: "9 August 2026 · 9:00 AM – 7:00 PM (10-Hour Development Window)",
+    stack: [
+      "React",
+      "Vite",
+      "JavaScript",
+      "React Router",
+      "Supabase",
+      "PostgreSQL",
+      "Supabase Auth",
+      "Supabase Storage",
+      "Row Level Security",
+      "Vercel",
+      "GitHub",
+    ],
+    highlights: [
+      "Student profile & target role selection",
+      "Skill tracking, learning roadmaps & technical assessments",
+      "Built & deployed in a 10-hour one-day hackathon",
+    ],
+    featuresList: [
+      "Student profile management",
+      "Target career role selection",
+      "Technical skill tracking and progress monitoring",
+      "Structured learning roadmap",
+      "Technical assessments with scoring",
+      "Assessment attempt tracking",
+      "Project management with GitHub & Live Demo links",
+      "Supabase Authentication & Storage for profile photos",
+      "Row Level Security & user-specific data management",
+      "Responsive student dashboard",
+    ],
+    challengesSolved: [
+      "Hackathon Window: Built from scratch and deployed within 10 hours (9:00 AM – 7:00 PM).",
+      "Full-Stack Integration: Configured PostgreSQL schema, Row Level Security (RLS) policies, and Supabase Storage for profile photos.",
+      "Assessment & Progress Pipeline: Engine for technical assessments, attempt tracking, and structured role-based learning roadmaps.",
+      "Future Development: Future development may include Gemini-powered personalized roadmaps, AI-generated assessments and intelligent learning recommendations.",
+    ],
+    status: "Live",
+    demoUrl: "https://skillforge-immpappu.vercel.app",
+    githubUrl: "https://github.com/ImmPappu/SkillForge",
+    imageUrl: skillforgeBanner,
+  },
   {
     title: "InfinityFitAI",
     category: "AI",
@@ -309,16 +368,52 @@ const PROJECTS: Project[] = [
   {
     title: "AI Powered YouTube Automation System",
     category: "AI",
+    isWorkflowProject: true,
     description:
-      "End-to-end n8n workflow that generates titles, descriptions, tags, and thumbnails, uploads the video, and sends a Telegram notification — fully hands-off.",
-    stack: ["n8n", "Gemini API", "YouTube API", "Google Drive", "Google Sheets", "Telegram"],
+      "An end-to-end n8n automation workflow for automating the YouTube publishing process.",
+    longDescription:
+      "An end-to-end n8n automation workflow for automating the YouTube publishing process, featuring AI video analysis, automated metadata generation, thumbnail creation, YouTube publishing, Google Sheets tracking, and Telegram status notifications.",
+    stack: [
+      "n8n",
+      "Gemini API",
+      "Google Drive API",
+      "Google Sheets API",
+      "YouTube Data API",
+      "Telegram API",
+    ],
     highlights: [
-      "AI-generated metadata & thumbnails",
-      "Automated video upload pipeline",
-      "Live status alerts on Telegram",
+      "Video input from Google Drive & AI analysis",
+      "Automated YouTube metadata & thumbnail generation",
+      "Google Sheets tracking & Telegram notifications",
+    ],
+    featuresList: [
+      "Video input from Google Drive",
+      "AI-powered video/content analysis",
+      "AI-generated YouTube title",
+      "AI-generated description",
+      "AI-generated tags",
+      "Automated thumbnail generation",
+      "Automated YouTube upload",
+      "Google Sheets workflow tracking",
+      "Telegram status notifications",
+    ],
+    workflowArchitecture: [
+      "Video",
+      "Google Drive",
+      "n8n",
+      "Gemini AI",
+      "Title + Description + Tags",
+      "Thumbnail Generation",
+      "YouTube Upload",
+      "Google Sheets",
+      "Telegram Notification",
+    ],
+    challengesSolved: [
+      "Visual n8n Automation: Orchestrated an automated end-to-end publishing pipeline connecting drive files, AI generation, and webhooks.",
+      "SEO Metadata Optimization: Configured Gemini API prompt templates to extract key topics and auto-generate high-converting titles, descriptions, and tags.",
+      "Real-time Monitoring: Integrated Telegram webhook triggers to deliver instant upload logs and status alerts directly to mobile.",
     ],
     status: "Live",
-    githubUrl: "https://github.com/ImmPappu",
     imageUrl: "/youtube-automation-banner.png",
   },
   {
@@ -986,6 +1081,16 @@ function Hero() {
             >
               View Projects
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </a>
+            <a
+              href="#creative"
+              data-magnetic
+              data-cursor="hover"
+              aria-label="Navigate to Creative section"
+              className="inline-flex items-center gap-2 rounded-xl border border-brand-cyan/30 bg-brand-cyan/10 px-5 py-3 text-sm font-semibold text-brand-cyan transition-all hover:bg-brand-cyan/20 hover:-translate-y-0.5 hover:shadow-[0_0_30px_-8px_var(--brand-cyan)]"
+            >
+              <Sparkles className="h-4 w-4" />
+              Creative Work ↗
             </a>
             <a
               href="/Pappu_Resume.pdf"
@@ -3255,6 +3360,11 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
               Featured Project
             </span>
           )}
+          {project.hackathonBadge && (
+            <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/40 bg-amber-400/10 px-3 py-1 font-mono text-xs font-semibold text-amber-300 shadow-[0_0_12px_-3px_rgba(251,191,36,0.3)]">
+              {project.hackathonBadge}
+            </span>
+          )}
           <span className="rounded-full border border-brand-blue/30 bg-brand-blue/10 px-3 py-1 font-mono text-xs uppercase tracking-wider text-brand-blue">
             {project.category}
           </span>
@@ -3271,11 +3381,11 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
 
         {/* Preview Image if available */}
         {project.imageUrl && (
-          <div className="relative mt-5 aspect-video w-full overflow-hidden rounded-2xl border border-white/10 bg-black/40 shadow-xl">
+          <div className="relative mt-5 w-full overflow-hidden rounded-2xl border border-white/10 bg-black/50 shadow-xl">
             <img
               src={project.imageUrl}
               alt={project.title}
-              className="h-full w-full object-cover object-center"
+              className="h-auto max-h-[500px] w-full object-contain object-top rounded-2xl"
             />
           </div>
         )}
@@ -3339,6 +3449,28 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
             ))}
           </div>
         </div>
+
+        {/* Workflow Architecture Flow Diagram */}
+        {project.workflowArchitecture && project.workflowArchitecture.length > 0 && (
+          <div className="mt-6 rounded-2xl border border-brand-cyan/30 bg-brand-cyan/[0.05] p-5">
+            <h4 className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-brand-cyan">
+              <Sparkles className="h-4 w-4" />
+              n8n Workflow Architecture Flow
+            </h4>
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs">
+              {project.workflowArchitecture.map((step, idx) => (
+                <div key={step + idx} className="flex items-center gap-2">
+                  <span className="rounded-xl border border-brand-cyan/30 bg-black/40 px-3 py-1.5 font-mono font-medium text-foreground backdrop-blur">
+                    {step}
+                  </span>
+                  {idx < project.workflowArchitecture!.length - 1 && (
+                    <span className="font-mono text-xs text-brand-cyan">↓</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Challenges Solved */}
         {project.challengesSolved && project.challengesSolved.length > 0 && (
@@ -3490,10 +3622,17 @@ function TiltProjectCard({
         </div>
 
         <div className="flex flex-1 flex-col p-6">
-          <div className="flex items-center justify-between">
-            <span className="rounded-full border border-brand-blue/30 bg-brand-blue/10 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-brand-blue">
-              {p.category}
-            </span>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="rounded-full border border-brand-blue/30 bg-brand-blue/10 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-brand-blue">
+                {p.category}
+              </span>
+              {p.hackathonBadge && (
+                <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/40 bg-amber-400/10 px-2.5 py-0.5 font-mono text-[10px] font-semibold text-amber-300 shadow-[0_0_12px_-3px_rgba(251,191,36,0.3)]">
+                  {p.hackathonBadge}
+                </span>
+              )}
+            </div>
             <span
               className={`inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider ${
                 p.status === "Live" ? "text-brand-green" : "text-yellow-400"
@@ -3554,16 +3693,38 @@ function TiltProjectCard({
               </span>
             )}
 
-            <a
-              href={p.githubUrl || `https://github.com/${GITHUB_USER}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`${p.title} on GitHub`}
-              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-medium text-foreground/80 transition-all hover:border-brand-green/40 hover:text-brand-green"
-            >
-              <Github className="h-3.5 w-3.5" />
-              💻 GitHub
-            </a>
+            {p.isWorkflowProject ? (
+              p.workflowUrl ? (
+                <a
+                  href={p.workflowUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${p.title} Workflow`}
+                  className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-brand-cyan/40 bg-brand-cyan/10 px-3 py-2 text-xs font-semibold text-brand-cyan transition-all hover:bg-brand-cyan/20"
+                >
+                  <Sparkles className="h-3.5 w-3.5" />⚡ View Workflow
+                </a>
+              ) : (
+                <button
+                  onClick={() => onSelect && onSelect(p)}
+                  aria-label={`${p.title} Workflow Details`}
+                  className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-brand-cyan/40 bg-brand-cyan/10 px-3 py-2 text-xs font-semibold text-brand-cyan transition-all hover:bg-brand-cyan/20 cursor-pointer"
+                >
+                  <Sparkles className="h-3.5 w-3.5" />⚡ View Workflow
+                </button>
+              )
+            ) : (
+              <a
+                href={p.githubUrl || `https://github.com/${GITHUB_USER}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${p.title} on GitHub`}
+                className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-medium text-foreground/80 transition-all hover:border-brand-green/40 hover:text-brand-green"
+              >
+                <Github className="h-3.5 w-3.5" />
+                💻 GitHub
+              </a>
+            )}
 
             {onSelect && (
               <button
