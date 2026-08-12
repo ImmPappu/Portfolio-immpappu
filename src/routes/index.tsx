@@ -74,8 +74,10 @@ function useTheme() {
   useEffect(() => {
     const html = document.documentElement;
     if (isDark) {
+      html.classList.add("dark");
       html.classList.remove("light");
     } else {
+      html.classList.remove("dark");
       html.classList.add("light");
     }
     try {

@@ -1,4 +1,5 @@
-@import "tailwindcss" source(none);
+@import "tailwindcss";
+@import "tw-animate-css";
 
 @keyframes particle-float {
   0%,
@@ -18,10 +19,7 @@
   will-change: transform, opacity;
 }
 
-@source "../src";
-@import "tw-animate-css";
-
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:where(.dark, .dark *, html:not(.light) *));
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -148,12 +146,10 @@ html.light {
 
 html.light .glass {
   background: color-mix(in oklab, var(--surface) 70%, transparent);
-  border-color: oklch(0 0 0 / 8%);
 }
 
 html.light .glass-strong {
   background: color-mix(in oklab, var(--surface-elevated) 85%, transparent);
-  border-color: oklch(0 0 0 / 10%);
 }
 
 /* Learning badges need dark amber text on light backgrounds */
@@ -204,7 +200,6 @@ html.light .bg-grid {
     background-image:
       radial-gradient(circle at 20% 10%, oklch(0.68 0.18 240 / 12%), transparent 45%),
       radial-gradient(circle at 85% 85%, oklch(0.82 0.19 152 / 10%), transparent 45%);
-    background-attachment: fixed;
     transition:
       background-color 0.3s ease,
       color 0.3s ease;
@@ -241,7 +236,7 @@ html.light .bg-grid {
   background: color-mix(in oklab, var(--surface) 55%, transparent);
   backdrop-filter: blur(16px) saturate(160%);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
-  border: 1px solid oklch(1 0 0 / 8%);
+  border: 1px solid var(--border);
   transform: translateZ(0);
 }
 
@@ -249,7 +244,7 @@ html.light .bg-grid {
   background: color-mix(in oklab, var(--surface-elevated) 75%, transparent);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid oklch(1 0 0 / 10%);
+  border: 1px solid var(--border);
   transform: translateZ(0);
 }
 
@@ -272,3 +267,4 @@ html.light .bg-grid {
   content-visibility: auto;
   contain-intrinsic-size: 1px 700px;
 }
+
