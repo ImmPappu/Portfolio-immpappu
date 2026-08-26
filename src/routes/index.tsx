@@ -3,6 +3,9 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import profilePhoto from "@/assets/pappu-kumar.png";
 import skillforgeBanner from "@/assets/skillforge-banner.png";
 import { CreativeStudio } from "@/components/CreativeStudio";
+import { Canvas3D } from "@/components/3d/Canvas3D";
+import { ScrollProgress } from "@/components/ui/ScrollProgress";
+import { fetchGitHubStatsServer, type GhUser, type GhRepo, type ContribDay } from "@/lib/github";
 import {
   motion,
   useScroll,
@@ -554,16 +557,14 @@ function PortfolioPage() {
     <>
       <AnimatePresence>{!loaded && <LoadingOverlay />}</AnimatePresence>
 
-      <motion.div
-        style={{ scaleX }}
-        className="fixed left-0 right-0 top-0 z-[60] h-[2px] origin-left bg-linear-to-r from-brand-green via-brand-cyan to-brand-blue"
-      />
+      <Canvas3D />
+      <ScrollProgress />
 
       <ParticlesBackground />
 
       <Nav />
 
-      <main className="relative">
+      <main className="relative z-10">
         <Hero />
         <About />
         <Skills />
@@ -637,32 +638,6 @@ function ParticlesBackground() {
     [],
   );
 
-  // Mouse-follow spotlight via CSS variables (cheap, no re-renders)
-  useEffect(() => {
-    if (reduce) return;
-    const mq = window.matchMedia("(pointer: fine)");
-    if (!mq.matches) return;
-    let raf = 0;
-    let tx = window.innerWidth / 2;
-    let ty = window.innerHeight / 3;
-    const onMove = (e: PointerEvent) => {
-      tx = e.clientX;
-      ty = e.clientY;
-      if (!raf) {
-        raf = requestAnimationFrame(() => {
-          document.documentElement.style.setProperty("--mx", `${tx}px`);
-          document.documentElement.style.setProperty("--my", `${ty}px`);
-          raf = 0;
-        });
-      }
-    };
-    window.addEventListener("pointermove", onMove, { passive: true });
-    return () => {
-      window.removeEventListener("pointermove", onMove);
-      if (raf) cancelAnimationFrame(raf);
-    };
-  }, [reduce]);
-
   return (
     <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
       {/* Grid */}
@@ -693,17 +668,6 @@ function ParticlesBackground() {
         animate={reduce ? undefined : { x: [0, -40, 20, 0], y: [0, 30, -20, 0] }}
         transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
       />
-
-      {/* Mouse-follow spotlight */}
-      {!reduce && (
-        <div
-          className="absolute inset-0 opacity-70 transform-gpu"
-          style={{
-            background:
-              "radial-gradient(600px circle at var(--mx, 50%) var(--my, 30%), oklch(0.82 0.19 152 / 0.10), transparent 55%)",
-          }}
-        />
-      )}
 
       {/* Particles */}
       {!reduce &&
@@ -1981,28 +1945,6 @@ function ErrorState({ message }: { message: string }) {
 
 /* ---------- GitHub ---------- */
 
-type GhUser = {
-  login: string;
-  name: string | null;
-  avatar_url: string;
-  html_url: string;
-  bio: string | null;
-  followers: number;
-  following: number;
-  public_repos: number;
-  public_gists: number;
-};
-
-type GhRepo = {
-  name: string;
-  html_url: string;
-  stargazers_count: number;
-  language: string | null;
-  fork: boolean;
-};
-
-type ContribDay = { date: string; count: number; level: 0 | 1 | 2 | 3 | 4 };
-
 function computeStreaks(days: ContribDay[]) {
   if (!days.length) return { current: 0, longest: 0, total: 0 };
   const sorted = [...days].sort((a, b) => a.date.localeCompare(b.date));
@@ -2050,26 +1992,109 @@ function GitHubSection() {
   useEffect(() => {
     if (!inView) return;
     let cancelled = false;
+
+    // 1. Session Storage Caching (6-hour TTL)
+    const CACHE_KEY = `gh-stats-${GITHUB_USER}`;
+    const CACHE_TTL = 1000 * 60 * 60 * 6;
+    try {
+      const cached = typeof sessionStorage !== "undefined" ? sessionStorage.getItem(CACHE_KEY) : null;
+      if (cached) {
+        const parsed = JSON.parse(cached) as { t: number; u: GhUser; r: GhRepo[]; c: ContribDay[] };
+        if (Date.now() - parsed.t < CACHE_TTL) {
+          setUser(parsed.u);
+          setRepos(parsed.r);
+          setContrib(parsed.c);
+          return;
+        }
+      }
+    } catch {
+      /* ignore storage access error */
+    }
+
+    // 2. Fetch using Server Function (or fallback)
     (async () => {
       try {
-        const [uRes, rRes, cRes] = await Promise.all([
+        const serverData = await fetchGitHubStatsServer();
+        if (cancelled) return;
+
+        if (serverData && (serverData.user || serverData.repos)) {
+          if (serverData.user) setUser(serverData.user);
+          if (serverData.repos) setRepos(serverData.repos);
+          setContrib(serverData.contrib ?? []);
+
+          try {
+            sessionStorage.setItem(
+              CACHE_KEY,
+              JSON.stringify({
+                t: Date.now(),
+                u: serverData.user,
+                r: serverData.repos,
+                c: serverData.contrib ?? [],
+              }),
+            );
+          } catch {
+            /* ignore storage access error */
+          }
+          return;
+        }
+
+        // Direct browser fallback with Promise.allSettled
+        const results = await Promise.allSettled([
           fetch(`https://api.github.com/users/${GITHUB_USER}`),
           fetch(`https://api.github.com/users/${GITHUB_USER}/repos?per_page=100&sort=updated`),
           fetch(`https://github-contributions-api.jogruber.de/v4/${GITHUB_USER}?y=last`),
         ]);
-        if (!uRes.ok || !rRes.ok) throw new Error("gh");
-        const uJson: GhUser = await uRes.json();
-        const rJson: GhRepo[] = await rRes.json();
-        let cJson: { contributions: ContribDay[] } | null = null;
-        if (cRes.ok) cJson = await cRes.json();
+
+        const uRes = results[0].status === "fulfilled" ? results[0].value : null;
+        const rRes = results[1].status === "fulfilled" ? results[1].value : null;
+        const cRes = results[2].status === "fulfilled" ? results[2].value : null;
+
+        let uJson: GhUser | null = null;
+        let rJson: GhRepo[] | null = null;
+        let cJsonList: ContribDay[] = [];
+
+        if (uRes && uRes.ok) {
+          uJson = await uRes.json();
+        } else if (uRes) {
+          console.warn(`[GitHub API User Error] Status: ${uRes.status} ${uRes.statusText}`);
+        }
+
+        if (rRes && rRes.ok) {
+          rJson = await rRes.json();
+        } else if (rRes) {
+          console.warn(`[GitHub API Repos Error] Status: ${rRes.status} ${rRes.statusText}`);
+        }
+
+        if (cRes && cRes.ok) {
+          const cData = await cRes.json();
+          cJsonList = cData?.contributions ?? [];
+        }
+
         if (cancelled) return;
-        setUser(uJson);
-        setRepos(rJson);
-        setContrib(cJson?.contributions ?? []);
-      } catch {
-        if (!cancelled) setError("Unable to fetch GitHub data.");
+
+        if (uJson) setUser(uJson);
+        if (rJson) setRepos(rJson);
+        setContrib(cJsonList);
+
+        if (!uJson && !rJson) {
+          console.warn("[GitHub API Rate Limited] Direct browser fallback also rate limited.");
+          setError("GitHub data temporarily unavailable");
+        } else if (uJson && rJson) {
+          try {
+            sessionStorage.setItem(
+              CACHE_KEY,
+              JSON.stringify({ t: Date.now(), u: uJson, r: rJson, c: cJsonList }),
+            );
+          } catch {
+            /* ignore storage access error */
+          }
+        }
+      } catch (err) {
+        console.error("[GitHub API Fetch Exception]", err);
+        if (!cancelled) setError("GitHub data temporarily unavailable");
       }
     })();
+
     return () => {
       cancelled = true;
     };
@@ -2104,6 +2129,7 @@ function GitHubSection() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
       transition={{ duration: 0.5 }}
+      className="h-full"
     >
       <CardShell
         title={user?.name ?? "GitHub"}
@@ -2111,110 +2137,142 @@ function GitHubSection() {
         icon={Github}
         href={`https://github.com/${GITHUB_USER}`}
       >
-        {error ? (
-          <ErrorState message={error} />
-        ) : (
-          <div className="flex flex-col gap-5">
-            <div className="flex items-center gap-4">
-              <div className="relative shrink-0">
-                {user ? (
-                  <img
-                    src={user.avatar_url}
-                    alt={`${user.login} avatar`}
-                    width={56}
-                    height={56}
-                    loading="lazy"
-                    className="h-14 w-14 rounded-full border border-white/10"
-                  />
-                ) : (
-                  <div className="h-14 w-14 animate-pulse rounded-full bg-white/5" />
-                )}
+        {error && !user ? (
+          <div className="flex flex-col gap-4">
+            <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-xs text-muted-foreground">
+              <div className="flex items-center gap-3">
+                <Github className="h-6 w-6 text-brand-green shrink-0" />
+                <div>
+                  <div className="font-semibold text-foreground">@ImmPappu on GitHub</div>
+                  <div className="mt-0.5 text-[11px]">{error}</div>
+                </div>
               </div>
-              <p className="min-w-0 text-sm text-muted-foreground">
-                {user?.bio ?? "Building things with Java, Cloud, and AI Automation."}
-              </p>
             </div>
+            <a
+              href={`https://github.com/${GITHUB_USER}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-brand-green/50 hover:bg-brand-green/10 hover:text-brand-green"
+            >
+              View GitHub Profile
+              <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            </a>
+          </div>
+        ) : (
+          <div className="flex flex-1 flex-col justify-between gap-5">
+            <div className="flex flex-col gap-5">
+              <div className="flex items-center gap-4">
+                <div className="relative shrink-0">
+                  {user ? (
+                    <img
+                      src={user.avatar_url}
+                      alt={`${user.login} avatar`}
+                      width={56}
+                      height={56}
+                      loading="lazy"
+                      className="h-14 w-14 rounded-full border border-white/10"
+                    />
+                  ) : (
+                    <div className="h-14 w-14 animate-pulse rounded-full bg-white/5" />
+                  )}
+                </div>
+                <p className="min-w-0 text-sm text-muted-foreground">
+                  {user?.bio ?? "Building things with Java, Cloud, and AI Automation."}
+                </p>
+              </div>
 
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <StatTile
-                icon={BookOpen}
-                label="Repos"
-                value={user?.public_repos ?? null}
-                loading={!user}
-              />
-              <StatTile
-                icon={Star}
-                label="Stars"
-                value={stars}
-                loading={stars === null}
-                accent="cyan"
-              />
-              <StatTile
-                icon={Users}
-                label="Followers"
-                value={user?.followers ?? null}
-                loading={!user}
-                accent="blue"
-              />
-              <StatTile
-                icon={GitFork}
-                label="Following"
-                value={user?.following ?? null}
-                loading={!user}
-                accent="blue"
-              />
-            </div>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <StatTile
+                  icon={BookOpen}
+                  label="Repos"
+                  value={user?.public_repos ?? null}
+                  loading={!user}
+                />
+                <StatTile
+                  icon={Star}
+                  label="Stars"
+                  value={stars}
+                  loading={stars === null}
+                  accent="cyan"
+                />
+                <StatTile
+                  icon={Users}
+                  label="Followers"
+                  value={user?.followers ?? null}
+                  loading={!user}
+                  accent="blue"
+                />
+                <StatTile
+                  icon={GitFork}
+                  label="Following"
+                  value={user?.following ?? null}
+                  loading={!user}
+                  accent="blue"
+                />
+              </div>
 
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              <StatTile
-                icon={Flame}
-                label="Current Streak"
-                value={streaks ? `${streaks.current}d` : null}
-                loading={!streaks}
-                accent="green"
-              />
-              <StatTile
-                icon={Trophy}
-                label="Longest Streak"
-                value={streaks ? `${streaks.longest}d` : null}
-                loading={!streaks}
-                accent="cyan"
-              />
-              <StatTile
-                icon={Activity}
-                label="Contributions (1y)"
-                value={streaks ? streaks.total : null}
-                loading={!streaks}
-                accent="blue"
-              />
-            </div>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <StatTile
+                  icon={Flame}
+                  label="Current Streak"
+                  value={streaks ? `${streaks.current}d` : null}
+                  loading={!streaks}
+                  accent="green"
+                />
+                <StatTile
+                  icon={Trophy}
+                  label="Longest Streak"
+                  value={streaks ? `${streaks.longest}d` : null}
+                  loading={!streaks}
+                  accent="cyan"
+                />
+                <StatTile
+                  icon={Activity}
+                  label="Contributions (1y)"
+                  value={streaks ? streaks.total : null}
+                  loading={!streaks}
+                  accent="blue"
+                />
+              </div>
 
-            {topLangs && topLangs.length > 0 && (
+              {topLangs && topLangs.length > 0 && (
+                <div>
+                  <div className="mb-2 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+                    Top Languages
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {topLangs.map((l) => (
+                      <span
+                        key={l.name}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-brand-blue/25 bg-brand-blue/[0.06] px-3 py-1 text-xs text-foreground/90"
+                      >
+                        <span className="h-1.5 w-1.5 rounded-full bg-brand-blue" />
+                        {l.name}
+                        <span className="text-muted-foreground">· {l.pct}%</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div>
                 <div className="mb-2 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
-                  Top Languages
+                  Contribution Heatmap · last year
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {topLangs.map((l) => (
-                    <span
-                      key={l.name}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-brand-blue/25 bg-brand-blue/[0.06] px-3 py-1 text-xs text-foreground/90"
-                    >
-                      <span className="h-1.5 w-1.5 rounded-full bg-brand-blue" />
-                      {l.name}
-                      <span className="text-muted-foreground">· {l.pct}%</span>
-                    </span>
-                  ))}
-                </div>
+                <ContribHeatmap days={contrib} />
               </div>
-            )}
-
-            <div>
-              <div className="mb-2 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
-                Contribution Heatmap · last year
-              </div>
-              <ContribHeatmap days={contrib} />
             </div>
+
+            <a
+              href={`https://github.com/${GITHUB_USER}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Open GitHub profile in a new tab"
+              className="mt-auto group inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-brand-green/50 hover:bg-brand-green/10 hover:text-brand-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green/60"
+            >
+              View GitHub Profile
+              <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            </a>
           </div>
         )}
       </CardShell>
@@ -2358,6 +2416,7 @@ function LeetCodeSection() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
       transition={{ duration: 0.5, delay: 0.05 }}
+      className="h-full"
     >
       <CardShell
         title="LeetCode"
@@ -2368,49 +2427,51 @@ function LeetCodeSection() {
         {error ? (
           <ErrorState message={error} />
         ) : (
-          <div className="flex flex-col gap-5">
-            <div className="grid grid-cols-2 gap-3">
-              <StatTile
-                icon={Trophy}
-                label="Total Solved"
-                value={data?.totalSolved ?? null}
-                loading={!data}
-              />
-              <StatTile
-                icon={Flame}
-                label="Current Streak"
-                value={data ? `${computeLcStreak(data.submissionCalendar)}d` : null}
-                loading={!data}
-                accent="cyan"
-              />
-            </div>
-
-            <div className="grid grid-cols-3 gap-3">
-              <DifficultyRow
-                label="Easy"
-                solved={data?.easySolved}
-                total={data?.totalEasy}
-                color="from-brand-green to-brand-cyan"
-              />
-              <DifficultyRow
-                label="Medium"
-                solved={data?.mediumSolved}
-                total={data?.totalMedium}
-                color="from-yellow-400 to-orange-400"
-              />
-              <DifficultyRow
-                label="Hard"
-                solved={data?.hardSolved}
-                total={data?.totalHard}
-                color="from-rose-400 to-red-500"
-              />
-            </div>
-
-            <div>
-              <div className="mb-2 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
-                Submission Heatmap · last 26 weeks
+          <div className="flex flex-1 flex-col justify-between gap-5">
+            <div className="flex flex-col gap-5">
+              <div className="grid grid-cols-2 gap-3">
+                <StatTile
+                  icon={Trophy}
+                  label="Total Solved"
+                  value={data?.totalSolved ?? null}
+                  loading={!data}
+                />
+                <StatTile
+                  icon={Flame}
+                  label="Current Streak"
+                  value={data ? `${computeLcStreak(data.submissionCalendar)}d` : null}
+                  loading={!data}
+                  accent="cyan"
+                />
               </div>
-              <LcHeatmap calendar={data?.submissionCalendar ?? null} />
+
+              <div className="grid grid-cols-3 gap-3">
+                <DifficultyRow
+                  label="Easy"
+                  solved={data?.easySolved}
+                  total={data?.totalEasy}
+                  color="from-brand-green to-brand-cyan"
+                />
+                <DifficultyRow
+                  label="Medium"
+                  solved={data?.mediumSolved}
+                  total={data?.totalMedium}
+                  color="from-yellow-400 to-orange-400"
+                />
+                <DifficultyRow
+                  label="Hard"
+                  solved={data?.hardSolved}
+                  total={data?.totalHard}
+                  color="from-rose-400 to-red-500"
+                />
+              </div>
+
+              <div>
+                <div className="mb-2 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+                  Submission Heatmap · last 26 weeks
+                </div>
+                <LcHeatmap calendar={data?.submissionCalendar ?? null} />
+              </div>
             </div>
 
             <a
@@ -2418,7 +2479,7 @@ function LeetCodeSection() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Open LeetCode profile in a new tab"
-              className="group inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-brand-cyan/50 hover:bg-brand-cyan/10 hover:text-brand-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan/60"
+              className="mt-auto group inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-brand-cyan/50 hover:bg-brand-cyan/10 hover:text-brand-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan/60"
             >
               View LeetCode Profile
               <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
@@ -2722,6 +2783,7 @@ function GfgSection() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
       transition={{ duration: 0.5, delay: 0.1 }}
+      className="h-full"
     >
       <CardShell
         title="GeeksforGeeks"
@@ -2729,79 +2791,81 @@ function GfgSection() {
         icon={BookOpen}
         href={GFG_PROFILE_URL}
       >
-        <div className="flex flex-col gap-5">
-          {showFallback ? (
-            <div className="flex flex-col gap-4">
-              <div className="rounded-xl border border-brand-green/20 bg-brand-green/[0.04] p-5">
-                <div className="flex items-center gap-3">
-                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-green/15 text-brand-green">
-                    <BookOpen className="h-5 w-5" aria-hidden="true" />
-                  </div>
-                  <div>
-                    <p className="font-display text-sm font-semibold text-foreground">
-                      Active GeeksforGeeks Profile
-                    </p>
-                    <p className="text-xs text-brand-green">Continuous Learner</p>
+        <div className="flex flex-1 flex-col justify-between gap-5">
+          <div className="flex flex-col gap-5">
+            {showFallback ? (
+              <div className="flex flex-col gap-4">
+                <div className="rounded-xl border border-brand-green/20 bg-brand-green/[0.04] p-5">
+                  <div className="flex items-center gap-3">
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-green/15 text-brand-green">
+                      <BookOpen className="h-5 w-5" aria-hidden="true" />
+                    </div>
+                    <div>
+                      <p className="font-display text-sm font-semibold text-foreground">
+                        Active GeeksforGeeks Profile
+                      </p>
+                      <p className="text-xs text-brand-green">Continuous Learner</p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {status !== "success"
-                  ? Array.from({ length: 4 }).map((_, i) => (
-                      <StatTile
-                        key={i}
-                        icon={Trophy}
-                        label="Loading"
-                        value={null}
-                        loading
-                        accent={i % 2 ? "cyan" : "green"}
-                      />
-                    ))
-                  : tiles.map((t) => (
-                      <StatTile
-                        key={t.label}
-                        icon={t.icon}
-                        label={t.label}
-                        value={t.value}
-                        accent={t.accent}
-                      />
-                    ))}
-              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  {status !== "success"
+                    ? Array.from({ length: 4 }).map((_, i) => (
+                        <StatTile
+                          key={i}
+                          icon={Trophy}
+                          label="Loading"
+                          value={null}
+                          loading
+                          accent={i % 2 ? "cyan" : "green"}
+                        />
+                      ))
+                    : tiles.map((t) => (
+                        <StatTile
+                          key={t.label}
+                          icon={t.icon}
+                          label={t.label}
+                          value={t.value}
+                          accent={t.accent}
+                        />
+                      ))}
+                </div>
 
-              {(status !== "success" ||
-                data?.easy != null ||
-                data?.medium != null ||
-                data?.hard != null) && (
-                <div className="grid grid-cols-3 gap-3">
-                  <DifficultyRow
-                    label="Easy"
-                    solved={data?.easy ?? undefined}
-                    color="from-brand-green to-brand-cyan"
-                  />
-                  <DifficultyRow
-                    label="Medium"
-                    solved={data?.medium ?? undefined}
-                    color="from-yellow-400 to-orange-400"
-                  />
-                  <DifficultyRow
-                    label="Hard"
-                    solved={data?.hard ?? undefined}
-                    color="from-rose-400 to-red-500"
-                  />
-                </div>
-              )}
-            </>
-          )}
+                {(status !== "success" ||
+                  data?.easy != null ||
+                  data?.medium != null ||
+                  data?.hard != null) && (
+                  <div className="grid grid-cols-3 gap-3">
+                    <DifficultyRow
+                      label="Easy"
+                      solved={data?.easy ?? undefined}
+                      color="from-brand-green to-brand-cyan"
+                    />
+                    <DifficultyRow
+                      label="Medium"
+                      solved={data?.medium ?? undefined}
+                      color="from-yellow-400 to-orange-400"
+                    />
+                    <DifficultyRow
+                      label="Hard"
+                      solved={data?.hard ?? undefined}
+                      color="from-rose-400 to-red-500"
+                    />
+                  </div>
+                )}
+              </>
+            )}
+          </div>
 
           <a
             href={GFG_PROFILE_URL}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Open GeeksforGeeks profile in a new tab"
-            className="group inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-brand-green/50 hover:bg-brand-green/10 hover:text-brand-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green/60"
+            className="mt-auto group inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-brand-green/50 hover:bg-brand-green/10 hover:text-brand-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green/60"
           >
             View GeeksforGeeks Profile
             <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
@@ -2981,7 +3045,7 @@ function Stats() {
       intro="Real-time GitHub, LeetCode and GeeksforGeeks activity — fetched live, never hardcoded."
     >
       <CodingDashboardSummary />
-      <div className="grid gap-5 lg:grid-cols-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
         <GitHubSection />
         <LeetCodeSection />
         <GfgSection />
