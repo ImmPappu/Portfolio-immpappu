@@ -75,6 +75,36 @@ const OCR_METADATA_DATABASE = {
     categories: ["Cloud", "AI", "Development"],
     fileName: "google-cloud-arcade-skills.png",
   },
+  "unstop-hackdavengers-hackathon.jpg": {
+    id: "cert-unstop-hackdavengers",
+    title: "HackDavengers 1.0 - 8HR Online Hackathon",
+    issuer: "Devengers & Unstop",
+    issueDate: "2026-08-01",
+    description:
+      "Certificate of Appreciation for project submission and active contribution in HackDavengers 1.0 8-Hour Online Hackathon.",
+    categories: ["Hackathon", "Development", "Leadership"],
+    fileName: "unstop-hackdavengers-hackathon.jpg",
+  },
+  "internshala-java-development-internship.jpg": {
+    id: "cert-internshala-java-internship",
+    title: "Java Development Internship Selection",
+    issuer: "Internshala & She Can Foundation",
+    issueDate: "2026-08-13",
+    description:
+      "Certificate of Selection securing Java Development Internship at She Can Foundation through Internshala.",
+    categories: ["Java", "Development", "Leadership"],
+    fileName: "internshala-java-development-internship.jpg",
+  },
+  "internshala-student-partner-isp.jpg": {
+    id: "cert-internshala-isp",
+    title: "Internshala Student Partner (ISP) Program",
+    issuer: "Internshala",
+    issueDate: "2026-08-15",
+    description:
+      "Official appointment letter for Internshala Student Partner (ISP) program representing campus leadership and community engagement.",
+    categories: ["Leadership", "Workshop", "Development"],
+    fileName: "internshala-student-partner-isp.jpg",
+  },
 };
 
 // Function to auto-detect files in public/certificates and generate certificates.json

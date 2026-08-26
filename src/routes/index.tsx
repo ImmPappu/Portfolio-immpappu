@@ -463,7 +463,6 @@ const TIMELINE = [
   { title: "DSA", detail: "Sharpened problem-solving with data structures & algorithms." },
   { title: "AWS", detail: "Explored cloud computing — earned Cloud Practitioner." },
   { title: "DevOps", detail: "Learning Docker, Kubernetes, and CI/CD pipelines." },
-  { title: "AI Automation", detail: "Building agents & workflows with n8n + Gemini." },
   { title: "Full Stack", detail: "Shipping end-to-end products with React and Java." },
 ];
 
