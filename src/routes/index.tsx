@@ -2324,23 +2324,6 @@ function ContribHeatmap({ days }: { days: ContribDay[] | null }) {
 
 /* ---------- LeetCode ---------- */
 
-type LcStats = {
-  status: string;
-  totalSolved: number;
-  totalQuestions: number;
-  easySolved: number;
-  totalEasy: number;
-  mediumSolved: number;
-  totalMedium: number;
-  hardSolved: number;
-  totalHard: number;
-  acceptanceRate: number;
-  ranking: number;
-  contributionPoints: number;
-  reputation: number;
-  submissionCalendar: Record<string, number>;
-};
-
 function LeetCodeSection() {
   const { ref, inView } = useInView<HTMLDivElement>();
   const [data, setData] = useState<LcStats | null>(null);
@@ -2601,18 +2584,6 @@ function DifficultyRow({
 }
 
 /* ---------- GeeksforGeeks ---------- */
-
-type GfgStats = {
-  totalSolved: number | null;
-  codingScore: number | null;
-  instituteRank: number | null;
-  currentStreak: number | null;
-  maxStreak: number | null;
-  monthlyScore: number | null;
-  easy: number | null;
-  medium: number | null;
-  hard: number | null;
-};
 
 function pickNumber(...vals: unknown[]): number | null {
   for (const v of vals) {

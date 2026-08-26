@@ -1,15 +1,15 @@
 import { createServerFn } from "@tanstack/react-start";
 
 export type GfgStats = {
-  totalSolved: number;
-  easy?: number;
-  medium?: number;
-  hard?: number;
-  codingScore?: number;
-  monthlyScore?: number;
-  instituteRank?: number;
-  currentStreak?: number;
-  maxStreak?: number;
+  totalSolved: number | null;
+  codingScore?: number | null;
+  instituteRank?: number | null;
+  currentStreak?: number | null;
+  maxStreak?: number | null;
+  monthlyScore?: number | null;
+  easy?: number | null;
+  medium?: number | null;
+  hard?: number | null;
 };
 
 let serverCache: { timestamp: number; data: GfgStats } | null = null;
@@ -43,14 +43,14 @@ export const fetchGfgStatsServer = createServerFn({ method: "GET" }).handler(
         if (totalSolved != null) {
           const stats: GfgStats = {
             totalSolved: Number(totalSolved),
-            easy: raw.easySolved ?? raw.easy ?? undefined,
-            medium: raw.mediumSolved ?? raw.medium ?? undefined,
-            hard: raw.hardSolved ?? raw.hard ?? undefined,
-            codingScore: raw.overallCodingScore ?? raw.codingScore ?? undefined,
-            monthlyScore: raw.monthlyScore ?? undefined,
-            instituteRank: raw.instituteRank ?? undefined,
-            currentStreak: raw.currentStreak ?? raw.totalActiveDays ?? undefined,
-            maxStreak: raw.maxStreak ?? undefined,
+            easy: raw.easySolved ?? raw.easy ?? null,
+            medium: raw.mediumSolved ?? raw.medium ?? null,
+            hard: raw.hardSolved ?? raw.hard ?? null,
+            codingScore: raw.overallCodingScore ?? raw.codingScore ?? null,
+            monthlyScore: raw.monthlyScore ?? null,
+            instituteRank: raw.instituteRank ?? null,
+            currentStreak: raw.currentStreak ?? raw.totalActiveDays ?? null,
+            maxStreak: raw.maxStreak ?? null,
           };
 
           console.log("[GFG Server Fetch Success] Total Solved:", stats.totalSolved);
@@ -72,6 +72,9 @@ export const fetchGfgStatsServer = createServerFn({ method: "GET" }).handler(
       hard: 10,
       codingScore: 320,
       currentStreak: 45,
+      instituteRank: null,
+      maxStreak: null,
+      monthlyScore: null,
     };
   },
 );
