@@ -28,24 +28,30 @@ export type GitHubStatsData = {
   contrib: ContribDay[];
 };
 
-// In-memory server cache (10 min TTL) to eliminate serverless GitHub rate limits
+// In-memory server cache (15 min TTL)
 let serverCache: { timestamp: number; data: GitHubStatsData } | null = null;
-const SERVER_CACHE_TTL = 10 * 60 * 1000;
+const SERVER_CACHE_TTL = 15 * 60 * 1000;
 
 export const fetchGitHubStatsServer = createServerFn({ method: "GET" }).handler(
   async (): Promise<GitHubStatsData> => {
     // 1. Return server memory cache if fresh
     if (serverCache && Date.now() - serverCache.timestamp < SERVER_CACHE_TTL) {
+      console.log("[GitHub API Server Cache Hit]");
       return serverCache.data;
     }
 
+    console.log("[GitHub API Server Fetch Started]");
     const token = process.env.GITHUB_TOKEN;
     const headers: Record<string, string> = {
       "User-Agent": "ImmPappu-Portfolio-App",
       Accept: "application/vnd.github.v3+json",
     };
+
     if (token) {
       headers["Authorization"] = `token ${token}`;
+      console.log("[GitHub API Server] Authenticated request with GITHUB_TOKEN");
+    } else {
+      console.log("[GitHub API Server] Unauthenticated request (no GITHUB_TOKEN set)");
     }
 
     const GITHUB_USER = "ImmPappu";
@@ -67,16 +73,20 @@ export const fetchGitHubStatsServer = createServerFn({ method: "GET" }).handler(
       let repos: GhRepo[] | null = null;
       let contrib: ContribDay[] = [];
 
-      if (uRes && uRes.ok) {
-        user = (await uRes.json()) as GhUser;
-      } else if (uRes) {
-        console.warn(`[GitHub API Server User Error] Status: ${uRes.status}`);
+      if (uRes) {
+        console.log(`[GitHub User API] Status: ${uRes.status}`);
+        console.log(`[GitHub User API] Rate-Limit Remaining: ${uRes.headers.get("x-ratelimit-remaining") ?? "N/A"}`);
+        console.log(`[GitHub User API] Rate-Limit Reset: ${uRes.headers.get("x-ratelimit-reset") ?? "N/A"}`);
+        if (uRes.ok) {
+          user = (await uRes.json()) as GhUser;
+        }
       }
 
-      if (rRes && rRes.ok) {
-        repos = (await rRes.json()) as GhRepo[];
-      } else if (rRes) {
-        console.warn(`[GitHub API Server Repos Error] Status: ${rRes.status}`);
+      if (rRes) {
+        console.log(`[GitHub Repos API] Status: ${rRes.status}`);
+        if (rRes.ok) {
+          repos = (await rRes.json()) as GhRepo[];
+        }
       }
 
       if (cRes && cRes.ok) {
@@ -87,7 +97,11 @@ export const fetchGitHubStatsServer = createServerFn({ method: "GET" }).handler(
       const data: GitHubStatsData = { user, repos, contrib };
 
       if (user || repos) {
+        console.log("[GitHub Server Fetch Success] User:", user?.login, "Repos:", repos?.length);
         serverCache = { timestamp: Date.now(), data };
+      } else if (serverCache) {
+        console.log("[GitHub Server Fetch Partial Fail] Serving stale cache.");
+        return serverCache.data;
       }
 
       return data;

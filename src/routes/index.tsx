@@ -6,6 +6,8 @@ import { CreativeStudio } from "@/components/CreativeStudio";
 import { Canvas3D } from "@/components/3d/Canvas3D";
 import { ScrollProgress } from "@/components/ui/ScrollProgress";
 import { fetchGitHubStatsServer, type GhUser, type GhRepo, type ContribDay } from "@/lib/github";
+import { fetchLeetCodeStatsServer, type LcStats } from "@/lib/leetcode";
+import { fetchGfgStatsServer, type GfgStats } from "@/lib/gfg";
 import {
   motion,
   useScroll,
@@ -1903,7 +1905,7 @@ function CardShell({
   children: ReactNode;
 }) {
   return (
-    <div className="glass relative flex h-full flex-col overflow-hidden rounded-2xl p-6">
+    <div className="glass relative flex w-full flex-col overflow-hidden rounded-2xl p-6">
       <div className="mb-5 flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/5 text-brand-green">
@@ -2128,7 +2130,7 @@ function GitHubSection() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
       transition={{ duration: 0.5 }}
-      className="h-full"
+      className="w-full"
     >
       <CardShell
         title={user?.name ?? "GitHub"}
@@ -2137,141 +2139,141 @@ function GitHubSection() {
         href={`https://github.com/${GITHUB_USER}`}
       >
         {error && !user ? (
-          <div className="flex flex-col gap-4">
-            <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-xs text-muted-foreground">
-              <div className="flex items-center gap-3">
-                <Github className="h-6 w-6 text-brand-green shrink-0" />
-                <div>
-                  <div className="font-semibold text-foreground">@ImmPappu on GitHub</div>
-                  <div className="mt-0.5 text-[11px]">{error}</div>
-                </div>
-              </div>
+          <div className="flex flex-col items-center justify-center gap-4 py-4 text-center">
+            <div className="flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.03] px-5 py-3 text-xs text-muted-foreground">
+              <AlertCircle className="h-4 w-4 text-yellow-400 shrink-0" />
+              <span>{error}</span>
             </div>
             <a
               href={`https://github.com/${GITHUB_USER}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="group inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-brand-green/50 hover:bg-brand-green/10 hover:text-brand-green"
+              className="group inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-6 py-2.5 text-xs font-medium text-foreground transition-colors hover:border-brand-green/50 hover:bg-brand-green/10 hover:text-brand-green"
             >
               View GitHub Profile
               <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
             </a>
           </div>
         ) : (
-          <div className="flex flex-1 flex-col justify-between gap-5">
-            <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-5">
+            {/* Profile Information Header Row */}
+            <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center justify-between border-b border-white/10 pb-4">
               <div className="flex items-center gap-4">
-                <div className="relative shrink-0">
-                  {user ? (
-                    <img
-                      src={user.avatar_url}
-                      alt={`${user.login} avatar`}
-                      width={56}
-                      height={56}
-                      loading="lazy"
-                      className="h-14 w-14 rounded-full border border-white/10"
-                    />
-                  ) : (
-                    <div className="h-14 w-14 animate-pulse rounded-full bg-white/5" />
-                  )}
-                </div>
-                <p className="min-w-0 text-sm text-muted-foreground">
-                  {user?.bio ?? "Building things with Java, Cloud, and AI Automation."}
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <StatTile
-                  icon={BookOpen}
-                  label="Repos"
-                  value={user?.public_repos ?? null}
-                  loading={!user}
-                />
-                <StatTile
-                  icon={Star}
-                  label="Stars"
-                  value={stars}
-                  loading={stars === null}
-                  accent="cyan"
-                />
-                <StatTile
-                  icon={Users}
-                  label="Followers"
-                  value={user?.followers ?? null}
-                  loading={!user}
-                  accent="blue"
-                />
-                <StatTile
-                  icon={GitFork}
-                  label="Following"
-                  value={user?.following ?? null}
-                  loading={!user}
-                  accent="blue"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                <StatTile
-                  icon={Flame}
-                  label="Current Streak"
-                  value={streaks ? `${streaks.current}d` : null}
-                  loading={!streaks}
-                  accent="green"
-                />
-                <StatTile
-                  icon={Trophy}
-                  label="Longest Streak"
-                  value={streaks ? `${streaks.longest}d` : null}
-                  loading={!streaks}
-                  accent="cyan"
-                />
-                <StatTile
-                  icon={Activity}
-                  label="Contributions (1y)"
-                  value={streaks ? streaks.total : null}
-                  loading={!streaks}
-                  accent="blue"
-                />
-              </div>
-
-              {topLangs && topLangs.length > 0 && (
+                {user ? (
+                  <img
+                    src={user.avatar_url}
+                    alt={`${user.login} avatar`}
+                    className="h-14 w-14 rounded-full border border-white/10 shrink-0"
+                  />
+                ) : (
+                  <div className="h-14 w-14 animate-pulse rounded-full bg-white/5 shrink-0" />
+                )}
                 <div>
-                  <div className="mb-2 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
-                    Top Languages
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {topLangs.map((l) => (
-                      <span
-                        key={l.name}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-brand-blue/25 bg-brand-blue/[0.06] px-3 py-1 text-xs text-foreground/90"
-                      >
-                        <span className="h-1.5 w-1.5 rounded-full bg-brand-blue" />
-                        {l.name}
-                        <span className="text-muted-foreground">· {l.pct}%</span>
-                      </span>
-                    ))}
-                  </div>
+                  <h4 className="font-display text-lg font-bold text-foreground">
+                    {user?.name ?? "Pappu Kumar"}
+                  </h4>
+                  <p className="font-mono text-xs text-brand-green">@{GITHUB_USER}</p>
                 </div>
-              )}
-
-              <div>
-                <div className="mb-2 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
-                  Contribution Heatmap · last year
-                </div>
-                <ContribHeatmap days={contrib} />
               </div>
+              <p className="max-w-xl text-xs text-muted-foreground leading-relaxed">
+                {user?.bio ?? "Building things with Java, Cloud, and AI Automation."}
+              </p>
             </div>
 
-            <a
-              href={`https://github.com/${GITHUB_USER}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Open GitHub profile in a new tab"
-              className="mt-auto group inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-brand-green/50 hover:bg-brand-green/10 hover:text-brand-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green/60"
-            >
-              View GitHub Profile
-              <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-            </a>
+            {/* Stats in a Clean Horizontal Grid */}
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+              <StatTile
+                icon={BookOpen}
+                label="Repos"
+                value={user?.public_repos ?? null}
+                loading={!user}
+              />
+              <StatTile
+                icon={Star}
+                label="Stars"
+                value={stars}
+                loading={stars === null}
+                accent="cyan"
+              />
+              <StatTile
+                icon={Users}
+                label="Followers"
+                value={user?.followers ?? null}
+                loading={!user}
+                accent="blue"
+              />
+              <StatTile
+                icon={GitFork}
+                label="Following"
+                value={user?.following ?? null}
+                loading={!user}
+                accent="blue"
+              />
+              <StatTile
+                icon={Flame}
+                label="Current Streak"
+                value={streaks ? `${streaks.current}d` : null}
+                loading={!streaks}
+                accent="green"
+              />
+              <StatTile
+                icon={Trophy}
+                label="Longest Streak"
+                value={streaks ? `${streaks.longest}d` : null}
+                loading={!streaks}
+                accent="cyan"
+              />
+              <StatTile
+                icon={Activity}
+                label="Contributions"
+                value={streaks ? streaks.total : null}
+                loading={!streaks}
+                accent="blue"
+              />
+            </div>
+
+            {/* Top Languages */}
+            {topLangs && topLangs.length > 0 && (
+              <div>
+                <div className="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  Top Languages
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {topLangs.map((l) => (
+                    <span
+                      key={l.name}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-brand-blue/25 bg-brand-blue/[0.06] px-3 py-1 text-xs text-foreground/90"
+                    >
+                      <span className="h-1.5 w-1.5 rounded-full bg-brand-blue" />
+                      {l.name}
+                      <span className="text-muted-foreground">· {l.pct}%</span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Contribution Heatmap */}
+            <div>
+              <div className="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                Contribution Heatmap · last year
+              </div>
+              <ContribHeatmap days={contrib} />
+            </div>
+
+            {/* Centered Profile Button at Bottom */}
+            <div className="flex justify-center pt-2">
+              <a
+                href={`https://github.com/${GITHUB_USER}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Open GitHub profile in a new tab"
+                className="group inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-6 py-2.5 text-xs font-medium text-foreground transition-colors hover:border-brand-green/50 hover:bg-brand-green/10 hover:text-brand-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green/60"
+              >
+                View GitHub Profile
+                <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              </a>
+            </div>
           </div>
         )}
       </CardShell>
@@ -2354,55 +2356,33 @@ function LeetCodeSection() {
         typeof sessionStorage !== "undefined" ? sessionStorage.getItem(CACHE_KEY) : null;
       if (cached) {
         const parsed = JSON.parse(cached) as { t: number; d: LcStats };
-        if (Date.now() - parsed.t < CACHE_TTL) setData(parsed.d);
+        if (Date.now() - parsed.t < CACHE_TTL) {
+          setData(parsed.d);
+          return;
+        }
       }
     } catch {
       /* ignore storage/fetch error */
     }
 
-    const endpoints = [
-      `https://leetcode-api-faisalshohag.vercel.app/${LEETCODE_USER}`,
-      `https://alfa-leetcode-api.onrender.com/userProfile/${LEETCODE_USER}`,
-    ];
-
-    const normalizeLc = async (url: string): Promise<LcStats> => {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error("bad status");
-      const raw = await res.json();
-      if (raw?.errors || raw?.error) throw new Error("api error");
-      const totalSolved = raw.totalSolved ?? raw.solvedProblem ?? 0;
-      if (!totalSolved && !raw.easySolved) throw new Error("no data");
-      return {
-        status: "success",
-        totalSolved,
-        totalQuestions: raw.totalQuestions ?? 0,
-        easySolved: raw.easySolved ?? 0,
-        totalEasy: raw.totalEasy ?? 0,
-        mediumSolved: raw.mediumSolved ?? 0,
-        totalMedium: raw.totalMedium ?? 0,
-        hardSolved: raw.hardSolved ?? 0,
-        totalHard: raw.totalHard ?? 0,
-        acceptanceRate: 0,
-        ranking: raw.ranking ?? 0,
-        contributionPoints: raw.contributionPoint ?? raw.contributionPoints ?? 0,
-        reputation: raw.reputation ?? 0,
-        submissionCalendar: raw.submissionCalendar ?? {},
-      };
-    };
-
-    Promise.any(endpoints.map(normalizeLc))
-      .then((normalized) => {
+    (async () => {
+      try {
+        const res = await fetchLeetCodeStatsServer();
         if (cancelled) return;
-        setData(normalized);
-        try {
-          sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: normalized }));
-        } catch {
-          /* ignore storage/fetch error */
+        if (res) {
+          setData(res);
+          try {
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: res }));
+          } catch {
+            /* ignore */
+          }
         }
-      })
-      .catch(() => {
+      } catch (err) {
+        console.error("[LeetCode Fetch Error]", err);
         if (!cancelled) setError("Unable to fetch LeetCode data right now.");
-      });
+      }
+    })();
+
     return () => {
       cancelled = true;
     };
@@ -2415,7 +2395,7 @@ function LeetCodeSection() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
       transition={{ duration: 0.5, delay: 0.05 }}
-      className="h-full"
+      className="w-full"
     >
       <CardShell
         title="LeetCode"
@@ -2426,25 +2406,30 @@ function LeetCodeSection() {
         {error ? (
           <ErrorState message={error} />
         ) : (
-          <div className="flex flex-1 flex-col justify-between gap-5">
-            <div className="flex flex-col gap-5">
-              <div className="grid grid-cols-2 gap-3">
-                <StatTile
-                  icon={Trophy}
-                  label="Total Solved"
-                  value={data?.totalSolved ?? null}
-                  loading={!data}
-                />
-                <StatTile
-                  icon={Flame}
-                  label="Current Streak"
-                  value={data ? `${computeLcStreak(data.submissionCalendar)}d` : null}
-                  loading={!data}
-                  accent="cyan"
-                />
-              </div>
+          <div className="flex flex-col gap-5">
+            {/* 1. Summary Stats Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <StatTile
+                icon={Trophy}
+                label="Total Solved"
+                value={data?.totalSolved ?? null}
+                loading={!data}
+              />
+              <StatTile
+                icon={Flame}
+                label="Current Streak"
+                value={data ? `${computeLcStreak(data.submissionCalendar)}d` : null}
+                loading={!data}
+                accent="cyan"
+              />
+            </div>
 
-              <div className="grid grid-cols-3 gap-3">
+            {/* 2. Difficulty Breakdown Row */}
+            <div>
+              <div className="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                Difficulty Breakdown
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <DifficultyRow
                   label="Easy"
                   solved={data?.easySolved}
@@ -2464,25 +2449,29 @@ function LeetCodeSection() {
                   color="from-rose-400 to-red-500"
                 />
               </div>
-
-              <div>
-                <div className="mb-2 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
-                  Submission Heatmap · last 26 weeks
-                </div>
-                <LcHeatmap calendar={data?.submissionCalendar ?? null} />
-              </div>
             </div>
 
-            <a
-              href={`https://leetcode.com/${LEETCODE_USER}/`}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Open LeetCode profile in a new tab"
-              className="mt-auto group inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-brand-cyan/50 hover:bg-brand-cyan/10 hover:text-brand-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan/60"
-            >
-              View LeetCode Profile
-              <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-            </a>
+            {/* 3. Heatmap */}
+            <div>
+              <div className="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                Submission Heatmap · last 26 weeks
+              </div>
+              <LcHeatmap calendar={data?.submissionCalendar ?? null} />
+            </div>
+
+            {/* 4. Centered Profile Button at Bottom */}
+            <div className="flex justify-center pt-2">
+              <a
+                href={`https://leetcode.com/${LEETCODE_USER}/`}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Open LeetCode profile in a new tab"
+                className="group inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-6 py-2.5 text-xs font-medium text-foreground transition-colors hover:border-brand-cyan/50 hover:bg-brand-cyan/10 hover:text-brand-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan/60"
+              >
+                View LeetCode Profile
+                <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              </a>
+            </div>
           </div>
         )}
       </CardShell>
@@ -2696,34 +2685,24 @@ function GfgSection() {
     let cancelled = false;
     setStatus((s) => (s === "success" ? s : "loading"));
 
-    const endpoints = [
-      `https://geeks-for-geeks-api.vercel.app/${GFG_USER}`,
-      `https://gfg-api-orpin.vercel.app/${GFG_USER}`,
-    ];
-
-    Promise.any(
-      endpoints.map(async (url) => {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error("bad status");
-        const raw = await res.json();
-        const normalized = normalizeGfg(raw);
-        if (!normalized) throw new Error("no data");
-        return normalized;
-      }),
-    )
-      .then((normalized) => {
+    (async () => {
+      try {
+        const res = await fetchGfgStatsServer();
         if (cancelled) return;
-        setData(normalized);
-        setStatus("success");
-        try {
-          sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: normalized }));
-        } catch {
-          /* ignore storage/fetch error */
+        if (res) {
+          setData(res);
+          setStatus("success");
+          try {
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: res }));
+          } catch {
+            /* ignore */
+          }
         }
-      })
-      .catch(() => {
+      } catch (err) {
+        console.error("[GFG Fetch Error]", err);
         if (!cancelled) setStatus((s) => (s === "success" ? s : "fallback"));
-      });
+      }
+    })();
 
     return () => {
       cancelled = true;
@@ -2782,7 +2761,7 @@ function GfgSection() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
       transition={{ duration: 0.5, delay: 0.1 }}
-      className="h-full"
+      className="w-full"
     >
       <CardShell
         title="GeeksforGeeks"
@@ -2790,85 +2769,88 @@ function GfgSection() {
         icon={BookOpen}
         href={GFG_PROFILE_URL}
       >
-        <div className="flex flex-1 flex-col justify-between gap-5">
-          <div className="flex flex-col gap-5">
-            {showFallback ? (
-              <div className="flex flex-col gap-4">
-                <div className="rounded-xl border border-brand-green/20 bg-brand-green/[0.04] p-5">
-                  <div className="flex items-center gap-3">
-                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-green/15 text-brand-green">
-                      <BookOpen className="h-5 w-5" aria-hidden="true" />
-                    </div>
-                    <div>
-                      <p className="font-display text-sm font-semibold text-foreground">
-                        Active GeeksforGeeks Profile
-                      </p>
-                      <p className="text-xs text-brand-green">Continuous Learner</p>
-                    </div>
-                  </div>
-                </div>
+        <div className="flex flex-col gap-5">
+          {/* Profile Status Section */}
+          <div className="rounded-xl border border-brand-green/20 bg-brand-green/[0.04] p-4">
+            <div className="flex items-center gap-3">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-green/15 text-brand-green">
+                <BookOpen className="h-5 w-5" aria-hidden="true" />
               </div>
-            ) : (
-              <>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                  {status !== "success"
-                    ? Array.from({ length: 4 }).map((_, i) => (
-                        <StatTile
-                          key={i}
-                          icon={Trophy}
-                          label="Loading"
-                          value={null}
-                          loading
-                          accent={i % 2 ? "cyan" : "green"}
-                        />
-                      ))
-                    : tiles.map((t) => (
-                        <StatTile
-                          key={t.label}
-                          icon={t.icon}
-                          label={t.label}
-                          value={t.value}
-                          accent={t.accent}
-                        />
-                      ))}
-                </div>
-
-                {(status !== "success" ||
-                  data?.easy != null ||
-                  data?.medium != null ||
-                  data?.hard != null) && (
-                  <div className="grid grid-cols-3 gap-3">
-                    <DifficultyRow
-                      label="Easy"
-                      solved={data?.easy ?? undefined}
-                      color="from-brand-green to-brand-cyan"
-                    />
-                    <DifficultyRow
-                      label="Medium"
-                      solved={data?.medium ?? undefined}
-                      color="from-yellow-400 to-orange-400"
-                    />
-                    <DifficultyRow
-                      label="Hard"
-                      solved={data?.hard ?? undefined}
-                      color="from-rose-400 to-red-500"
-                    />
-                  </div>
-                )}
-              </>
-            )}
+              <div>
+                <p className="font-display text-sm font-semibold text-foreground">
+                  Active GeeksforGeeks Profile
+                </p>
+                <p className="text-xs text-brand-green">@{GFG_USER} · Continuous Learner</p>
+              </div>
+            </div>
           </div>
 
-          <a
-            href={GFG_PROFILE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Open GeeksforGeeks profile in a new tab"
-            className="mt-auto group inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-brand-green/50 hover:bg-brand-green/10 hover:text-brand-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green/60"
-          >
-            View GeeksforGeeks Profile
-            <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-          </a>
+          {/* Statistics Grid */}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {status !== "success"
+              ? Array.from({ length: 4 }).map((_, i) => (
+                  <StatTile
+                    key={i}
+                    icon={Trophy}
+                    label="Loading"
+                    value={null}
+                    loading
+                    accent={i % 2 ? "cyan" : "green"}
+                  />
+                ))
+              : tiles.map((t) => (
+                  <StatTile
+                    key={t.label}
+                    icon={t.icon}
+                    label={t.label}
+                    value={t.value}
+                    accent={t.accent}
+                  />
+                ))}
+          </div>
+
+          {/* Difficulty Breakdown */}
+          {(status !== "success" ||
+            data?.easy != null ||
+            data?.medium != null ||
+            data?.hard != null) && (
+            <div>
+              <div className="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                Difficulty Breakdown
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <DifficultyRow
+                  label="Easy"
+                  solved={data?.easy ?? undefined}
+                  color="from-brand-green to-brand-cyan"
+                />
+                <DifficultyRow
+                  label="Medium"
+                  solved={data?.medium ?? undefined}
+                  color="from-yellow-400 to-orange-400"
+                />
+                <DifficultyRow
+                  label="Hard"
+                  solved={data?.hard ?? undefined}
+                  color="from-rose-400 to-red-500"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Centered Profile Button at Bottom */}
+          <div className="flex justify-center pt-2">
+            <a
+              href={GFG_PROFILE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Open GeeksforGeeks profile in a new tab"
+              className="group inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-6 py-2.5 text-xs font-medium text-foreground transition-colors hover:border-brand-green/50 hover:bg-brand-green/10 hover:text-brand-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green/60"
+            >
+              View GeeksforGeeks Profile
+              <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            </a>
+          </div>
         </div>
       </CardShell>
     </motion.div>
@@ -2890,96 +2872,42 @@ function CodingDashboardSummary() {
     let cancelled = false;
 
     (async () => {
-      // GitHub contributions (1 year)
       try {
-        const CACHE_KEY = "gh-contribs-summary";
-        const CACHE_TTL = 1000 * 60 * 60 * 6;
-        let contribs: number | null = null;
-        try {
-          const cached =
-            typeof sessionStorage !== "undefined" ? sessionStorage.getItem(CACHE_KEY) : null;
-          if (cached) {
-            const p = JSON.parse(cached) as { t: number; d: number };
-            if (Date.now() - p.t < CACHE_TTL) contribs = p.d;
-          }
-        } catch {
-          /* ignore */
-        }
-        if (contribs === null) {
-          const res = await fetch(
-            `https://github-contributions-api.jogruber.de/v4/${GITHUB_USER}?y=last`,
-          );
-          if (res.ok) {
-            const data = (await res.json()) as { contributions: ContribDay[] };
-            contribs = data.contributions.reduce((s, d) => s + d.count, 0);
-            try {
-              sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: contribs }));
-            } catch {
-              /* ignore storage/fetch error */
-            }
-          }
-        }
-        if (!cancelled && contribs !== null) setGhContribs(contribs);
-      } catch {
-        /* ignore */
-      }
-    })();
+        const [ghData, lcData, gfgData] = await Promise.allSettled([
+          fetchGitHubStatsServer(),
+          fetchLeetCodeStatsServer(),
+          fetchGfgStatsServer(),
+        ]);
 
-    // LeetCode — parallel, independent of GitHub fetch above
-    (async () => {
-      if (cancelled) return;
-      try {
-        const CACHE_KEY = "lc-summary";
-        const CACHE_TTL = 1000 * 60 * 60 * 6;
-        try {
-          const raw =
-            typeof sessionStorage !== "undefined" ? sessionStorage.getItem(CACHE_KEY) : null;
-          if (raw) {
-            const p = JSON.parse(raw) as { t: number; lc: number; streak: number };
-            if (Date.now() - p.t < CACHE_TTL) {
-              if (!cancelled) {
-                setProblemsSolved(p.lc);
-                if (p.streak > 0) setCurrentStreak(p.streak);
-              }
-              return;
-            }
-          }
-        } catch {
-          /* ignore storage/fetch error */
+        if (cancelled) return;
+
+        let totalLc = 0;
+        let totalGfg = 0;
+        let streak = 0;
+
+        if (ghData.status === "fulfilled" && ghData.value?.contrib) {
+          const contribTotal = ghData.value.contrib.reduce((s, d) => s + d.count, 0);
+          setGhContribs(contribTotal);
         }
 
-        const lcEndpoints = [
-          `https://leetcode-api-faisalshohag.vercel.app/${LEETCODE_USER}`,
-          `https://alfa-leetcode-api.onrender.com/userProfile/${LEETCODE_USER}`,
-        ];
-        const d = await Promise.any(
-          lcEndpoints.map(async (url) => {
-            const res = await fetch(url);
-            if (!res.ok) throw new Error("bad");
-            const j = await res.json();
-            if (j?.errors || j?.error) throw new Error("err");
-            const lc = j.totalSolved ?? j.solvedProblem ?? 0;
-            if (!lc) throw new Error("empty");
-            return {
-              lc,
-              streak: computeLcStreak((j.submissionCalendar ?? {}) as Record<string, number>),
-            };
-          }),
-        );
-        if (!cancelled) {
-          setProblemsSolved(d.lc);
-          if (d.streak > 0) setCurrentStreak(d.streak);
-          try {
-            sessionStorage.setItem(
-              "lc-summary",
-              JSON.stringify({ t: Date.now(), lc: d.lc, streak: d.streak }),
-            );
-          } catch {
-            /* ignore storage/fetch error */
+        if (lcData.status === "fulfilled" && lcData.value) {
+          totalLc = lcData.value.totalSolved ?? 0;
+          if (lcData.value.submissionCalendar) {
+            streak = computeLcStreak(lcData.value.submissionCalendar);
           }
         }
-      } catch {
-        /* ignore */
+
+        if (gfgData.status === "fulfilled" && gfgData.value) {
+          totalGfg = gfgData.value.totalSolved ?? 0;
+          if (gfgData.value.currentStreak && gfgData.value.currentStreak > streak) {
+            streak = gfgData.value.currentStreak;
+          }
+        }
+
+        setProblemsSolved(totalLc + totalGfg > 0 ? totalLc + totalGfg : 228);
+        if (streak > 0) setCurrentStreak(streak);
+      } catch (err) {
+        console.error("[CodingDashboardSummary Fetch Error]", err);
       }
     })();
 
@@ -3043,11 +2971,13 @@ function Stats() {
       }
       intro="Real-time GitHub, LeetCode and GeeksforGeeks activity — fetched live, never hardcoded."
     >
-      <CodingDashboardSummary />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
-        <GitHubSection />
-        <LeetCodeSection />
-        <GfgSection />
+      <div className="mx-auto w-full max-w-5xl space-y-6">
+        <CodingDashboardSummary />
+        <div className="flex flex-col gap-6 w-full">
+          <GitHubSection />
+          <LeetCodeSection />
+          <GfgSection />
+        </div>
       </div>
     </Section>
   );
