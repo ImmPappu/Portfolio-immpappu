@@ -38,6 +38,7 @@ import {
   Flame,
   GitFork,
   Github,
+  GraduationCap,
   Instagram,
   Linkedin,
   Mail,
@@ -189,6 +190,7 @@ const NAV = [
   { id: "skills", label: "Skills" },
   { id: "projects", label: "Projects" },
   { id: "creative", label: "Creative" },
+  { id: "education", label: "Education" },
   { id: "timeline", label: "Journey" },
   { id: "certifications", label: "Certs" },
   { id: "stats", label: "Stats" },
@@ -571,6 +573,7 @@ function PortfolioPage() {
         <Skills />
         <Projects />
         <CreativeStudio />
+        <Education />
         <Timeline />
         <Certifications />
         <Stats />
@@ -1386,6 +1389,146 @@ function Projects() {
         )}
       </AnimatePresence>
     </>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Education                                                                  */
+/* -------------------------------------------------------------------------- */
+
+type EducationItem = {
+  icon: LucideIcon;
+  year: string;
+  title: string;
+  subtitle?: string;
+  institution: string;
+  board?: string;
+  scoreLabel: string;
+  scoreValue: string;
+};
+
+const EDUCATION_DATA: EducationItem[] = [
+  {
+    icon: GraduationCap,
+    year: "2024 - 2028",
+    title: "B.Tech — Information Technology",
+    subtitle: "with Honors in Cyber Security",
+    institution: "Rajkiya Engineering College, Banda",
+    board: "AKTU",
+    scoreLabel: "Current CGPA",
+    scoreValue: "8.00 / 10",
+  },
+  {
+    icon: Calendar,
+    year: "2024",
+    title: "Class 12th — PCM",
+    institution: "+2 High School, Maner, Patna",
+    board: "B.S.E.B",
+    scoreLabel: "Score",
+    scoreValue: "85.2%",
+  },
+  {
+    icon: Calendar,
+    year: "2022",
+    title: "Class 10th — C.B.S.E",
+    institution: "B.D.M Public School, Maner, Patna",
+    board: "C.B.S.E",
+    scoreLabel: "Score",
+    scoreValue: "94.2%",
+  },
+];
+
+function Education() {
+  return (
+    <section id="education" className="relative scroll-mt-24 px-4 py-12 sm:py-16">
+      <div className="mx-auto max-w-[1160px]">
+        {/* Centered Heading */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.4 }}
+          className="mb-8 sm:mb-9 text-center"
+        >
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-[11px] uppercase tracking-widest text-brand-green mb-3">
+            <span className="h-1.5 w-1.5 rounded-full bg-brand-green" />
+            Academics
+          </div>
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-display">
+            Educational <span className="text-gradient">Journey</span>
+          </h2>
+        </motion.div>
+
+        {/* 3 Equal Symmetrical Cards in One Row on Desktop */}
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 lg:gap-6 items-stretch">
+          {EDUCATION_DATA.map((item, index) => {
+            const Icon = item.icon;
+            return (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: index * 0.08 }}
+                className="group relative flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-brand-green/35 hover:bg-white/[0.05] hover:shadow-[0_8px_30px_rgba(34,197,94,0.08)]"
+              >
+                {/* Top Subtle Hover Accent Line */}
+                <div className="absolute inset-x-0 top-0 h-[2px] rounded-t-2xl bg-gradient-to-r from-transparent via-brand-green/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+                {/* Upper Content Block */}
+                <div className="flex flex-col flex-1">
+                  {/* Icon & Year */}
+                  <div className="flex items-center justify-between gap-3 mb-4">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-green/10 text-brand-green border border-brand-green/20 group-hover:scale-105 transition-transform duration-300">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <span className="font-mono text-xs text-muted-foreground/80 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full">
+                      {item.year}
+                    </span>
+                  </div>
+
+                  {/* Title & Board Tag */}
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="font-display text-lg font-bold text-foreground leading-snug tracking-tight">
+                        {item.title}
+                      </h3>
+                      {item.board && (
+                        <span className="shrink-0 font-mono text-[10px] font-medium uppercase tracking-wider text-muted-foreground bg-white/5 border border-white/10 px-2 py-0.5 rounded">
+                          {item.board}
+                        </span>
+                      )}
+                    </div>
+
+                    {item.subtitle && (
+                      <p className="text-xs font-medium text-brand-green/90 leading-tight">
+                        {item.subtitle}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Institution */}
+                  <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60" />
+                    <span className="line-clamp-1">{item.institution}</span>
+                  </div>
+                </div>
+
+                {/* Bottom Divider & Highlighted Score/CGPA */}
+                <div className="mt-5 border-t border-white/10 pt-3.5 flex items-center justify-between">
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {item.scoreLabel}
+                  </span>
+                  <span className="font-mono text-sm font-bold text-brand-green tracking-tight">
+                    {item.scoreValue}
+                  </span>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
   );
 }
 
