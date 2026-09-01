@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import profilePhoto from "@/assets/pappu-kumar.png";
 import skillforgeBanner from "@/assets/skillforge-banner.png";
+import sdcLogo from "@/assets/sdc-logo.jpg";
+import internshalaLogo from "@/assets/internshala-logo.png";
 import { CreativeStudio } from "@/components/CreativeStudio";
 import { Canvas3D } from "@/components/3d/Canvas3D";
 import { ScrollProgress } from "@/components/ui/ScrollProgress";
@@ -3097,7 +3099,96 @@ function Stats() {
   );
 }
 
+interface Achievement {
+  title: string;
+  status: string;
+  organizer: string;
+  date: string;
+  description: string;
+  certificate: string;
+  verificationUrl?: string;
+}
+
+const achievements: Achievement[] = [
+  {
+    title: "HackDavengers 1.0 – 8HR Online Hackathon",
+    status: "PARTICIPATION",
+    organizer: "Devengers & Unstop",
+    date: "1 August 2026",
+    description:
+      "Submitted project and actively participated in HackDavengers 1.0 8-Hour Online Hackathon.",
+    certificate: "/certificates/unstop-hackdavengers-hackathon.jpg",
+    verificationUrl: "",
+  },
+  {
+    title: "OOSC 4.0 Hackathon of Opportunity Open Source Conference (OOSC) – 4.0",
+    status: "PARTICIPATION",
+    organizer: "Indian Institute of Information Technology (IIIT), Allahabad",
+    date: "2026",
+    description:
+      "Participated in OOSC 4.0, an open-source focused conference and hackathon experience.",
+    certificate: "/certificates/oosc-4.0-hackathon.jpg",
+    verificationUrl: "",
+  },
+  {
+    title: "Adobe University Hackathon",
+    status: "PARTICIPATION",
+    organizer: "Adobe",
+    date: "9 August 2026",
+    description: "Participated in the Adobe University Hackathon.",
+    certificate: "/certificates/adobe-university-hackathon.jpg",
+    verificationUrl: "",
+  },
+];
+
+function getStatusBadge(status: string) {
+  switch (status.toUpperCase()) {
+    case "WINNER":
+      return { label: "🏆 WINNER", style: "border-yellow-500/30 bg-yellow-500/10 text-yellow-400" };
+    case "1ST PLACE":
+      return { label: "🥇 1st PLACE", style: "border-yellow-500/30 bg-yellow-500/10 text-yellow-400" };
+    case "2ND PLACE":
+      return { label: "🥈 2nd PLACE", style: "border-slate-300/30 bg-slate-300/10 text-slate-300" };
+    case "3RD PLACE":
+      return { label: "🥉 3rd PLACE", style: "border-amber-600/30 bg-amber-600/10 text-amber-500" };
+    case "FINALIST":
+      return { label: "⭐ FINALIST", style: "border-purple-500/30 bg-purple-500/10 text-purple-300" };
+    case "PARTICIPATION":
+      return {
+        label: "🎯 PARTICIPATION",
+        style: "border-brand-cyan/30 bg-brand-cyan/10 text-brand-cyan",
+      };
+    case "CERTIFICATE":
+    default:
+      return {
+        label: "📜 CERTIFICATE",
+        style: "border-brand-green/30 bg-brand-green/10 text-brand-green",
+      };
+  }
+}
+
 function Experience() {
+  const [selectedAchievement, setSelectedAchievement] = useState<Achievement | null>(null);
+
+  useEffect(() => {
+    if (selectedAchievement) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [selectedAchievement]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelectedAchievement(null);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   return (
     <Section
       id="experience"
@@ -3108,23 +3199,237 @@ function Experience() {
         </>
       }
     >
-      <div className="glass flex items-start gap-4 rounded-2xl p-6">
-        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brand-blue/15 text-brand-blue">
-          <Briefcase className="h-5 w-5" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h3 className="font-display text-lg font-semibold">
-              Student Developer Club — Coordinator
-            </h3>
-            <span className="font-mono text-xs text-muted-foreground">Ongoing</span>
+      <div className="mx-auto w-full max-w-6xl space-y-12">
+        {/* Subsection 1: Roles & Contributions */}
+        <div className="flex flex-col gap-4">
+          <div className="glass group flex items-start gap-4 rounded-2xl p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20">
+            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white/5 border border-white/10 overflow-hidden p-1.5 transition-colors group-hover:border-brand-blue/40">
+              <img
+                src={sdcLogo}
+                alt="Student Developer Club Logo"
+                className="h-full w-full object-contain rounded-lg"
+              />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <h3 className="font-display text-lg font-semibold">
+                  Student Developer Club — Coordinator
+                </h3>
+                <span className="font-mono text-xs text-muted-foreground">Ongoing</span>
+              </div>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Coordinating with the campus developer community — organizing sessions, supporting
+                peers, and sharing what I learn about Java, Cloud, and Automation.
+              </p>
+            </div>
           </div>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Coordinating with the campus developer community — organizing sessions, supporting
-            peers, and sharing what I learn about Java, Cloud, and Automation.
-          </p>
+
+          <div className="glass group flex items-start gap-4 rounded-2xl p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20">
+            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white/5 border border-white/10 overflow-hidden p-1.5 transition-colors group-hover:border-brand-cyan/40">
+              <img
+                src={internshalaLogo}
+                alt="Internshala Logo"
+                className="h-full w-full object-contain rounded-lg"
+              />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <h3 className="font-display text-lg font-semibold">
+                  Internshala Student Partner (ISP)
+                </h3>
+                <span className="font-mono text-xs text-muted-foreground">Ongoing</span>
+              </div>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Selected as an Internshala Student Partner, currently exploring the program and
+                engaging with its student-focused initiatives around internships and skill development.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Subtle Divider */}
+        <div className="h-px w-full bg-linear-to-r from-transparent via-white/15 to-transparent" />
+
+        {/* Subsection 2: Hackathons & Achievements */}
+        <div className="space-y-6">
+          <div>
+            <h3 className="font-display text-2xl font-bold tracking-tight text-foreground">
+              Hackathons &amp; <span className="text-gradient">Achievements.</span>
+            </h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Building, competing, learning and growing through real-world challenges.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {achievements.map((item) => {
+              const badge = getStatusBadge(item.status);
+              return (
+                <div
+                  key={item.title}
+                  className="glass group flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition-all duration-300 hover:-translate-y-1 hover:border-brand-green/40 hover:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5),0_0_20px_-8px_var(--brand-green)]"
+                >
+                  <div>
+                    {/* Thumbnail Image */}
+                    <div
+                      onClick={() => setSelectedAchievement(item)}
+                      className="relative mb-4 aspect-video w-full cursor-pointer overflow-hidden rounded-xl border border-white/10 bg-black/40"
+                    >
+                      <img
+                        src={item.certificate}
+                        alt={item.title}
+                        className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-black/30 opacity-0 transition-opacity group-hover:opacity-100 flex items-center justify-center">
+                        <span className="rounded-lg bg-black/70 px-3 py-1.5 text-xs font-mono text-white backdrop-blur-xs flex items-center gap-1.5 border border-white/10">
+                          <Eye className="h-3.5 w-3.5 text-brand-green" /> View
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Header with Icon & Status */}
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <div className="grid h-8 w-8 place-items-center rounded-lg bg-brand-green/15 text-brand-green">
+                        <Trophy className="h-4 w-4" />
+                      </div>
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider ${badge.style}`}
+                      >
+                        {badge.label}
+                      </span>
+                    </div>
+
+                    {/* Title */}
+                    <h4 className="font-display text-base font-semibold text-foreground line-clamp-2">
+                      {item.title}
+                    </h4>
+
+                    {/* Organizer & Date */}
+                    <div className="mt-2 flex flex-wrap items-center justify-between gap-x-2 gap-y-1 font-mono text-xs text-muted-foreground">
+                      <span className="truncate max-w-[180px]">{item.organizer}</span>
+                      <span>{item.date}</span>
+                    </div>
+
+                    {/* Description */}
+                    <p className="mt-2 text-xs text-muted-foreground line-clamp-2">
+                      {item.description}
+                    </p>
+                  </div>
+
+                  {/* View Certificate Action Button */}
+                  <button
+                    onClick={() => setSelectedAchievement(item)}
+                    className="mt-4 inline-flex items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-4 py-2 font-mono text-xs font-medium text-foreground transition-all group-hover:border-brand-green/50 group-hover:bg-brand-green/10 group-hover:text-brand-green cursor-pointer"
+                  >
+                    <span>View Certificate</span>
+                    <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
+
+      {/* Achievement Modal Lightbox */}
+      <AnimatePresence>
+        {selectedAchievement && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedAchievement(null)}
+              className="fixed inset-0 bg-black/80 backdrop-blur-md"
+            />
+
+            {/* Modal Content */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              className="glass-strong relative z-10 my-auto w-full max-w-3xl overflow-hidden rounded-2xl border border-white/15 shadow-2xl"
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between border-b border-white/10 bg-black/40 px-6 py-4">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Trophy className="h-5 w-5 shrink-0 text-brand-green" />
+                  <span className="font-display font-semibold text-foreground truncate max-w-xs sm:max-w-md">
+                    {selectedAchievement.title}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setSelectedAchievement(null)}
+                  className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white/5 text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground cursor-pointer"
+                  aria-label="Close modal"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Certificate Image Preview */}
+              <div className="relative max-h-[60vh] overflow-hidden bg-black/60 p-4 flex items-center justify-center">
+                <img
+                  src={selectedAchievement.certificate}
+                  alt={selectedAchievement.title}
+                  className="max-h-[55vh] w-auto max-w-full rounded-lg object-contain shadow-xl"
+                />
+              </div>
+
+              {/* Info & Actions */}
+              <div className="p-6">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <span className="font-mono text-xs uppercase tracking-wider text-brand-green">
+                      {selectedAchievement.organizer}
+                    </span>
+                    <h3 className="mt-1 font-display text-xl font-bold text-foreground">
+                      {selectedAchievement.title}
+                    </h3>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 font-mono text-xs font-semibold ${getStatusBadge(selectedAchievement.status).style}`}
+                    >
+                      {getStatusBadge(selectedAchievement.status).label}
+                    </span>
+                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs text-muted-foreground">
+                      {selectedAchievement.date}
+                    </span>
+                  </div>
+                </div>
+
+                <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+                  {selectedAchievement.description}
+                </p>
+
+                {/* Footer Actions */}
+                <div className="mt-6 flex flex-wrap items-center justify-end gap-3 pt-4 border-t border-white/10">
+                  <a
+                    href={selectedAchievement.certificate}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 font-mono text-xs font-semibold text-foreground hover:bg-white/10 transition-all"
+                  >
+                    <ArrowUpRight className="h-4 w-4" />
+                    Open image in new tab
+                  </a>
+                  <a
+                    href={selectedAchievement.certificate}
+                    download
+                    className="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-brand-green to-brand-cyan px-5 py-2.5 font-mono text-xs font-semibold text-background shadow-lg shadow-brand-green/20 hover:shadow-brand-green/40 transition-all"
+                  >
+                    <Download className="h-4 w-4" />
+                    Download Certificate
+                  </a>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </Section>
   );
 }

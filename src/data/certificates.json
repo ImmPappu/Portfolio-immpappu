@@ -120,6 +120,34 @@
     "downloadPath": "/certificates/aws-cloud-practitioner.jpg"
   },
   {
+    "id": "cert-adobe-university-hackathon",
+    "title": "Adobe University Hackathon",
+    "issuer": "Professional Learning Provider",
+    "issueDate": "2026-01-01",
+    "description": "Verified completion certificate for Adobe University Hackathon.",
+    "categories": [
+      "Development",
+      "Hackathon"
+    ],
+    "fileName": "adobe-university-hackathon.jpg",
+    "imagePath": "/certificates/adobe-university-hackathon.jpg",
+    "downloadPath": "/certificates/adobe-university-hackathon.jpg"
+  },
+  {
+    "id": "cert-oosc-4.0-hackathon",
+    "title": "Oosc 4.0 Hackathon",
+    "issuer": "Professional Learning Provider",
+    "issueDate": "2026-01-01",
+    "description": "Verified completion certificate for Oosc 4.0 Hackathon.",
+    "categories": [
+      "Development",
+      "Hackathon"
+    ],
+    "fileName": "oosc-4.0-hackathon.jpg",
+    "imagePath": "/certificates/oosc-4.0-hackathon.jpg",
+    "downloadPath": "/certificates/oosc-4.0-hackathon.jpg"
+  },
+  {
     "id": "cert-softpro-python",
     "title": "Python Programming Workshop",
     "issuer": "Softpro India Technologies",
